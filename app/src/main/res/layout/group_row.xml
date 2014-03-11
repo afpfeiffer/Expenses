@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content">
+ 
+    <TextView android:id="@+id/rowMonthName"
+		android:textSize="22sp"
+        android:paddingLeft="30dip"
+        android:gravity="center_vertical"
+        android:layout_width="wrap_content"
+		android:layout_height="?android:attr/listPreferredItemHeight"/>
+    
+    <TextView android:id="@+id/rowMonthExpenses"
+        android:textSize="22sp"
+        android:gravity="center_vertical"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10sp"
+        android:layout_width="wrap_content"
+        android:textColor="@android:color/holo_blue_dark"
+        android:layout_height="?android:attr/listPreferredItemHeight"/>
+ 
+</RelativeLayout>

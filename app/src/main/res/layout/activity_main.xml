@@ -1,0 +1,32 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/LinearLayout1"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    tools:context=".ActivityMain" >
+<LinearLayout 
+    android:id="@+id/LinearLayout2"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:orientation="horizontal" >   
+    
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/button_record_purchase"
+        android:onClick="recordPurchase" />
+    
+    </LinearLayout>
+
+<ExpandableListView
+    android:id="@+id/expandableListViewMain"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    </ExpandableListView>
+
+</LinearLayout>

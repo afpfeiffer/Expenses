@@ -1,0 +1,141 @@
+ECLIPSE ANDROID PROJECT IMPORT SUMMARY
+======================================
+
+Ignored Files:
+--------------
+The following files were *not* copied into the new Gradle project; you
+should evaluate whether these are still needed in your project and if
+so manually move them:
+
+* .DS_Store
+* .gitignore
+* build.gradle
+* doc/
+* doc/allclasses-frame.html
+* doc/allclasses-noframe.html
+* doc/com/
+* doc/com/pfeiffer/
+* doc/com/pfeiffer/expensesassistant/
+* doc/com/pfeiffer/expensesassistant/Barcode.html
+* doc/com/pfeiffer/expensesassistant/BuildConfig.html
+* doc/com/pfeiffer/expensesassistant/CATEGORY.html
+* doc/com/pfeiffer/expensesassistant/EnterNameActivity.html
+* doc/com/pfeiffer/expensesassistant/ExpensesSQLiteHelper.html
+* doc/com/pfeiffer/expensesassistant/IdealProduct.html
+* doc/com/pfeiffer/expensesassistant/LOCATION.html
+* doc/com/pfeiffer/expensesassistant/MainActivity.html
+* doc/com/pfeiffer/expensesassistant/Product.html
+* doc/com/pfeiffer/expensesassistant/Purchase.html
+* doc/com/pfeiffer/expensesassistant/R.attr.html
+* doc/com/pfeiffer/expensesassistant/R.dimen.html
+* doc/com/pfeiffer/expensesassistant/R.drawable.html
+* doc/com/pfeiffer/expensesassistant/R.html
+* doc/com/pfeiffer/expensesassistant/R.id.html
+* doc/com/pfeiffer/expensesassistant/R.layout.html
+* doc/com/pfeiffer/expensesassistant/R.menu.html
+* doc/com/pfeiffer/expensesassistant/R.string.html
+* doc/com/pfeiffer/expensesassistant/R.style.html
+* doc/com/pfeiffer/expensesassistant/RecordPurchaseActivity.html
+* doc/com/pfeiffer/expensesassistant/Repository.html
+* doc/com/pfeiffer/expensesassistant/Translation.html
+* doc/com/pfeiffer/expensesassistant/class-use/
+* doc/com/pfeiffer/expensesassistant/class-use/Barcode.html
+* doc/com/pfeiffer/expensesassistant/class-use/BuildConfig.html
+* doc/com/pfeiffer/expensesassistant/class-use/CATEGORY.html
+* doc/com/pfeiffer/expensesassistant/class-use/EnterNameActivity.html
+* doc/com/pfeiffer/expensesassistant/class-use/ExpensesSQLiteHelper.html
+* doc/com/pfeiffer/expensesassistant/class-use/IdealProduct.html
+* doc/com/pfeiffer/expensesassistant/class-use/LOCATION.html
+* doc/com/pfeiffer/expensesassistant/class-use/MainActivity.html
+* doc/com/pfeiffer/expensesassistant/class-use/Product.html
+* doc/com/pfeiffer/expensesassistant/class-use/Purchase.html
+* doc/com/pfeiffer/expensesassistant/class-use/R.attr.html
+* doc/com/pfeiffer/expensesassistant/class-use/R.dimen.html
+* doc/com/pfeiffer/expensesassistant/class-use/R.drawable.html
+* doc/com/pfeiffer/expensesassistant/class-use/R.html
+* doc/com/pfeiffer/expensesassistant/class-use/R.id.html
+* doc/com/pfeiffer/expensesassistant/class-use/R.layout.html
+* doc/com/pfeiffer/expensesassistant/class-use/R.menu.html
+* doc/com/pfeiffer/expensesassistant/class-use/R.string.html
+* doc/com/pfeiffer/expensesassistant/class-use/R.style.html
+* doc/com/pfeiffer/expensesassistant/class-use/RecordPurchaseActivity.html
+* doc/com/pfeiffer/expensesassistant/class-use/Repository.html
+* doc/com/pfeiffer/expensesassistant/class-use/Translation.html
+* doc/com/pfeiffer/expensesassistant/package-frame.html
+* doc/com/pfeiffer/expensesassistant/package-summary.html
+* doc/com/pfeiffer/expensesassistant/package-tree.html
+* doc/com/pfeiffer/expensesassistant/package-use.html
+* doc/constant-values.html
+* doc/deprecated-list.html
+* doc/help-doc.html
+* doc/index-files/
+* doc/index-files/index-1.html
+* doc/index-files/index-10.html
+* doc/index-files/index-11.html
+* doc/index-files/index-12.html
+* doc/index-files/index-13.html
+* doc/index-files/index-14.html
+* doc/index-files/index-15.html
+* doc/index-files/index-16.html
+* doc/index-files/index-17.html
+* doc/index-files/index-18.html
+* doc/index-files/index-19.html
+* doc/index-files/index-2.html
+* doc/index-files/index-3.html
+* doc/index-files/index-4.html
+* doc/index-files/index-5.html
+* doc/index-files/index-6.html
+* doc/index-files/index-7.html
+* doc/index-files/index-8.html
+* doc/index-files/index-9.html
+* doc/index.html
+* doc/overview-tree.html
+* doc/package-list
+* doc/resources/
+* doc/resources/inherit.gif
+* doc/stylesheet.css
+* gradle/
+* gradle/wrapper/
+* gradle/wrapper/gradle-wrapper.jar
+* gradle/wrapper/gradle-wrapper.properties
+* gradlew
+* gradlew.bat
+* ic_launcher-web.png
+* proguard-project.txt
+
+Replaced Jars with Dependencies:
+--------------------------------
+The importer recognized the following .jar files as third party
+libraries and replaced them with Gradle dependencies instead. This has
+the advantage that more explicit version information is known, and the
+libraries can be updated automatically. However, it is possible that
+the .jar file in your project was of an older version than the
+dependency we picked, which could render the project not compileable.
+You can disable the jar replacement in the import wizard and try again:
+
+android-support-v4.jar => com.android.support:support-v4:+
+
+Moved Files:
+------------
+Android Gradle projects use a different directory structure than ADT
+Eclipse projects. Here's how the projects were restructured:
+
+* AndroidManifest.xml => app/src/main/AndroidManifest.xml
+* assets/ => app/src/main/assets/
+* res/ => app/src/main/res/
+* src/ => app/src/main/java/
+
+Next Steps:
+-----------
+You can now build the project. The Gradle project needs network
+connectivity to download dependencies.
+
+Bugs:
+-----
+If for some reason your project does not build, and you determine that
+it is due to a bug or limitation of the Eclipse to Gradle importer,
+please file a bug at http://b.android.com with category
+Component-Tools.
+
+(This import summary is for your information only, and can be deleted
+after import once you are satisfied with the results.)

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+
+    <TextView
+        android:id="@+id/rowDate"
+        android:layout_width="0sp"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/black"
+        android:layout_weight="2"
+        android:textSize="15sp"
+        android:gravity="center"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/rowName"
+        android:layout_width="0sp"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/black"
+        android:layout_weight="9"
+        android:textSize="15sp"
+        android:gravity="center"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/rowTotalPrice"
+        android:layout_width="0sp"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/black"
+        android:layout_marginRight="8sp"
+        android:gravity="right"
+        android:layout_weight="3"
+        android:textSize="15sp"
+        android:text="" />
+
+</LinearLayout>
