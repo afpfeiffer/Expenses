@@ -15,18 +15,21 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:orientation="horizontal"
+style="?android:attr/buttonBarStyle"
       android:layout_marginTop="30dp" >
 
    <Button
       android:id="@+id/turnOn"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+       style="?android:attr/buttonBarButtonStyle"
       android:text="@string/blu_on" />
 
    <Button
       android:id="@+id/turnOff"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+       style="?android:attr/buttonBarButtonStyle"
       android:text="@string/blu_off" />
 
    </LinearLayout>

@@ -1,40 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">Ausgaben</string>
     <string name="action_settings">Einstellungen</string>
     <string name="button_record_purchase">Einkauf erfassen</string>
     <string name="button_next">Weiter</string>
     <string name="title_activity_enter_name">Einkauf erfassen</string>
-    <string name="hello_world">Hello world!</string>
     <string name="title_activity_record_purchase">Einkauf erfassen</string>
     <string name="purchase_name">Name</string>
-    <string name="purchase_category">Kategorie</string>
     <string name="purchase_amount">Anzahl der gekauften Einheiten:</string>
     <string name="purchase_price">Preis in €</string>
-    <string name="purchase_location">Ort</string>
     <string name="purchase_deleted">Ausgabe gelöscht</string>
     <string name="purchase_created">Ausgabe erfasst</string>
     <string name="purchase_updated">Ausgabe aktualisiert</string>
-    <string name="title_activity_display_purchases">Ausgaben</string>
     <string name="button_scan">Barcode scannen</string>
     <string name="action_sync_data">Synchronisieren (Bluetooth)</string>
     <string name="title_activity_activity_sync_data">Synchronisieren (Bluetooth)</string>
     <string name="blu_on">Ein</string>
-	<string name="blu_off">Aus</string>
-	<string name="blu_list">Liste auf</string>
-	<string name="blu_find">Finde</string>
-	<string name="blu_not_available">Bluetooth wird vom Gerät nciht unterstützt</string>
-	<string name="blu_turned_on">Bluetooth eingeschaltet</string>
-	<string name="blu_turned_off">Bluetooth ausgeschaltet</string>
-	<string name="blu_already_turned_on">Bluetooth eingeschaltet</string>
-	<string name="blu_status_turned_on">Status: eingeschaltet</string>
-	<string name="blu_status_turned_off">Status: ausgeschaltet</string>
-	<string name="blu_status_not_supported">Status: nicht unterstützt</string>
-	
-		
-	
-	
-	
-	
+    <string name="blu_off">Aus</string>
+    <string name="blu_list">Liste auf</string>
+    <string name="blu_find">Finde</string>
+    <string name="blu_not_available">Bluetooth wird vom Gerät nciht unterstützt</string>
+    <string name="blu_turned_on">Bluetooth eingeschaltet</string>
+    <string name="blu_turned_off">Bluetooth ausgeschaltet</string>
+    <string name="blu_already_turned_on">Bluetooth eingeschaltet</string>
+    <string name="blu_status_turned_on">Status: eingeschaltet</string>
+    <string name="blu_status_turned_off">Status: ausgeschaltet</string>
+    <string name="blu_status_not_supported">Status: nicht unterstützt</string>
+    <string name="title_activity_activity_pie_chart">ActivityPieChart</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="button_statistik">Statistik</string>
 
 </resources>

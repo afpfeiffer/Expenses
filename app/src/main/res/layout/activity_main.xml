@@ -3,12 +3,11 @@
     android:id="@+id/LinearLayout1"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@android:color/white"
     android:orientation="vertical"
     tools:context=".ActivityMain" >
-<LinearLayout 
+<LinearLayout
     android:id="@+id/LinearLayout2"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@android:color/white"
     android:orientation="horizontal" >   
@@ -17,10 +16,17 @@
         android:id="@+id/button1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
+        android:layout_weight="1"
         android:text="@string/button_record_purchase"
         android:onClick="recordPurchase" />
-    
+
+    <Button
+        android:id="@+id/buttonStatistik"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/button_statistik"
+        android:onClick="statistik" />
     </LinearLayout>
 
 <ExpandableListView

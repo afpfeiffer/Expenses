@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.pfeiffer.expensesassistant"
+    package="com.pfeiffer.expenses"
     android:versionCode="1"
     android:versionName="1.0" >
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="17" />
+        android:targetSdkVersion="19" />
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -17,7 +17,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.pfeiffer.expensesassistant.ActivityMain"
+            android:name="com.pfeiffer.expenses.ActivityMain"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,16 +26,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.pfeiffer.expensesassistant.ActivityEnterName"
+            android:name="com.pfeiffer.expenses.ActivityEnterName"
             android:label="@string/title_activity_enter_name" >
         </activity>
         <activity
-            android:name="com.pfeiffer.expensesassistant.ActivityRecordPurchase"
+            android:name="com.pfeiffer.expenses.ActivityRecordPurchase"
             android:label="@string/title_activity_record_purchase" >
         </activity>
         <activity
-            android:name="com.pfeiffer.expensesassistant.ActivitySyncData"
+            android:name="com.pfeiffer.expenses.ActivitySyncData"
             android:label="@string/title_activity_activity_sync_data" >
+        </activity>
+        <activity
+            android:name="com.pfeiffer.expenses.ActivityPieChart"
+            android:label="@string/title_activity_activity_pie_chart" >
         </activity>
     </application>
 
