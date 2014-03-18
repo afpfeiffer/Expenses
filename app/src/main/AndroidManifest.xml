@@ -26,10 +26,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.ActivityEnterName"
-            android:label="@string/title_activity_enter_name" >
-        </activity>
-        <activity
             android:name=".activity.ActivityRecordPurchase"
             android:label="@string/title_activity_record_purchase" >
         </activity>
