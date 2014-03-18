@@ -20,7 +20,7 @@
     <string name="blu_off">Aus</string>
     <string name="blu_list">Liste auf</string>
     <string name="blu_find">Finde</string>
-    <string name="blu_not_available">Bluetooth wird vom Gerät nciht unterstützt</string>
+    <string name="blu_not_available">Bluetooth wird vom Gerät nicht unterstützt</string>
     <string name="blu_turned_on">Bluetooth eingeschaltet</string>
     <string name="blu_turned_off">Bluetooth ausgeschaltet</string>
     <string name="blu_already_turned_on">Bluetooth eingeschaltet</string>
@@ -30,5 +30,7 @@
     <string name="title_activity_activity_pie_chart">ActivityPieChart</string>
     <string name="hello_world">Hello world!</string>
     <string name="button_statistik">Statistik</string>
+    <string name="values_not_valid">Bitte alle Felder ausfüllen</string>
+    <string name="price_not_valid">Der eingegebene Preis ist nicht gültig</string>
 
 </resources>
