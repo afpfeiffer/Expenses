@@ -45,7 +45,6 @@ public class ActivityRecordPurchase extends Activity {
     private RepositoryManager repository_;
     private String barcodeString_;
     private Product productFromDatabase_;
-    private boolean editMode_ = false;
     private Button scanButton_;
     private EditText name_;
     private Spinner category_;
@@ -55,6 +54,9 @@ public class ActivityRecordPurchase extends Activity {
     private CheckBox cash_;
     private TextView barcodeAvailable_;
     private String purchaseId_ = null;
+
+    private boolean editMode_ = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -238,11 +240,11 @@ public class ActivityRecordPurchase extends Activity {
 
                 Log.d(logTag_, "Scan result: " + contents);
 
-                Intent recordPurchasesIntent = new Intent(this, ActivityRecordPurchase.class);
-                recordPurchasesIntent.putExtra(EXTRA_BARCODE, contents);
-
-                startActivity(recordPurchasesIntent);
-
+                if (contents != null && !contents.equals("")) {
+                    barcodeString_ = contents;
+                    scanButton_.setVisibility(View.INVISIBLE);
+                    barcodeAvailable_.setVisibility(View.VISIBLE);
+                }
             } else if (resultCode == RESULT_CANCELED) {
                 // TODO Handle cancel
             }
