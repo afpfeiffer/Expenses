@@ -1,41 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
     package="com.pfeiffer.expenses"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.0">
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="19"/>
 
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
-            android:name=".activity.ActivityMain"
-            android:label="@string/app_name" >
+            android:name="com.pfeiffer.expenses.activity.ActivityMain"
+            android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.ActivityRecordPurchase"
-            android:label="@string/title_activity_record_purchase" >
+            android:name="com.pfeiffer.expenses.activity.ActivityRecordPurchase"
+            android:label="@string/title_activity_record_purchase">
         </activity>
         <activity
-            android:name=".activity.ActivitySyncData"
-            android:label="@string/title_activity_activity_sync_data" >
+            android:name="com.pfeiffer.expenses.activity.ActivitySyncData"
+            android:label="@string/title_activity_activity_sync_data">
         </activity>
         <activity
-            android:name=".activity.ActivityPieChart"
-            android:label="@string/title_activity_activity_pie_chart" >
+            android:name="com.pfeiffer.expenses.activity.ActivityPieChart"
+            android:label="@string/title_activity_activity_pie_chart">
+        </activity>
+        <activity
+            android:name="com.pfeiffer.expenses.activity.ActivityLineChart"
+            android:label="@string/title_activity_activity_line_chart">
         </activity>
     </application>
 

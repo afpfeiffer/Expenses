@@ -32,5 +32,8 @@
     <string name="button_statistik">Statistik</string>
     <string name="values_not_valid">Bitte alle Felder ausfüllen</string>
     <string name="price_not_valid">Der eingegebene Preis ist nicht gültig</string>
+    <string name="title_activity_activity_line_chart">ActivityLineChart</string>
+    <string name="paidInCash">Barzahlung</string>
+    <string name="barcodeScanned">Barcode gespeichert</string>
 
 </resources>
