@@ -7,11 +7,13 @@ import android.util.Log;
 import com.pfeiffer.expenses.model.Barcode;
 import com.pfeiffer.expenses.model.CATEGORY;
 import com.pfeiffer.expenses.model.Product;
-import com.pfeiffer.expenses.repository.ExpensesSQLiteHelper.QueryBuilder;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 class RepositoryProduct extends RepositoryBase {
+
+    private final String logTag_=this.getClass().getName();
 
     private final String[] allProductColumns_ = {ExpensesSQLiteHelper.PRODUCT_ID, ExpensesSQLiteHelper.PRODUCT_NAME,
             ExpensesSQLiteHelper.PRODUCT_CATEGORY, ExpensesSQLiteHelper.PRODUCT_PRICE,
@@ -23,78 +25,15 @@ class RepositoryProduct extends RepositoryBase {
 
     private Product cursorToProduct(Cursor cursor) {
         // Auto-generated method stub
-        Log.d(this.getClass().getName(), "Enter method cursorToProduct().");
+        Log.d(logTag_, "Enter method cursorToProduct().");
         Product ret = new Product(cursor.getInt(0), cursor.getString(1),
-                CATEGORY.valueOf(cursor.getString(2)), cursor.getString(3), cursor.getString(4));
+                CATEGORY.valueOf(cursor.getString(2)), cursor.getString(3), new Barcode(cursor.getString(4)));
 
-        Log.d(this.getClass().getName(), "Method cursorToProduct() returns value '" + ret + "'.");
+        Log.d(logTag_, "Method cursorToProduct() returns value '" + ret + "'.");
         return ret;
     }
 
-    Product findProduct(int id) {
-        if (id <= 0)
-            throw new IllegalArgumentException();
-
-        return findProduct(id, null, null, null);
-    }
-
-    Product findProduct(Barcode barcode) {
-        if (barcode == null || barcode.equals(""))
-            throw new IllegalArgumentException();
-
-        return findProduct(-1, null, null, barcode.toString());
-    }
-
-    Product findProduct(String name) {
-        if (name == null || name.equals(""))
-            throw new IllegalArgumentException();
-
-        return findProduct(-1, name, null, null);
-    }
-
-    Product findProduct(int id, String name, String price, String barcode) {
-        Log.d(this.getClass().getName(), "Enter method findProduct() with arguments id=" + id + ", name=" + name
-                + ", price=" + price + ", barcode=" + barcode + ".");
-
-        QueryBuilder qb = dbHelper_.new QueryBuilder();
-        if (id > -1)
-            qb.addWhere(ExpensesSQLiteHelper.PRODUCT_ID, Integer.toString(id));
-        if (name != null && !name.equals(""))
-            qb.addWhere(ExpensesSQLiteHelper.PRODUCT_NAME, name);
-        if (price != null && !price.equals(""))
-            qb.addWhere(ExpensesSQLiteHelper.PRODUCT_PRICE, price);
-        if (barcode != null && !barcode.equals(""))
-            qb.addWhere(ExpensesSQLiteHelper.PRODUCT_BARCODE, barcode);
-
-        String whereString = qb.getWhere();
-        String[] whereArgs = qb.getWhereArgs();
-        Log.d(this.getClass().getName(), "Where clause: " + whereString + " with arguments: " + Arrays.toString(whereArgs));
-        if (whereString == null || whereString.equals("") || whereString.equals(" "))
-            throw new IllegalArgumentException("Methdod findProduct was called with illigeal arguments.");
-
-        Cursor cursor = database_.query(
-                ExpensesSQLiteHelper.TABLE_PRODUCT,
-                allProductColumns_,
-                whereString,
-                whereArgs,
-                null, // e. group by
-                null, // f. having
-                null, // g. order by
-                null); // h. limit
-        // 3. if we got results get the first one
-        if (cursor != null && cursor.getCount() > 0) {
-
-            cursor.moveToFirst();
-            Product ret = cursorToProduct(cursor);
-            Log.d(this.getClass().getName(), "Method findProduct() returns value '" + ret + "'.");
-            return ret;
-        }
-
-        Log.d(this.getClass().getName(), "Method findProduct() could not retrieve any Product and returns 'null'.");
-        return null;
-    }
-
-    private Product createProduct(String name, CATEGORY category, String price, String barcode) {
+    private Product createProduct(String name, CATEGORY category, String price, Barcode barcode) {
         Log.d(this.getClass().getName(), "Enter method createProduct with arguments name=" + name + ", category="
                 + category + ", price=" + price + ", barcode=" + barcode + ".");
 
@@ -109,13 +48,11 @@ class RepositoryProduct extends RepositoryBase {
         values.put(ExpensesSQLiteHelper.PRODUCT_NAME, name);
         values.put(ExpensesSQLiteHelper.PRODUCT_CATEGORY, category.name());
         values.put(ExpensesSQLiteHelper.PRODUCT_PRICE, price);
-        values.put(ExpensesSQLiteHelper.PRODUCT_BARCODE, barcode);
-
-        Log.d(this.getClass().getName(), "Create row in databse table " + ExpensesSQLiteHelper.TABLE_PRODUCT + ".");
+        values.put(ExpensesSQLiteHelper.PRODUCT_BARCODE, barcode.toString());
 
         long insertId = database_.insert(ExpensesSQLiteHelper.TABLE_PRODUCT, null, values);
 
-        Log.d(this.getClass().getName(), "Database returns id '" + insertId + "'.");
+        Log.d(logTag_, "Database returns id '" + insertId + "'.");
 
         Cursor cursor = database_.query(
                 ExpensesSQLiteHelper.TABLE_PRODUCT,
@@ -129,12 +66,11 @@ class RepositoryProduct extends RepositoryBase {
         Product newProduct = cursorToProduct(cursor);
         cursor.close();
 
-        Log.d(this.getClass().getName(), "Method createProduct() returns value '" + newProduct + "'.");
         return newProduct;
     }
 
-    boolean updateProduct(int id, String name, CATEGORY category, String price, String barcode) {
-        Log.d(this.getClass().getName(), "Enter method updateProduct with arguments id=" + id + ", name=" + name
+    boolean updateProduct(int id, String name, CATEGORY category, String price, Barcode barcode) {
+        Log.d(logTag_, "Enter method updateProduct with arguments id=" + id + ", name=" + name
                 + ", category=" + category + ", price=" + price + ", barcode=" + barcode + ".");
 
         if (id < 0)
@@ -148,7 +84,9 @@ class RepositoryProduct extends RepositoryBase {
         if (price != null && !price.equals(""))
             values.put(ExpensesSQLiteHelper.PRODUCT_PRICE, price);
         if (barcode != null && !barcode.equals(""))
-            values.put(ExpensesSQLiteHelper.PRODUCT_BARCODE, barcode);
+            values.put(ExpensesSQLiteHelper.PRODUCT_BARCODE, barcode.toString());
+
+        Log.d(logTag_, "Update values "+values);
 
         int rowsAffected = database_.update(
                 ExpensesSQLiteHelper.TABLE_PRODUCT,
@@ -156,11 +94,13 @@ class RepositoryProduct extends RepositoryBase {
                 ExpensesSQLiteHelper.PRODUCT_ID + "=" + id,
                 null);
 
+        Log.d(logTag_, "Update affected "+rowsAffected+" row(s).");
+
         return (rowsAffected == 1);
     }
 
-    Product findOrCreateProduct(String name, CATEGORY category, String price, String barcode) {
-        Log.d(this.getClass().getName(), "Enter method findOrCreateProduct with arguments name=" + name
+    Product updateOrCreateProduct(String name, CATEGORY category, String price, Barcode barcode) {
+        Log.d(logTag_, "Enter method updateOrCreateProduct with arguments name=" + name
                 + ", category=" + category + ", price=" + price + ", barcode=" + barcode + ".");
 
         if (name == null || name.equals(""))
@@ -172,28 +112,65 @@ class RepositoryProduct extends RepositoryBase {
 
         // if barcode is known, return the associated Product.
         if (barcode != null && !barcode.equals("")) {
-            Product temporaryProduct = findProduct(-1, null, null, barcode);
+            Product temporaryProduct = findProduct(ExpensesSQLiteHelper.PRODUCT_BARCODE, barcode.toString());
             // If the barcode is defined, we either have an existing product
             // with this barcode, or we need to create one.
             if (temporaryProduct != null) {
-                Log.d(this.getClass().getName(), "Method findOrCreateProduct() returns found Product "
-                        + temporaryProduct + ".");
+                Log.d(this.getClass().getName(), "Method updateOrCreateProduct() obtained the product with id "
+                        + temporaryProduct.getId() + ".");
                 updateProduct(temporaryProduct.getId(), name, category, price, barcode);
-                return temporaryProduct;
-            }
-        } else {
-            Product temporaryProduct = findProduct(-1, name, price, null);
-            // if we don't have a barcode for our new product, we only want to
-            // reuse an old one, if it has no barcode either (e.g. coffee 2 go).
-            if (temporaryProduct != null && temporaryProduct.getBarcode() == null) {
-                Log.d(this.getClass().getName(), "Method findOrCreateProduct() returns found Product "
-                        + temporaryProduct + ".");
-                return temporaryProduct;
+                // return product after db update
+                return findProduct(ExpensesSQLiteHelper.PRODUCT_ID, String.valueOf(temporaryProduct.getId()));
             }
         }
         Product ret = createProduct(name, category, price, barcode);
-        Log.d(this.getClass().getName(), "Method findOrCreateProduct() returns created Product " + ret + ".");
+        Log.d(logTag_, "Method updateOrCreateProduct() created a product with id " + ret.getId() +
+                ".");
         return ret;
+    }
+
+    Product findProduct(String searchField, String searchValue) {
+        Log.d(logTag_, "Enter method findProduct() with argument field=" + searchField + ", value="
+                + searchValue + ".");
+
+        Cursor cursor = database_.query(ExpensesSQLiteHelper.TABLE_PRODUCT, allProductColumns_, " " + searchField
+                        + " = ?", new String[]{searchValue}, null, null, null, null
+        );
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            Product ret = cursorToProduct(cursor);
+            Log.d(logTag_, "Method findProduct() returns value '" + ret + "'.");
+            return ret;
+        }
+
+        Log.d(logTag_, "Method findProduct() could not retrieve any Product and returns 'null'.");
+        return null;
+    }
+
+    public List<Product> getAllProducts() {
+        // TODO log entry
+        List<Product> products = new ArrayList<Product>();
+        String orderBy = ExpensesSQLiteHelper.PRODUCT_ID + " DESC";
+
+        Cursor cursor = database_.query(
+                ExpensesSQLiteHelper.TABLE_PRODUCT,
+                allProductColumns_,
+                null,
+                null,
+                null,
+                null,
+                orderBy);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            Product product = cursorToProduct(cursor);
+            products.add(product);
+            cursor.moveToNext();
+        }
+        cursor.close();
+        // TODO log exit
+        return products;
     }
 
 }

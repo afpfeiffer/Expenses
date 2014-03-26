@@ -69,7 +69,7 @@ public class ActivityMain extends Activity {
             for (Purchase purchase : values) {
 
                 // obtain product
-                Product product = repositoryManager_.findProduct(purchase.getProductId());
+                Product product = repositoryManager_.findProductById(purchase.getProductId());
 
                 String monthYear = purchase.getDate().substring(0, 7);
                 Log.d(logTag_, "Purchase " + purchase + " has monthYear=" + monthYear);

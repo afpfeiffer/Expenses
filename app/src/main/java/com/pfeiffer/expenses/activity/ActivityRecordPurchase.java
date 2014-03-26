@@ -115,10 +115,10 @@ public class ActivityRecordPurchase extends Activity {
     private void fillUi() {
 
         if (editMode_) {
-            Purchase purchase = repositoryManager_.findPurchase(Integer.parseInt(purchaseId_));
+            Purchase purchase = repositoryManager_.findPurchaseById(Integer.parseInt(purchaseId_));
             if (purchase == null)
                 throw new IllegalStateException();
-            productFromDatabase_ = repositoryManager_.findProduct(purchase.getProductId());
+            productFromDatabase_ = repositoryManager_.findProductById(purchase.getProductId());
             if (productFromDatabase_ == null)
                 throw new IllegalStateException();
             setFields(
@@ -196,7 +196,7 @@ public class ActivityRecordPurchase extends Activity {
 
             if (editMode_) {
                 repositoryManager_.updatePurchase(Integer.parseInt(purchaseId_), price, amount, location, cash);
-                repositoryManager_.updateProduct(productFromDatabase_.getId(), null, category, null, null);
+                repositoryManager_.updateProduct(productFromDatabase_.getId(), null, category, price, null);
 
                 Toast.makeText(this, R.string.purchase_updated, Toast.LENGTH_SHORT).show();
             } else {
@@ -206,7 +206,8 @@ public class ActivityRecordPurchase extends Activity {
                 SimpleDateFormat sdf = new SimpleDateFormat(Translation.getDatbaseDateFormat());
                 String date = sdf.format(c.getTime());
 
-                repositoryManager_.createPurchase(name, category, price, barcodeString_, amount, date, location, cash);
+                repositoryManager_.createPurchase(name, category, price, new Barcode(barcodeString_), amount, date,
+                        location, cash);
                 Toast.makeText(this, R.string.purchase_created, Toast.LENGTH_SHORT).show();
             }
 
@@ -232,10 +233,10 @@ public class ActivityRecordPurchase extends Activity {
                     barcodeStatus_.setVisibility(View.VISIBLE);
 
                     repositoryManager_.open();
-                    productFromDatabase_ = repositoryManager_.findProduct(new Barcode(barcodeString_));
+                    productFromDatabase_ = repositoryManager_.findProductByBarcode(new Barcode(barcodeString_));
                     // only continue if a product could be obtained
                     if (productFromDatabase_ != null) {
-                        Purchase purchaseFromDatabase = repositoryManager_.findPurchase(productFromDatabase_.getId());
+                        Purchase purchaseFromDatabase = repositoryManager_.findPurchaseByProductId(productFromDatabase_.getId());
                         setFields(
                                 productFromDatabase_.getName(),
                                 productFromDatabase_.getCategory(),

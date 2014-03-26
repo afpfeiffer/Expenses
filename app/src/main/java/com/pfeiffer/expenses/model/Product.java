@@ -13,9 +13,9 @@ public class Product {
     private CATEGORY category_;
     private String name_;
 
-    public Product(int id, String name, CATEGORY category, String price, String barcode) {
+    public Product(int id, String name, CATEGORY category, String price, Barcode barcode) {
         id_ = id;
-        barcode_ = new Barcode(barcode);
+        barcode_ = barcode;
         price_ = price;
         category_ = category;
         name_ = name;
@@ -56,5 +56,9 @@ public class Product {
 
     public void setCategory(CATEGORY category) {
         category_ = category;
+    }
+
+    public boolean hasBarcode(){
+        return barcode_!=null;
     }
 }

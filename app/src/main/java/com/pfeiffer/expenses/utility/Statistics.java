@@ -46,7 +46,7 @@ public class Statistics {
         for (Purchase purchase : purchaseList_) {
 
             // obtain product
-            Product product = repositoryManager_.findProduct(purchase.getProductId());
+            Product product = repositoryManager_.findProductById(purchase.getProductId());
 
             String monthYear = purchase.getDate().substring(0, 7);
 

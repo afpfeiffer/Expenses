@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;
 
-import com.pfeiffer.expenses.model.CATEGORY;
 import com.pfeiffer.expenses.model.LOCATION;
 import com.pfeiffer.expenses.model.Purchase;
 
@@ -12,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 class RepositoryPurchase extends RepositoryBase {
+    private final String logTag_ = this.getClass().getName();
+
+
     private final String[] allPurchaseColumns_ = {ExpensesSQLiteHelper.PURCHASE_ID,
             ExpensesSQLiteHelper.PURCHASE_PRODUCT_ID, ExpensesSQLiteHelper.PURCHASE_AMOUNT,
             ExpensesSQLiteHelper.PURCHASE_DATE, ExpensesSQLiteHelper.PURCHASE_LOCATION,
@@ -21,45 +23,21 @@ class RepositoryPurchase extends RepositoryBase {
         super(dbHelper);
     }
 
-    boolean updatePurchase(int purchaseId, String price, int amount, LOCATION location, boolean cash) {
-        Log.d(this.getClass().getName(), "Enter method updatePurchase with arguments purchaseId=" + purchaseId
-                + ", price=" + price + ", amount=" + amount + ", location=" + location + ", cash=" + cash + ".");
 
-        if (purchaseId <= 0)
-            throw new IllegalArgumentException("Value productId is infalid (<=0).");
-        if (amount <= 0)
-            throw new IllegalArgumentException("Amount must be greater than 0.");
-        if (location == null || location.toString().equals(""))
-            throw new IllegalArgumentException("Location must be defined.");
+    private Purchase cursorToPurchase(Cursor cursor) {
 
-        ContentValues values = new ContentValues();
-        values.put(ExpensesSQLiteHelper.PURCHASE_AMOUNT, amount);
-        values.put(ExpensesSQLiteHelper.PURCHASE_LOCATION, location.name());
-        values.put(ExpensesSQLiteHelper.PURCHASE_PRICE, String.valueOf(price));
-        values.put(ExpensesSQLiteHelper.PURCHASE_CASH, (cash) ? 1 : 0);
+        if (cursor.isAfterLast())
+            throw new IllegalStateException("Database cursor out of bounds.");
 
-        int rowsAffected = database_.update(
-                ExpensesSQLiteHelper.TABLE_PURCHASE,
-                values,
-                ExpensesSQLiteHelper.PURCHASE_ID + "=" + purchaseId,
-                null);
-
-        return (rowsAffected == 1);
+        return new Purchase(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getString(3),
+                LOCATION.valueOf(cursor.getString(4)), cursor.getString(5), (cursor.getInt(6)) == 1);
     }
 
-    Purchase createPurchase(
-            int productId,
-            String name,
-            CATEGORY category,
-            String price,
-            String barcode,
-            int amount,
-            String date,
-            LOCATION location,
-            boolean cash) {
-        Log.d(this.getClass().getName(), "Enter method createPurchase with arguments productId=" + productId
-                + ", name=" + name + ", category=" + category + ", price=" + price + ", barcode=" + barcode
-                + ", amount=" + amount + ", date=" + date + ", location=" + location + ", cash=" + cash + ".");
+
+    Purchase createPurchase(int productId, String price, int amount, String date, LOCATION location, boolean cash) {
+
+        Log.d(logTag_, "Enter method createPurchase with arguments productId=" + productId
+                + ", price=" + price + ", amount=" + amount + ", date=" + date + ", location=" + location + ", cash=" + cash + ".");
 
         if (productId <= 0)
             throw new IllegalArgumentException("Value productId is infalid (<=0).");
@@ -78,12 +56,7 @@ class RepositoryPurchase extends RepositoryBase {
         values.put(ExpensesSQLiteHelper.PURCHASE_PRICE, String.valueOf(price));
         values.put(ExpensesSQLiteHelper.PURCHASE_CASH, (cash) ? 1 : 0);
 
-
-        Log.d(this.getClass().getName(), "Create row in databse table " + ExpensesSQLiteHelper.TABLE_PURCHASE + ".");
-
         long insertId = database_.insert(ExpensesSQLiteHelper.TABLE_PURCHASE, null, values);
-
-        Log.d(this.getClass().getName(), "Database returns id '" + insertId + "'.");
 
         Cursor cursor = database_.query(
                 ExpensesSQLiteHelper.TABLE_PURCHASE,
@@ -98,34 +71,59 @@ class RepositoryPurchase extends RepositoryBase {
         Purchase newPurchase = cursorToPurchase(cursor);
         cursor.close();
 
-        Log.d(this.getClass().getName(), "Method createPurchase() returns value '" + newPurchase + "'.");
+        Log.d(logTag_, "Method createPurchase() returns value '" + newPurchase + "'.");
         return newPurchase;
     }
 
-    private Purchase cursorToPurchase(Cursor cursor) {
-        Log.d(this.getClass().getName(), "Enter method cursorToPurchase().");
 
-        if (cursor.isAfterLast())
-            throw new IllegalStateException("Database cursor out of bounds.");
+    boolean updatePurchase(int purchaseId, String price, int amount, LOCATION location, boolean cash) {
+        Log.d(logTag_, "Enter method updatePurchase with arguments purchaseId=" + purchaseId
+                + ", price=" + price + ", amount=" + amount + ", location=" + location + ", cash=" + cash + ".");
 
-        return new Purchase(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getString(3),
-                LOCATION.valueOf(cursor.getString(4)), cursor.getString(5), (cursor.getInt(6)) == 1);
+        if (purchaseId <= 0)
+            throw new IllegalArgumentException("Value productId is infalid (<=0).");
+        if (amount <= 0)
+            throw new IllegalArgumentException("Amount must be greater than 0.");
+        if (location == null || location.toString().equals(""))
+            throw new IllegalArgumentException("Location must be defined.");
+
+        ContentValues values = new ContentValues();
+        values.put(ExpensesSQLiteHelper.PURCHASE_AMOUNT, amount);
+        values.put(ExpensesSQLiteHelper.PURCHASE_LOCATION, location.name());
+        values.put(ExpensesSQLiteHelper.PURCHASE_PRICE, String.valueOf(price));
+        values.put(ExpensesSQLiteHelper.PURCHASE_CASH, (cash) ? 1 : 0);
+
+        Log.d(logTag_, "Update values " + values);
+
+        int rowsAffected = database_.update(
+                ExpensesSQLiteHelper.TABLE_PURCHASE,
+                values,
+                ExpensesSQLiteHelper.PURCHASE_ID + "=" + purchaseId,
+                null);
+
+        Log.d(logTag_, "Update affected " + rowsAffected + " row(s).");
+
+
+        return (rowsAffected == 1);
     }
 
-    List<Purchase> getAllPurchases() {
-        // TODO log entry
+    Purchase findLatestPurchase(String searchField, String searchValue) {
+        List<Purchase> temp = findPurchases(searchField, searchValue);
+        return (temp.size() > 0) ? temp.get(0) : null;
+    }
+
+    List<Purchase> findPurchases(String searchField, String searchValue) {
+        Log.d(logTag_, "Enter method findPurchases() with argument field=" + searchField + ", value="
+                + searchValue + ".");
+        String orderBy = ExpensesSQLiteHelper.PURCHASE_DATE + " DESC";
+        Cursor cursor = null;
+        if (searchField != null && !searchField.equals(""))
+            cursor = database_.query(ExpensesSQLiteHelper.TABLE_PURCHASE, allPurchaseColumns_, " " + searchField
+                    + " = ?", new String[]{searchValue}, null, null, orderBy, null);
+        else
+            cursor = database_.query(ExpensesSQLiteHelper.TABLE_PURCHASE, allPurchaseColumns_, null, null, null, null, orderBy);
+
         List<Purchase> purchases = new ArrayList<Purchase>();
-        String orderBy = ExpensesSQLiteHelper.PURCHASE_ID + " DESC";
-
-        Cursor cursor = database_.query(
-                ExpensesSQLiteHelper.TABLE_PURCHASE,
-                allPurchaseColumns_,
-                null,
-                null,
-                null,
-                null,
-                orderBy);
-
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             Purchase purchase = cursorToPurchase(cursor);
@@ -133,45 +131,18 @@ class RepositoryPurchase extends RepositoryBase {
             cursor.moveToNext();
         }
         cursor.close();
-        // TODO log exit
         return purchases;
     }
 
-    Purchase findPurchase(int purcahseId) {
-        return findPurchase(ExpensesSQLiteHelper.PURCHASE_ID, String.valueOf(purcahseId));
+
+    List<Purchase> getAllPurchases() {
+        return findPurchases(null, null);
     }
 
-    private Purchase findPurchase(String searchField, String searchValue) {
-        Log.d(this.getClass().getName(), "Enter method findPurchase() with argument field=" + searchField + ", value="
-                + searchValue + ".");
-        String orderBy = ExpensesSQLiteHelper.PURCHASE_DATE + " DESC";
-        Cursor cursor = database_.query(ExpensesSQLiteHelper.TABLE_PURCHASE, allPurchaseColumns_, " " + searchField
-                        + " = ?", new String[]{searchValue}, null, // e. group by
-                null, // f. having
-                orderBy, // g. order by
-                null
-        ); // h. limit
-        // 3. if we got results get the first one
-        if (cursor != null && cursor.getCount() > 0) {
-
-            cursor.moveToFirst();
-            Purchase ret = cursorToPurchase(cursor);
-            Log.d(this.getClass().getName(), "Method findPurchase() returns value '" + ret + "'.");
-            cursor.close();
-            return ret;
-        }
-        assert cursor != null;
-        cursor.close();
-        Log.d(
-                this.getClass().getName(),
-                "Method findPurchase() could not retrieve the according Purchase and returns 'null'.");
-
-        return null;
-    }
 
     int deletePurchase(int purchaseId) {
         // TODO Auto-generated method stub
-        Log.d(this.getClass().getName(), "Enter method deletePurchase() with argument id=" + purchaseId + ".");
+        Log.d(logTag_, "Enter method deletePurchase() with argument id=" + purchaseId + ".");
 
         return database_.delete(
                 ExpensesSQLiteHelper.TABLE_PURCHASE,

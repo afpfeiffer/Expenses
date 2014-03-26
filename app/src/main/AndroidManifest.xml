@@ -42,6 +42,7 @@
             android:name="com.pfeiffer.expenses.activity.ActivityLineChart"
             android:label="@string/title_activity_activity_line_chart">
         </activity>
+        <service android:name=".service.UpdatePurchaseTemplates"></service>
     </application>
 
 </manifest>

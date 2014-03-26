@@ -34,8 +34,23 @@ public class ExpensesSQLiteHelper extends SQLiteOpenHelper {
             + " integer primary key autoincrement, " + PURCHASE_PRODUCT_ID + " integer not null," + PURCHASE_AMOUNT
             + " integer not null," + PURCHASE_DATE + " text not null," + PURCHASE_LOCATION + " text not null,"
             + PURCHASE_PRICE + " text not null," + PURCHASE_CASH + " int unsigned not null);";
+
+    public static final String TABLE_PURCHASE_TEMPLATES = "purchaseTemplates";
+    public static final String PURCHASE_TEMPLATES_ID = "id";
+    public static final String PURCHASE_TEMPLATES_PRODUCT_ID = "productId";
+    public static final String PURCHASE_TEMPLATES_AMOUNT = "amount";
+    public static final String PURCHASE_TEMPLATES_LOCATION = "location";
+    public static final String PURCHASE_TEMPLATES_PRICE = "totalPrice";
+    private static final String CREATE_PURCHASE_TEMPLATES_TABLE = "create table " + TABLE_PURCHASE_TEMPLATES  + "(" + PURCHASE_TEMPLATES_ID
+            + " integer primary key autoincrement, " + PURCHASE_TEMPLATES_PRODUCT_ID + " integer not null," + PURCHASE_TEMPLATES_AMOUNT
+            + " integer not null," + PURCHASE_TEMPLATES_LOCATION + " text not null,"
+            + PURCHASE_TEMPLATES_PRICE + " text not null);";
+
+
+
+
     private static final String DATABASE_NAME = "expenses.db";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
 
     public ExpensesSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -44,17 +59,19 @@ public class ExpensesSQLiteHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
         Log.i(ExpensesSQLiteHelper.class.getName(), "Creating Database with SQL statement: " + CREATE_PRODUCT_TABLE
-                + ", " + CREATE_PURCHASE_TABLE);
-        database.execSQL(CREATE_PRODUCT_TABLE);
-        database.execSQL(CREATE_PURCHASE_TABLE);
+                + ", " + CREATE_PURCHASE_TABLE+ ", "+CREATE_PURCHASE_TEMPLATES_TABLE);
+//        database.execSQL(CREATE_PRODUCT_TABLE);
+//        database.execSQL(CREATE_PURCHASE_TABLE);
+        database.execSQL(CREATE_PURCHASE_TEMPLATES_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.w(ExpensesSQLiteHelper.class.getName(), "Upgrading database from version " + oldVersion + " to "
                 + newVersion + ", which will destroy all old data");
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCT);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PURCHASE);
+//        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCT);
+//        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PURCHASE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PURCHASE_TEMPLATES);
         onCreate(db);
     }
 

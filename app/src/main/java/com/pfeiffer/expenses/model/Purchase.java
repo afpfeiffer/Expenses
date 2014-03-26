@@ -7,7 +7,7 @@ import com.pfeiffer.expenses.utility.Translation;
 
 public class Purchase {
     final boolean cash_;
-    final private int purchaseId_;
+    private int purchaseId_;
     final private int productId_;
     final private int amount_;
     final private String date_;
@@ -57,6 +57,10 @@ public class Purchase {
 
     public boolean isCash() {
         return cash_;
+    }
+
+    public Purchase getReadOnlyCopy() {
+        return new Purchase(-1, productId_,amount_, date_, location_, price_, cash_);
     }
 
     public String getTotalPrice() {
