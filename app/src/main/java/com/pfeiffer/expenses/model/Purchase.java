@@ -15,12 +15,14 @@ public class Purchase {
     final private LOCATION location_;
     final private String price_;
     final private Date purchaseDate_;
+    final private String productName_;
+    final private CATEGORY category_;
 
     public Purchase(int purchaseId, int productId, int amount, Date date, LOCATION location, String price,
-                    boolean cash) {
+                    boolean cash, String productName, CATEGORY category) {
         Log.d(this.getClass().getName(), "Enter Purchase constructor with arguments: purchaseId=" + purchaseId
                 + ", productId=" + productId + ", amount=" + amount + ", date=" + date + ", location=" + location
-                + ", price=" + price + ", cash=" + cash + ".");
+                + ", price=" + price + ", cash=" + cash + ", productName="+productName+", category="+category+".");
 
         // TODO check arguments, throw exceptions
 
@@ -31,6 +33,8 @@ public class Purchase {
         location_ = location;
         price_ = price;
         cash_ = cash;
+        productName_=productName;
+        category_=category;
     }
 
     public Date getDate() {
@@ -61,9 +65,11 @@ public class Purchase {
         return cash_;
     }
 
-    public Purchase getReadOnlyCopy() {
-        return new Purchase(-1, productId_,amount_, purchaseDate_, location_, price_, cash_);
-    }
+    public String getProductName(){ return productName_;}
+
+    public CATEGORY getCategory() { return category_;}
+
+    public boolean hasProductAttached(){ return productId_>0;}
 
     public String getTotalPrice() {
         return Translation.getValidPrice(String.valueOf(Double.parseDouble(price_) * amount_));

@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;
 
+import com.pfeiffer.expenses.model.CATEGORY;
 import com.pfeiffer.expenses.model.LOCATION;
 import com.pfeiffer.expenses.model.Purchase;
 
@@ -18,7 +19,8 @@ class RepositoryPurchase extends RepositoryBase {
     private final String[] allPurchaseColumns_ = {ExpensesSQLiteHelper.PURCHASE_ID,
             ExpensesSQLiteHelper.PURCHASE_PRODUCT_ID, ExpensesSQLiteHelper.PURCHASE_AMOUNT,
             ExpensesSQLiteHelper.PURCHASE_DATE, ExpensesSQLiteHelper.PURCHASE_LOCATION,
-            ExpensesSQLiteHelper.PURCHASE_PRICE, ExpensesSQLiteHelper.PURCHASE_CASH};
+            ExpensesSQLiteHelper.PURCHASE_PRICE, ExpensesSQLiteHelper.PURCHASE_CASH,
+            ExpensesSQLiteHelper.PURCHASE_PRODUCT_NAME, ExpensesSQLiteHelper.PURCHASE_CATEGORY};
 
     public RepositoryPurchase(ExpensesSQLiteHelper dbHelper) {
         super(dbHelper);
@@ -31,18 +33,19 @@ class RepositoryPurchase extends RepositoryBase {
             throw new IllegalStateException("Database cursor out of bounds.");
 
         return new Purchase(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2),
-                new Date( Long.parseLong(cursor.getString(3)) ),
-                LOCATION.valueOf(cursor.getString(4)), cursor.getString(5), (cursor.getInt(6)) == 1);
+                new Date(Long.parseLong(cursor.getString(3))),
+                LOCATION.valueOf(cursor.getString(4)), cursor.getString(5), (cursor.getInt(6)) == 1,
+                cursor.getString(7), CATEGORY.valueOf(cursor.getString(8)));
     }
 
 
-    Purchase createPurchase(int productId, String price, int amount, LOCATION location, boolean cash) {
+    Purchase createPurchase(int productId, String price, int amount, LOCATION location, boolean cash,
+                            String productName, CATEGORY category) {
 
         Log.d(logTag_, "Enter method createPurchase with arguments productId=" + productId
-                + ", price=" + price + ", amount=" + amount + ", location=" + location + ", cash=" + cash + ".");
+                + ", price=" + price + ", amount=" + amount + ", location=" + location + ", cash=" + cash + ", " +
+                "productName="+productName+", category="+category+".");
 
-        if (productId <= 0)
-            throw new IllegalArgumentException("Value productId is infalid (<=0).");
         if (amount <= 0)
             throw new IllegalArgumentException("Amount must be greater than 0.");
         if (location == null || location.toString().equals(""))
@@ -55,6 +58,8 @@ class RepositoryPurchase extends RepositoryBase {
         values.put(ExpensesSQLiteHelper.PURCHASE_LOCATION, location.name());
         values.put(ExpensesSQLiteHelper.PURCHASE_PRICE, String.valueOf(price));
         values.put(ExpensesSQLiteHelper.PURCHASE_CASH, (cash) ? 1 : 0);
+        values.put(ExpensesSQLiteHelper.PURCHASE_PRODUCT_NAME, productName);
+        values.put(ExpensesSQLiteHelper.PURCHASE_CATEGORY, category.name());
 
         long insertId = database_.insert(ExpensesSQLiteHelper.TABLE_PURCHASE, null, values);
 
@@ -76,9 +81,11 @@ class RepositoryPurchase extends RepositoryBase {
     }
 
 
-    boolean updatePurchase(int purchaseId, String price, int amount, LOCATION location, boolean cash) {
+    boolean updatePurchase(int purchaseId, String price, int amount, LOCATION location, boolean cash,
+                           String productName, CATEGORY category) {
         Log.d(logTag_, "Enter method updatePurchase with arguments purchaseId=" + purchaseId
-                + ", price=" + price + ", amount=" + amount + ", location=" + location + ", cash=" + cash + ".");
+                + ", price=" + price + ", amount=" + amount + ", location=" + location + ", cash=" + cash + ", " +
+                "productName="+productName+", category="+category+".");
 
         if (purchaseId <= 0)
             throw new IllegalArgumentException("Value productId is infalid (<=0).");
@@ -92,6 +99,8 @@ class RepositoryPurchase extends RepositoryBase {
         values.put(ExpensesSQLiteHelper.PURCHASE_LOCATION, location.name());
         values.put(ExpensesSQLiteHelper.PURCHASE_PRICE, String.valueOf(price));
         values.put(ExpensesSQLiteHelper.PURCHASE_CASH, (cash) ? 1 : 0);
+        values.put(ExpensesSQLiteHelper.PURCHASE_PRODUCT_NAME, productName);
+        values.put(ExpensesSQLiteHelper.PURCHASE_CATEGORY, category.name());
 
         Log.d(logTag_, "Update values " + values);
 
@@ -143,10 +152,11 @@ class RepositoryPurchase extends RepositoryBase {
         String orderBy = ExpensesSQLiteHelper.PURCHASE_DATE + " DESC";
 
         Cursor cursor = database_.query(ExpensesSQLiteHelper.TABLE_PURCHASE, null, ExpensesSQLiteHelper.PURCHASE_DATE +
-                " BETWEEN ? AND ?", new String[] { String.valueOf(minDate.getTime()) ,
-                        String.valueOf(maxDate.getTime()) },
+                        " BETWEEN ? AND ?", new String[]{String.valueOf(minDate.getTime()),
+                        String.valueOf(maxDate.getTime())},
                 null, null,
-                orderBy, null);
+                orderBy, null
+        );
 
 
         List<Purchase> purchases = new ArrayList<Purchase>();
@@ -157,7 +167,8 @@ class RepositoryPurchase extends RepositoryBase {
             cursor.moveToNext();
         }
         cursor.close();
-        return purchases;    }
+        return purchases;
+    }
 
     int deletePurchase(int purchaseId) {
         // TODO Auto-generated method stub

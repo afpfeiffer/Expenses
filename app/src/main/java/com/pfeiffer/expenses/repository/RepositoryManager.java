@@ -53,21 +53,27 @@ public class RepositoryManager {
         return repoProduct_.updateProduct(id, name, category, price, barcode);
     }
 
-    public boolean updatePurchase(int purchaseId, String price, int amount, LOCATION location, boolean cash) {
+    public boolean updatePurchase(int purchaseId, String price, int amount, LOCATION location, boolean cash,
+                                  String productName, CATEGORY category) {
 
-        return repoPurchase_.updatePurchase(purchaseId, price, amount, location, cash);
+        return repoPurchase_.updatePurchase(purchaseId, price, amount, location, cash, productName, category);
     }
 
     public Purchase createPurchase(
-            String name,
+            String productName,
             CATEGORY category,
             String price,
             Barcode barcode,
             int amount,
             LOCATION location, boolean cash) {
 
-        Product product = repoProduct_.updateOrCreateProduct(name, category, price, barcode);
-        return repoPurchase_.createPurchase(product.getId(), price, amount, location, cash);
+        int productId=-1;
+        if(!barcode.isEmpty()){
+            Product product = repoProduct_.updateOrCreateProduct(productName, category, price, barcode);
+            productId=product.getId();
+        }
+
+        return repoPurchase_.createPurchase(productId, price, amount, location, cash, productName, category);
     }
 
     public List<Purchase> getAllPurchases() {

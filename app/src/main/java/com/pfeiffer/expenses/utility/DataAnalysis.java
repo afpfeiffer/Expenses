@@ -35,7 +35,7 @@ public class DataAnalysis {
         expensesPerMonth_ = new HashMap<String, Double>();
         purchasesPerMonthAndCategory_ = new HashMap<String, HashMap<CATEGORY, List<Purchase>>>();
 
-        analizePurchaseList();
+        analyzePurchaseList();
     }
 
     public DataAnalysis(RepositoryManager repositoryManager, List<Purchase> purchaseList) {
@@ -44,11 +44,11 @@ public class DataAnalysis {
         expensesPerMonthAndCategory_ = new HashMap<String, HashMap<CATEGORY, Double>>();
         expensesPerMonth_ = new HashMap<String, Double>();
         purchasesPerMonthAndCategory_ = new HashMap<String, HashMap<CATEGORY, List<Purchase>>>();
-        analizePurchaseList();
+        analyzePurchaseList();
     }
 
 
-    private void analizePurchaseList() {
+    private void analyzePurchaseList() {
         // return if purchaseList_ is empty
         if (purchaseList_ == null || purchaseList_.isEmpty())
             return;
@@ -78,7 +78,7 @@ public class DataAnalysis {
                 lastDate = purchase.getDate();
             }
 
-            CATEGORY category = product.getCategory();
+            CATEGORY category = purchase.getCategory();
             double purchasePrice = Double.parseDouble(purchase.getTotalPrice());
             expensesSum+=purchasePrice;
 

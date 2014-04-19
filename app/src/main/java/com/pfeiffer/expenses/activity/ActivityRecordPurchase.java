@@ -40,17 +40,21 @@ public class ActivityRecordPurchase extends Activity {
     };
 
     private RepositoryManager repositoryManager_;
-    private String barcodeString_;
-    private Product productFromDatabase_;
+
     private Button scanButton_;
     private EditText name_;
+    private EditText price_;
     private Spinner category_;
     private Spinner location_;
     private NumberPicker amount_;
-    private EditText price_;
     private CheckBox cash_;
     private TextView barcodeStatus_;
-    private String purchaseId_ = null;
+
+    private String barcodeString_;
+
+    private int purchaseId_ = -1;
+    private int productId_ = -1;
+
     private boolean editMode_ = false;
 
 
@@ -62,17 +66,18 @@ public class ActivityRecordPurchase extends Activity {
         repositoryManager_ = new RepositoryManager(this);
         repositoryManager_.open();
 
-        purchaseId_ = getIntent().getStringExtra(ActivityMain.EXTRA_PURCHASE_ID);
-        editMode_ = (purchaseId_ != null && !purchaseId_.equals(""));
+        initializeUiElements();
+        configureUiElements();
 
 
-        initUi();
-        configureUi();
-        fillUi();
+        purchaseId_ = getIntent().getIntExtra(ActivityMain.EXTRA_PURCHASE_ID, -1);
+        editMode_ = (purchaseId_ > 0);
+        if (editMode_)
+            fillUiElementsWithRequestedPurchase();
 
     }
 
-    private void initUi() {
+    private void initializeUiElements() {
         name_ = (EditText) findViewById(R.id.editText1);
         category_ = (Spinner) findViewById(R.id.spinner1);
         location_ = (Spinner) findViewById(R.id.spinner2);
@@ -83,7 +88,7 @@ public class ActivityRecordPurchase extends Activity {
         scanButton_ = (Button) findViewById(R.id.button_scan_barcode);
     }
 
-    private void configureUi() {
+    private void configureUiElements() {
 
         amount_.setMinValue(1);
         amount_.setMaxValue(20);
@@ -98,37 +103,46 @@ public class ActivityRecordPurchase extends Activity {
         location_.setAdapter(new ArrayAdapter<LOCATION>(this, android.R.layout.simple_spinner_dropdown_item, LOCATION
                 .values()));
 
+        scanButton_.setOnClickListener(mScan);
 
-        if (editMode_) {
-            scanButton_.setVisibility(View.GONE);
-            barcodeStatus_.setVisibility(View.GONE);
-        } else {
-            barcodeStatus_.setVisibility(View.GONE);
-            scanButton_.setOnClickListener(mScan);
-        }
-
+        configureBarcodeUiElements(false);
     }
 
-    private void fillUi() {
-
-        if (editMode_) {
-            Purchase purchase = repositoryManager_.findPurchaseById(Integer.parseInt(purchaseId_));
-            if (purchase == null)
-                throw new IllegalStateException();
-            productFromDatabase_ = repositoryManager_.findProductById(purchase.getProductId());
-            if (productFromDatabase_ == null)
-                throw new IllegalStateException();
-            setFields(
-                    productFromDatabase_.getName(),
-                    productFromDatabase_.getCategory(),
-                    purchase.getLocation(),
-                    purchase.getPrice(),
-                    purchase.getAmount(), purchase.isCash());
-            barcodeString_ = productFromDatabase_.getBarcode().toString();
-            if (barcodeString_ != null && !barcodeString_.equals(""))
-                barcodeStatus_.setVisibility(View.VISIBLE);
-            return;
+    private void configureBarcodeUiElements(boolean barcodeAvailable) {
+        if (barcodeAvailable) {
+            scanButton_.setVisibility(View.GONE);
+            barcodeStatus_.setVisibility(View.VISIBLE);
+        } else {
+            scanButton_.setVisibility(View.VISIBLE);
+            barcodeStatus_.setVisibility(View.GONE);
         }
+    }
+
+    private void fillUiElementsWithRequestedPurchase() {
+        Purchase purchase = repositoryManager_.findPurchaseById(purchaseId_);
+        if (purchase == null)
+            throw new IllegalStateException();
+        setFields(
+                purchase.getProductName(),
+                purchase.getCategory(),
+                purchase.getLocation(),
+                purchase.getPrice(),
+                purchase.getAmount(), purchase.isCash());
+
+        if (purchase.hasProductAttached()) {
+            Product product = repositoryManager_.findProductById(purchase.getProductId());
+
+            if (product == null) throw new IllegalStateException();
+
+            barcodeString_ = product.getBarcode().toString();
+
+            if (barcodeString_ == null || barcodeString_.equals("")) throw new IllegalStateException();
+
+            configureBarcodeUiElements(true);
+
+            productId_ = product.getId();
+        }
+        return;
 
     }
 
@@ -161,53 +175,50 @@ public class ActivityRecordPurchase extends Activity {
         return true;
     }
 
+
     public void onClick(View view) {
         String name;
         name = name_.getText().toString().trim();
         String strCategory;
-        strCategory = category_.getSelectedItem().toString();
+        CATEGORY category = CATEGORY.fromString(category_.getSelectedItem().toString());
         String strLocation;
-        strLocation = location_.getSelectedItem().toString();
+        LOCATION location = LOCATION.fromString(location_.getSelectedItem().toString());
         int amount = amount_.getValue();
         String price = price_.getText().toString().trim();
+
+        Log.d(logTag_, "Method onClick() records name=" + name + ", category="
+                + category + ", location=" + location + ", amount=" + amount + ", price=" + price);
+
 
         if (price.length() - price.replaceAll("\\.", "").length() > 1) {
             Toast.makeText(this, R.string.price_not_valid, Toast.LENGTH_SHORT).show();
             return;
         }
 
-
-        Log.d(logTag_, "Method onClick() records name=" + name + ", category="
-                + strCategory + ", location=" + strLocation + ", amount=" + amount + ", price=" + price);
-
         // make sure that all field values are set.
-        if (name != null && !name.isEmpty() && strCategory != null && !strCategory.equals(CATEGORY.NONE.toString()) &&
-                strLocation != null && !strLocation.equals(LOCATION.NONE.toString()) && price != null && !price
-                .replaceAll("\\.", "").isEmpty()) {
+        if (name != null && !name.isEmpty() && !category.equals(CATEGORY.NONE) && !location.equals(LOCATION.NONE)) {
 
-            CATEGORY category = CATEGORY.fromString(strCategory);
-            LOCATION location = LOCATION.fromString(strLocation);
             price = Translation.getValidPrice(price);
             boolean cash = cash_.isChecked();
 
             if (editMode_) {
-                repositoryManager_.updatePurchase(Integer.parseInt(purchaseId_), price, amount, location, cash);
-                repositoryManager_.updateProduct(productFromDatabase_.getId(), null, category, price, null);
+                repositoryManager_.updatePurchase(purchaseId_, price, amount, location, cash, name, category);
+                if (productId_ > 0)
+                    repositoryManager_.updateProduct(productId_, name, category, price, null);
 
                 Toast.makeText(this, R.string.purchase_updated, Toast.LENGTH_SHORT).show();
             } else {
-
                 repositoryManager_.createPurchase(name, category, price, new Barcode(barcodeString_), amount,
                         location, cash);
                 Toast.makeText(this, R.string.purchase_created, Toast.LENGTH_SHORT).show();
             }
 
-            Intent i= new Intent( this, UpdatePurchaseTemplates.class);
-            startService(i);
+            // start background service to update the PurchaseTemplate Database
+            startService(new Intent(this, UpdatePurchaseTemplates.class));
 
             // return to Main Acitivty
-            Intent intent = new Intent(this, ActivityMain.class);
-            startActivity(intent);
+            startActivity(new Intent(this, ActivityMain.class));
+
         } else {
             Toast.makeText(this, R.string.values_not_valid, Toast.LENGTH_SHORT).show();
         }
@@ -217,26 +228,24 @@ public class ActivityRecordPurchase extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
-                String contents = intent.getStringExtra("SCAN_RESULT");
+                barcodeString_ = intent.getStringExtra("SCAN_RESULT");
 
-                Log.d(logTag_, "Scan result: " + contents);
+                if (barcodeString_ != null && !barcodeString_.equals("")) {
+                    Log.d(logTag_, "Scan result: " + barcodeString_);
 
-                if (contents != null && !contents.equals("")) {
-                    barcodeString_ = contents;
-                    scanButton_.setVisibility(View.GONE);
-                    barcodeStatus_.setVisibility(View.VISIBLE);
+                    configureBarcodeUiElements(true);
 
-                    repositoryManager_.open();
-                    productFromDatabase_ = repositoryManager_.findProductByBarcode(new Barcode(barcodeString_));
+                    Product product = repositoryManager_.findProductByBarcode(new Barcode(barcodeString_));
                     // only continue if a product could be obtained
-                    if (productFromDatabase_ != null) {
-                        Purchase purchaseFromDatabase = repositoryManager_.findPurchaseByProductId(productFromDatabase_.getId());
-                        setFields(
-                                productFromDatabase_.getName(),
-                                productFromDatabase_.getCategory(),
-                                (purchaseFromDatabase != null) ? purchaseFromDatabase.getLocation() : null,
-                                productFromDatabase_.getPrice(),
-                                1, (purchaseFromDatabase != null) ? purchaseFromDatabase.isCash() : false);
+                    if (product != null) {
+                        productId_ = product.getId();
+                        Purchase purchaseFromDatabase = repositoryManager_.findPurchaseByProductId(productId_);
+                        if (purchaseFromDatabase != null) {
+                            setFields(purchaseFromDatabase.getProductName(), purchaseFromDatabase.getCategory(),
+                                    purchaseFromDatabase.getLocation(), purchaseFromDatabase.getPrice(), 1, false);
+                        } else {
+                            setFields(product.getName(), product.getCategory(), null, product.getPrice(), 1, false);
+                        }
                     }
                 }
             } else if (resultCode == RESULT_CANCELED) {

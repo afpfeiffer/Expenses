@@ -17,7 +17,6 @@ import android.widget.Toast;
 
 import com.pfeiffer.expenses.R;
 import com.pfeiffer.expenses.model.CATEGORY;
-import com.pfeiffer.expenses.model.Product;
 import com.pfeiffer.expenses.model.Purchase;
 import com.pfeiffer.expenses.repository.RepositoryManager;
 import com.pfeiffer.expenses.utility.DataAnalysis;
@@ -99,14 +98,12 @@ public class ActivityMain extends Activity {
                 mylist_title.add(map1);
 
                 for(Purchase purchase : purchases){
-                    // obtain product
-                    Product product = repositoryManager_.findProductById(purchase.getProductId());
 
                     map2 = new HashMap<String, String>();
                     map2.put("purchaseId", String.valueOf(purchase.getId()));
                     map2.put("rowDate", Translation.shortDate(purchase.getDate()));
                     map2.put("rowName", ((purchase.getAmount()>1) ? purchase.getAmount() + "x " : "")
-                            + product.getName());
+                            + purchase.getProductName());
 
                     map2.put("rowTotalPrice", purchase.getTotalPrice() + " €");
                     secList.add(map2);
@@ -209,7 +206,7 @@ public class ActivityMain extends Activity {
     private boolean editPurchase(int groupPos, int childPos) {
         int purchaseId = Integer.parseInt(mylist.get(groupPos).get(childPos).get("purchaseId"));
         Intent intent = new Intent(this, ActivityRecordPurchase.class);
-        intent.putExtra(EXTRA_PURCHASE_ID, String.valueOf(purchaseId));
+        intent.putExtra(EXTRA_PURCHASE_ID, purchaseId);
         startActivity(intent);
         return true; //TODO
     }
