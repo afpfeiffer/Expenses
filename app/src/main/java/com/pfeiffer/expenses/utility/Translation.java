@@ -1,44 +1,45 @@
 package com.pfeiffer.expenses.utility;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 
 public class Translation {
-    private static final String databaseDateFormat_ = "yyyy:MM:dd";
+    static String[] months_ = {"Januar", "Februar",
+            "März", "April", "May", "Juni", "Juli",
+            "August", "September", "Oktober", "November",
+            "Dezember"};
 
-    private static final Map<String, String> monthMapper_;
+    static public String getMonthString(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return months_[cal.get(Calendar.MONTH)];
 
-    static {
-        Map<String, String> aMap = new HashMap<String, String>();
-        aMap.put("01", "Januar");
-        aMap.put("02", "Februar");
-        aMap.put("03", "März");
-        aMap.put("04", "April");
-        aMap.put("05", "Mai");
-        aMap.put("06", "Juni");
-        aMap.put("07", "Juli");
-        aMap.put("08", "August");
-        aMap.put("09", "September");
-        aMap.put("10", "Oktober");
-        aMap.put("11", "November");
-        aMap.put("12", "Dezember");
-
-        monthMapper_ = Collections.unmodifiableMap(aMap);
     }
 
-    static public String getMonthString(String monthNumber) {
-        return monthMapper_.get(monthNumber);
+    static public String shortDate(Date date){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.");
+        return dateFormat.format(date);
     }
 
-    static public String getDatbaseDateFormat() {
-        return databaseDateFormat_;
+    static public boolean sameMonthAndYear(Date a, Date b){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMM");
+        return dateFormat.format(a).equals(dateFormat.format(b));
     }
 
-    static public String humanReadableDate(String date) {
-        return date.substring(8, 10) + "." + date.substring(5, 7) + ".";
+    static public String yearAndMonth(Date date){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMM");
+        return dateFormat.format(date);
     }
+
+    static public Date getFirstDateOfCurrentMonth() {
+        Calendar cal=Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_MONTH,Calendar.getInstance().getActualMinimum(Calendar.DAY_OF_MONTH));
+        return cal.getTime();
+    }
+
+
 
     static private String adjustZeros(String arg) {
         int len = arg.length();
@@ -78,4 +79,9 @@ public class Translation {
 
         return adjustZeros(String.valueOf(value));
     }
+//
+//    static public String getPercentage(double arg){
+//
+//    }
+
 }

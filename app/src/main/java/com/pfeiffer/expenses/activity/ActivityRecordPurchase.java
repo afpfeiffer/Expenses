@@ -1,6 +1,5 @@
 package com.pfeiffer.expenses.activity;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -26,10 +25,8 @@ import com.pfeiffer.expenses.model.LOCATION;
 import com.pfeiffer.expenses.model.Product;
 import com.pfeiffer.expenses.model.Purchase;
 import com.pfeiffer.expenses.repository.RepositoryManager;
+import com.pfeiffer.expenses.repository.UpdatePurchaseTemplates;
 import com.pfeiffer.expenses.utility.Translation;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 public class ActivityRecordPurchase extends Activity {
     public final String logTag_ = this.getClass().getName();
@@ -126,7 +123,7 @@ public class ActivityRecordPurchase extends Activity {
                     productFromDatabase_.getCategory(),
                     purchase.getLocation(),
                     purchase.getPrice(),
-                    Integer.parseInt(purchase.getAmount()), purchase.isCash());
+                    purchase.getAmount(), purchase.isCash());
             barcodeString_ = productFromDatabase_.getBarcode().toString();
             if (barcodeString_ != null && !barcodeString_.equals(""))
                 barcodeStatus_.setVisibility(View.VISIBLE);
@@ -164,7 +161,6 @@ public class ActivityRecordPurchase extends Activity {
         return true;
     }
 
-    @SuppressLint("SimpleDateFormat")
     public void onClick(View view) {
         String name;
         name = name_.getText().toString().trim();
@@ -201,17 +197,15 @@ public class ActivityRecordPurchase extends Activity {
                 Toast.makeText(this, R.string.purchase_updated, Toast.LENGTH_SHORT).show();
             } else {
 
-                // get date
-                Calendar c = Calendar.getInstance();
-                SimpleDateFormat sdf = new SimpleDateFormat(Translation.getDatbaseDateFormat());
-                String date = sdf.format(c.getTime());
-
-                repositoryManager_.createPurchase(name, category, price, new Barcode(barcodeString_), amount, date,
+                repositoryManager_.createPurchase(name, category, price, new Barcode(barcodeString_), amount,
                         location, cash);
                 Toast.makeText(this, R.string.purchase_created, Toast.LENGTH_SHORT).show();
             }
 
-            // proceed to DisplayPurchasesActivity
+            Intent i= new Intent( this, UpdatePurchaseTemplates.class);
+            startService(i);
+
+            // return to Main Acitivty
             Intent intent = new Intent(this, ActivityMain.class);
             startActivity(intent);
         } else {

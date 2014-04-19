@@ -83,7 +83,7 @@ class RepositoryProduct extends RepositoryBase {
             values.put(ExpensesSQLiteHelper.PRODUCT_CATEGORY, category.name());
         if (price != null && !price.equals(""))
             values.put(ExpensesSQLiteHelper.PRODUCT_PRICE, price);
-        if (barcode != null && !barcode.equals(""))
+        if (barcode != null && !barcode.isEmpty())
             values.put(ExpensesSQLiteHelper.PRODUCT_BARCODE, barcode.toString());
 
         Log.d(logTag_, "Update values "+values);
@@ -111,7 +111,7 @@ class RepositoryProduct extends RepositoryBase {
             throw new IllegalArgumentException("Price must be defined.");
 
         // if barcode is known, return the associated Product.
-        if (barcode != null && !barcode.equals("")) {
+        if (barcode != null && !barcode.isEmpty()) {
             Product temporaryProduct = findProduct(ExpensesSQLiteHelper.PRODUCT_BARCODE, barcode.toString());
             // If the barcode is defined, we either have an existing product
             // with this barcode, or we need to create one.

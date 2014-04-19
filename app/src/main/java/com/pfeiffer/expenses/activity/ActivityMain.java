@@ -12,17 +12,22 @@ import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.SimpleExpandableListAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pfeiffer.expenses.R;
+import com.pfeiffer.expenses.model.CATEGORY;
 import com.pfeiffer.expenses.model.Product;
 import com.pfeiffer.expenses.model.Purchase;
 import com.pfeiffer.expenses.repository.RepositoryManager;
+import com.pfeiffer.expenses.utility.DataAnalysis;
 import com.pfeiffer.expenses.utility.Translation;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author axelpfeiffer
@@ -38,11 +43,17 @@ public class ActivityMain extends Activity {
     private SimpleExpandableListAdapter expListAdapter;
     private HashMap<String, String> map1, map2;
 
+    private TextView currentMonth_;
+    private TextView totalExpenses_;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         expandableListView_ = (ExpandableListView) findViewById(R.id.expandableListViewMain);
+        currentMonth_ =(TextView) findViewById(R.id.tvCurrentMonth);
+        totalExpenses_ =(TextView) findViewById(R.id.tvTotalExpenses);
 
         registerForContextMenu(expandableListView_);
         showActivity();
@@ -55,73 +66,66 @@ public class ActivityMain extends Activity {
         // get all Purchases
         repositoryManager_ = new RepositoryManager(this);
         repositoryManager_.open();
-        List<Purchase> values = repositoryManager_.getAllPurchases();
 
-        // Loop through values by months. The purchases in the values list come
-        // in order
-        if (!values.isEmpty()) {
 
-            String currentMonthYear = values.get(0).getDate().substring(0, 7);
-            double sumTotalMonthExpenses = 0.;
+        Date rightNow =new Date(System.currentTimeMillis());
 
-            ArrayList<HashMap<String, String>> secList = new ArrayList<HashMap<String, String>>();
+        List<Purchase> purchasesCurrentMonth = repositoryManager_.getAllPurchasesForDateRange(Translation.getFirstDateOfCurrentMonth
+                (), rightNow);
 
-            for (Purchase purchase : values) {
+        DataAnalysis dataAnalysis = new DataAnalysis(repositoryManager_, purchasesCurrentMonth);
 
-                // obtain product
-                Product product = repositoryManager_.findProductById(purchase.getProductId());
+        currentMonth_.setText(Translation.getMonthString(rightNow));
+        double totalExpenses=dataAnalysis.getExpensesPerMonth(rightNow);
+        totalExpenses_.setText(Translation.getValidPrice(String.valueOf(totalExpenses))
+                + " €");
 
-                String monthYear = purchase.getDate().substring(0, 7);
-                Log.d(logTag_, "Purchase " + purchase + " has monthYear=" + monthYear);
+        List<Map.Entry<CATEGORY,Double>> categoryToExpenses = dataAnalysis.getSortedCategoryToExpensesForYearAndMonth
+                (rightNow);
 
-                if (!monthYear.equals(currentMonthYear)) {
-                    map1 = new HashMap<String, String>();
-                    map1.put("rowMonthName", Translation.getMonthString(currentMonthYear.substring(5, 7)) + " "
-                            + currentMonthYear.substring(0, 4));
-                    map1.put("rowMonthExpenses", Translation.getValidPrice(String.valueOf(sumTotalMonthExpenses))
-                            + " €");
-                    mylist_title.add(map1);
+        int len=categoryToExpenses.size();
+        for(int i = 0; i < len; ++i ){
+            Map.Entry<CATEGORY,Double> entry = categoryToExpenses.get(len-1-i);
+            CATEGORY category=entry.getKey();
+            List<Purchase> purchases=dataAnalysis.getPurchasesForYearMonthAndCategory(rightNow, category);
+            if(purchases!=null && !purchases.isEmpty()){
+                ArrayList<HashMap<String, String>> secList = new ArrayList<HashMap<String, String>>();
 
-                    mylist.add(secList);
-                    secList = new ArrayList<HashMap<String, String>>();
-                    sumTotalMonthExpenses = 0.;
-                    currentMonthYear = monthYear;
+                map1=new HashMap<String, String>();
+                int percentage= (int)(100*entry.getValue()/totalExpenses ) ;
+                map1.put("rowCategoryName", category.toString()+" ("+percentage+" %)" );
+                map1.put("rowCategoryExpenses", Translation.getValidPrice(String.valueOf(entry.getValue()))
+                        + " €");
+                mylist_title.add(map1);
 
+                for(Purchase purchase : purchases){
+                    // obtain product
+                    Product product = repositoryManager_.findProductById(purchase.getProductId());
+
+                    map2 = new HashMap<String, String>();
+                    map2.put("purchaseId", String.valueOf(purchase.getId()));
+                    map2.put("rowDate", Translation.shortDate(purchase.getDate()));
+                    map2.put("rowName", ((purchase.getAmount()>1) ? purchase.getAmount() + "x " : "")
+                            + product.getName());
+
+                    map2.put("rowTotalPrice", purchase.getTotalPrice() + " €");
+                    secList.add(map2);
                 }
 
-                map2 = new HashMap<String, String>();
-                map2.put("purchaseId", String.valueOf(purchase.getId()));
-
-                map2.put("rowDate", Translation.humanReadableDate(purchase.getDate()));
-
-                map2.put("rowName", ((!purchase.getAmount().equals("1")) ? purchase.getAmount() + "x " : "")
-                        + product.getName());
-
-                map2.put("rowTotalPrice", purchase.getTotalPrice() + " €");
-                secList.add(map2);
-
-                sumTotalMonthExpenses += Double.parseDouble(purchase.getTotalPrice());
+                mylist.add(secList);
             }
-            map1 = new HashMap<String, String>();
-            map1.put("rowMonthName", Translation.getMonthString(currentMonthYear.substring(5, 7)) + " "
-                    + currentMonthYear.substring(0, 4));
-            map1.put("rowMonthExpenses", Translation.getValidPrice(String.valueOf(sumTotalMonthExpenses)) + " €");
-            mylist_title.add(map1);
+        }
 
-            mylist.add(secList);
 
-            // TODO set group total expenses in month
-
-            try {
-                expListAdapter = new SimpleExpandableListAdapter(this, mylist_title, R.layout.group_row, new String[]{
-                        "rowMonthName", "rowMonthExpenses"}, new int[]{R.id.rowMonthName, R.id.rowMonthExpenses},
-                        mylist, R.layout.row, new String[]{"rowDate", "rowName", "rowTotalPrice"}, new int[]{
-                        R.id.rowDate, R.id.rowName, R.id.rowTotalPrice}
-                );
-                expandableListView_.setAdapter(expListAdapter);
-            } catch (Exception e) {
+        try {
+            expListAdapter = new SimpleExpandableListAdapter(this, mylist_title, R.layout.group_row, new String[]{
+                    "rowCategoryName", "rowCategoryExpenses"}, new int[]{R.id.rowCategoryName, R.id.rowCategoryExpenses},
+                    mylist, R.layout.row, new String[]{"rowDate", "rowName", "rowTotalPrice"}, new int[]{
+                    R.id.rowDate, R.id.rowName, R.id.rowTotalPrice}
+            );
+            expandableListView_.setAdapter(expListAdapter);
+        } catch (Exception e) {
 // TODO
-            }
         }
 
     }
@@ -143,6 +147,11 @@ public class ActivityMain extends Activity {
                 startActivity(new Intent(this, ActivitySyncData.class));
 
                 return true;
+            case R.id.action_record_purchase:
+                Intent intent = new Intent(this, ActivityRecordPurchase.class);
+                startActivity(intent);
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -235,17 +244,9 @@ public class ActivityMain extends Activity {
 
     }
 
-    /**
-     * Called when the user clicks the Send button
-     */
-    public void recordPurchase(View view) {
-        Intent intent = new Intent(this, ActivityRecordPurchase.class);
-        startActivity(intent);
-    }
-
     public void statistik(View view) {
-        Intent intent = new Intent(this, ActivityPieChart.class);
-        startActivity(intent);
+//        Intent intent = new Intent(this, ActivityPieChart.class);
+//        startActivity(intent);
 
     }
 }

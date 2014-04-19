@@ -12,7 +12,11 @@ public class Barcode {
     }
 
     public boolean equals(String b) {
-        return barcode_.equals(b);
+        return barcode_!=null && barcode_.equals(b);
+    }
+
+    public boolean isEmpty(){
+        return barcode_==null || barcode_.equals("");
     }
 
     public String toString() {

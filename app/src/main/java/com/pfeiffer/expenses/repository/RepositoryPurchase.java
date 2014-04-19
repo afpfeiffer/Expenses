@@ -8,6 +8,7 @@ import com.pfeiffer.expenses.model.LOCATION;
 import com.pfeiffer.expenses.model.Purchase;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 class RepositoryPurchase extends RepositoryBase {
@@ -29,29 +30,28 @@ class RepositoryPurchase extends RepositoryBase {
         if (cursor.isAfterLast())
             throw new IllegalStateException("Database cursor out of bounds.");
 
-        return new Purchase(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getString(3),
+        return new Purchase(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2),
+                new Date( Long.parseLong(cursor.getString(3)) ),
                 LOCATION.valueOf(cursor.getString(4)), cursor.getString(5), (cursor.getInt(6)) == 1);
     }
 
 
-    Purchase createPurchase(int productId, String price, int amount, String date, LOCATION location, boolean cash) {
+    Purchase createPurchase(int productId, String price, int amount, LOCATION location, boolean cash) {
 
         Log.d(logTag_, "Enter method createPurchase with arguments productId=" + productId
-                + ", price=" + price + ", amount=" + amount + ", date=" + date + ", location=" + location + ", cash=" + cash + ".");
+                + ", price=" + price + ", amount=" + amount + ", location=" + location + ", cash=" + cash + ".");
 
         if (productId <= 0)
             throw new IllegalArgumentException("Value productId is infalid (<=0).");
         if (amount <= 0)
             throw new IllegalArgumentException("Amount must be greater than 0.");
-        if (date == null || date.equals(""))
-            throw new IllegalArgumentException("Date must be defined.");
         if (location == null || location.toString().equals(""))
             throw new IllegalArgumentException("Location must be defined.");
 
         ContentValues values = new ContentValues();
         values.put(ExpensesSQLiteHelper.PURCHASE_PRODUCT_ID, productId);
         values.put(ExpensesSQLiteHelper.PURCHASE_AMOUNT, amount);
-        values.put(ExpensesSQLiteHelper.PURCHASE_DATE, date);
+        values.put(ExpensesSQLiteHelper.PURCHASE_DATE, System.currentTimeMillis());
         values.put(ExpensesSQLiteHelper.PURCHASE_LOCATION, location.name());
         values.put(ExpensesSQLiteHelper.PURCHASE_PRICE, String.valueOf(price));
         values.put(ExpensesSQLiteHelper.PURCHASE_CASH, (cash) ? 1 : 0);
@@ -139,6 +139,25 @@ class RepositoryPurchase extends RepositoryBase {
         return findPurchases(null, null);
     }
 
+    List<Purchase> getAllPurchasesForDateRange(Date minDate, Date maxDate) {
+        String orderBy = ExpensesSQLiteHelper.PURCHASE_DATE + " DESC";
+
+        Cursor cursor = database_.query(ExpensesSQLiteHelper.TABLE_PURCHASE, null, ExpensesSQLiteHelper.PURCHASE_DATE +
+                " BETWEEN ? AND ?", new String[] { String.valueOf(minDate.getTime()) ,
+                        String.valueOf(maxDate.getTime()) },
+                null, null,
+                orderBy, null);
+
+
+        List<Purchase> purchases = new ArrayList<Purchase>();
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            Purchase purchase = cursorToPurchase(cursor);
+            purchases.add(purchase);
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return purchases;    }
 
     int deletePurchase(int purchaseId) {
         // TODO Auto-generated method stub

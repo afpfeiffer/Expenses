@@ -9,10 +9,8 @@ import com.pfeiffer.expenses.model.LOCATION;
 import com.pfeiffer.expenses.model.Product;
 import com.pfeiffer.expenses.model.Purchase;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class RepositoryManager {
     private final RepositoryProduct repoProduct_;
@@ -46,6 +44,11 @@ public class RepositoryManager {
         return repoProduct_.findProduct(ExpensesSQLiteHelper.PRODUCT_ID, String.valueOf(productId));
     }
 
+    public List<Product> getAllProducts() {
+        return repoProduct_.getAllProducts();
+    }
+
+
     public boolean updateProduct(int id, String name, CATEGORY category, String price, Barcode barcode) {
         return repoProduct_.updateProduct(id, name, category, price, barcode);
     }
@@ -61,15 +64,18 @@ public class RepositoryManager {
             String price,
             Barcode barcode,
             int amount,
-            String date,
             LOCATION location, boolean cash) {
 
         Product product = repoProduct_.updateOrCreateProduct(name, category, price, barcode);
-        return repoPurchase_.createPurchase(product.getId(), price, amount, date, location, cash);
+        return repoPurchase_.createPurchase(product.getId(), price, amount, location, cash);
     }
 
     public List<Purchase> getAllPurchases() {
         return repoPurchase_.getAllPurchases();
+    }
+
+    public List<Purchase> getAllPurchasesForDateRange(Date minDate, Date maxDate) {
+        return repoPurchase_.getAllPurchasesForDateRange(minDate, maxDate);
     }
 
     public Purchase findPurchaseByProductId(int productId) {
@@ -84,29 +90,15 @@ public class RepositoryManager {
         return repoPurchase_.deletePurchase(purchaseId);
     }
 
-    public List<Purchase> getPurchaseTemplates() {
-        List<Purchase> purchaseTemplateList = new ArrayList<Purchase>();
 
-        Map<Product, Map.Entry<Integer, Purchase>> tempateCandidates = new HashMap<Product, Map.Entry<Integer,
-                Purchase>>();
+    // only for low level use
+    RepositoryProduct getRepositoryProduct(){
+        return repoProduct_;
+    }
 
-        // get all Products, that don't have a barcode
-        List<Product> allProducts = repoProduct_.getAllProducts();
-
-        for (Product product : allProducts) {
-            if (!product.hasBarcode()) {
-                // get all purcahses of this Product
-                // store count and latest purchase
-                List<Purchase> purchasesOfProduct = repoPurchase_.findPurchases(ExpensesSQLiteHelper
-                        .PURCHASE_PRODUCT_ID, String.valueOf(product.getId()));
-            }
-        }
-
-        // count the purchases of each of those products
-        // if more than 10: discard those, that were not purchased in the past 60 days
-        // return the top 10
-
-        return purchaseTemplateList;
+    // only for low level use
+    RepositoryPurchase getRepositoryPurchase(){
+        return repoPurchase_;
     }
 
 }

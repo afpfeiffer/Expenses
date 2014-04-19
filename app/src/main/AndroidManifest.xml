@@ -38,11 +38,8 @@
             android:name="com.pfeiffer.expenses.activity.ActivityPieChart"
             android:label="@string/title_activity_activity_pie_chart">
         </activity>
-        <activity
-            android:name="com.pfeiffer.expenses.activity.ActivityLineChart"
-            android:label="@string/title_activity_activity_line_chart">
-        </activity>
-        <service android:name=".service.UpdatePurchaseTemplates"></service>
+
+        <service android:name=".repository.UpdatePurchaseTemplates"></service>
     </application>
 
 </manifest>

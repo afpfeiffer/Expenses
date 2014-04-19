@@ -59,6 +59,6 @@ public class Product {
     }
 
     public boolean hasBarcode(){
-        return barcode_!=null;
+        return !barcode_.isEmpty();
     }
 }

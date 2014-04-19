@@ -2,14 +2,23 @@
 
     <item
         android:id="@+id/action_settings"
+        android:icon="@drawable/ic_action_settings"
         android:orderInCategory="12"
-        android:showAsAction="never"
+        android:showAsAction="ifRoom"
         android:title="@string/action_settings"/>
 
         <item
         android:id="@+id/action_sync_data"
-        android:orderInCategory="1"
-        android:showAsAction="never"
+        android:orderInCategory="2"
+        android:icon="@drawable/ic_action_bluetooth_connected"
+        android:showAsAction="ifRoom"
         android:title="@string/action_sync_data"/>
-        
+
+        <item
+        android:id="@+id/action_record_purchase"
+        android:orderInCategory="1"
+        android:icon="@drawable/ic_action_edit"
+        android:showAsAction="always"
+        android:title="@string/button_record_purchase"/>
+
 </menu>
