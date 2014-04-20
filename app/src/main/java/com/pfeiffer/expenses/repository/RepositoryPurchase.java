@@ -39,10 +39,16 @@ class RepositoryPurchase extends RepositoryBase {
     }
 
 
-    Purchase createPurchase(int productId, String price, int amount, LOCATION location, boolean cash,
-                            String productName, CATEGORY category) {
+    Purchase createPurchase(Purchase purchase) {
+        int productId = purchase.getProductId();
+        String price=purchase.getPrice();
+        int amount=purchase.getAmount();
+        LOCATION location=purchase.getLocation();
+        boolean cash=purchase.isCash();
+        String productName=purchase.getProductName();
+        CATEGORY category=purchase.getCategory();
 
-        Log.d(logTag_, "Enter method createPurchase with arguments productId=" + productId
+        Log.d(logTag_, "Enter method createPurchaseAndProduct with arguments productId=" + productId
                 + ", price=" + price + ", amount=" + amount + ", location=" + location + ", cash=" + cash + ", " +
                 "productName="+productName+", category="+category+".");
 
@@ -76,13 +82,20 @@ class RepositoryPurchase extends RepositoryBase {
         Purchase newPurchase = cursorToPurchase(cursor);
         cursor.close();
 
-        Log.d(logTag_, "Method createPurchase() returns value '" + newPurchase + "'.");
+        Log.d(logTag_, "Method createPurchaseAndProduct() returns value '" + newPurchase + "'.");
         return newPurchase;
     }
 
 
-    boolean updatePurchase(int purchaseId, String price, int amount, LOCATION location, boolean cash,
-                           String productName, CATEGORY category) {
+    boolean updatePurchase(Purchase purchase) {
+        int purchaseId=purchase.getId();
+        String price=purchase.getPrice();
+        int amount=purchase.getAmount();
+        LOCATION location=purchase.getLocation();
+        boolean cash=purchase.isCash();
+        String productName=purchase.getProductName();
+        CATEGORY category=purchase.getCategory();
+
         Log.d(logTag_, "Enter method updatePurchase with arguments purchaseId=" + purchaseId
                 + ", price=" + price + ", amount=" + amount + ", location=" + location + ", cash=" + cash + ", " +
                 "productName="+productName+", category="+category+".");
@@ -125,7 +138,7 @@ class RepositoryPurchase extends RepositoryBase {
         Log.d(logTag_, "Enter method findPurchases() with argument field=" + searchField + ", value="
                 + searchValue + ".");
         String orderBy = ExpensesSQLiteHelper.PURCHASE_DATE + " DESC";
-        Cursor cursor = null;
+        Cursor cursor;
         if (searchField != null && !searchField.equals(""))
             cursor = database_.query(ExpensesSQLiteHelper.TABLE_PURCHASE, allPurchaseColumns_, " " + searchField
                     + " = ?", new String[]{searchValue}, null, null, orderBy, null);
@@ -134,12 +147,16 @@ class RepositoryPurchase extends RepositoryBase {
 
         List<Purchase> purchases = new ArrayList<Purchase>();
         cursor.moveToFirst();
+        Log.d(logTag_, "Enter method findPurchases() log1=" + cursor.isAfterLast() );
+
         while (!cursor.isAfterLast()) {
             Purchase purchase = cursorToPurchase(cursor);
             purchases.add(purchase);
             cursor.moveToNext();
         }
         cursor.close();
+        Log.d(logTag_, "Enter method findPurchases() found=" + purchases );
+
         return purchases;
     }
 

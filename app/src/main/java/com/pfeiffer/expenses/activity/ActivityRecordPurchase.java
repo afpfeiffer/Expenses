@@ -26,7 +26,8 @@ import com.pfeiffer.expenses.model.Product;
 import com.pfeiffer.expenses.model.Purchase;
 import com.pfeiffer.expenses.repository.RepositoryManager;
 import com.pfeiffer.expenses.repository.UpdatePurchaseTemplates;
-import com.pfeiffer.expenses.utility.Translation;
+
+import java.util.Date;
 
 public class ActivityRecordPurchase extends Activity {
     public final String logTag_ = this.getClass().getName();
@@ -38,6 +39,9 @@ public class ActivityRecordPurchase extends Activity {
             startActivityForResult(intent, 0);
         }
     };
+
+    // TODO: http://developer.android.com/guide/topics/resources/runtime-changes.html
+    // Retain Objects through configuration change
 
     private RepositoryManager repositoryManager_;
 
@@ -177,39 +181,25 @@ public class ActivityRecordPurchase extends Activity {
 
 
     public void onClick(View view) {
-        String name;
-        name = name_.getText().toString().trim();
-        String strCategory;
-        CATEGORY category = CATEGORY.fromString(category_.getSelectedItem().toString());
-        String strLocation;
-        LOCATION location = LOCATION.fromString(location_.getSelectedItem().toString());
-        int amount = amount_.getValue();
-        String price = price_.getText().toString().trim();
 
-        Log.d(logTag_, "Method onClick() records name=" + name + ", category="
-                + category + ", location=" + location + ", amount=" + amount + ", price=" + price);
+        // create a temporary purchase from the ui entries
+        Purchase purchase = new Purchase(purchaseId_, productId_, amount_.getValue(),
+                new Date(System.currentTimeMillis()), LOCATION.fromString(location_.getSelectedItem().toString()),
+                price_.getText().toString().trim(), cash_.isChecked(),
+                name_.getText().toString().trim(), CATEGORY.fromString(category_.getSelectedItem().toString()) );
 
 
-        if (price.length() - price.replaceAll("\\.", "").length() > 1) {
-            Toast.makeText(this, R.string.price_not_valid, Toast.LENGTH_SHORT).show();
-            return;
-        }
+        // make sure that all field values are set correctly.
+        if (purchase.hasValidState()) {
 
-        // make sure that all field values are set.
-        if (name != null && !name.isEmpty() && !category.equals(CATEGORY.NONE) && !location.equals(LOCATION.NONE)) {
-
-            price = Translation.getValidPrice(price);
-            boolean cash = cash_.isChecked();
 
             if (editMode_) {
-                repositoryManager_.updatePurchase(purchaseId_, price, amount, location, cash, name, category);
-                if (productId_ > 0)
-                    repositoryManager_.updateProduct(productId_, name, category, price, null);
-
+                // if in edit mode: update purchase and product (if applies)
+                repositoryManager_.updatePurchase(purchase);
                 Toast.makeText(this, R.string.purchase_updated, Toast.LENGTH_SHORT).show();
             } else {
-                repositoryManager_.createPurchase(name, category, price, new Barcode(barcodeString_), amount,
-                        location, cash);
+                // else: create purchase and product (if applies)
+                repositoryManager_.createPurchaseAndProduct(purchase, new Barcode(barcodeString_));
                 Toast.makeText(this, R.string.purchase_created, Toast.LENGTH_SHORT).show();
             }
 
@@ -235,16 +225,17 @@ public class ActivityRecordPurchase extends Activity {
 
                     configureBarcodeUiElements(true);
 
+                    repositoryManager_.open();
                     Product product = repositoryManager_.findProductByBarcode(new Barcode(barcodeString_));
                     // only continue if a product could be obtained
                     if (product != null) {
                         productId_ = product.getId();
-                        Purchase purchaseFromDatabase = repositoryManager_.findPurchaseByProductId(productId_);
+                        Purchase purchaseFromDatabase = repositoryManager_.findLatestPurchase(product);
                         if (purchaseFromDatabase != null) {
                             setFields(purchaseFromDatabase.getProductName(), purchaseFromDatabase.getCategory(),
                                     purchaseFromDatabase.getLocation(), purchaseFromDatabase.getPrice(), 1, false);
                         } else {
-                            setFields(product.getName(), product.getCategory(), null, product.getPrice(), 1, false);
+                            setFields(product.getName(), null , null, null, 1, false);
                         }
                     }
                 }

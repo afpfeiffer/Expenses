@@ -11,13 +11,10 @@ public class ExpensesSQLiteHelper extends SQLiteOpenHelper {
     public static final String TABLE_PRODUCT = "product";
     public static final String PRODUCT_ID = "id";
     public static final String PRODUCT_NAME = "name";
-    public static final String PRODUCT_CATEGORY = "category";
-    public static final String PRODUCT_PRICE = "price";
     public static final String PRODUCT_BARCODE = "barcode";
     // Database creation sql statements
     private static final String CREATE_PRODUCT_TABLE = "create table " + TABLE_PRODUCT + "(" + PRODUCT_ID
-            + " integer primary key autoincrement, " + PRODUCT_NAME + " text not null," + PRODUCT_CATEGORY
-            + " text not null," + PRODUCT_PRICE + " text not null," + PRODUCT_BARCODE + " text" + " );";
+            + " integer primary key autoincrement, " + PRODUCT_NAME + " text not null," + PRODUCT_BARCODE + " text" + " );";
     // purchase table definitions
     public static final String TABLE_PURCHASE = "purchase";
     public static final String PURCHASE_ID = "id";
@@ -57,7 +54,7 @@ public class ExpensesSQLiteHelper extends SQLiteOpenHelper {
 
 
     private static final String DATABASE_NAME = "expenses.db";
-    private static final int DATABASE_VERSION = 11;
+    private static final int DATABASE_VERSION = 13;
 
     public ExpensesSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

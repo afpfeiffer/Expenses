@@ -28,7 +28,7 @@ public class PurchaseTemplate {
         // TODO: refine algorithms!
         amount_=purchaseList.get(0).getAmount();
         location_=purchaseList.get(0).getLocation();
-        price_=product.getPrice();
+        price_=purchaseList.get(0).getPrice();
         productName_=product.getName();
         numberOfPurchases_=purchaseList.size();
         lastPurchaseDate_ =purchaseList.get(numberOfPurchases_-1).getDate();

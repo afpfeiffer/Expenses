@@ -4,8 +4,6 @@ import android.content.Context;
 import android.database.SQLException;
 
 import com.pfeiffer.expenses.model.Barcode;
-import com.pfeiffer.expenses.model.CATEGORY;
-import com.pfeiffer.expenses.model.LOCATION;
 import com.pfeiffer.expenses.model.Product;
 import com.pfeiffer.expenses.model.Purchase;
 
@@ -48,32 +46,24 @@ public class RepositoryManager {
         return repoProduct_.getAllProducts();
     }
 
-
-    public boolean updateProduct(int id, String name, CATEGORY category, String price, Barcode barcode) {
-        return repoProduct_.updateProduct(id, name, category, price, barcode);
+    public boolean updatePurchase(Purchase purchase) {
+        return repoPurchase_.updatePurchase(purchase);
     }
 
-    public boolean updatePurchase(int purchaseId, String price, int amount, LOCATION location, boolean cash,
-                                  String productName, CATEGORY category) {
+    public Purchase createPurchaseAndProduct(Purchase purchase,
+                                             Barcode barcode) {
 
-        return repoPurchase_.updatePurchase(purchaseId, price, amount, location, cash, productName, category);
-    }
+        if (!purchase.hasValidState()) throw new IllegalStateException();
 
-    public Purchase createPurchase(
-            String productName,
-            CATEGORY category,
-            String price,
-            Barcode barcode,
-            int amount,
-            LOCATION location, boolean cash) {
-
-        int productId=-1;
-        if(!barcode.isEmpty()){
-            Product product = repoProduct_.updateOrCreateProduct(productName, category, price, barcode);
-            productId=product.getId();
+        if (!barcode.isEmpty()) {
+            Product product = repoProduct_.findProduct(ExpensesSQLiteHelper.PRODUCT_BARCODE, barcode.toString());
+            if (product==null){
+                product = repoProduct_.createProduct(new Product(-1, purchase.getProductName(), barcode));
+            }
+            purchase.setProductId(product.getId());
         }
 
-        return repoPurchase_.createPurchase(productId, price, amount, location, cash, productName, category);
+        return repoPurchase_.createPurchase(purchase);
     }
 
     public List<Purchase> getAllPurchases() {
@@ -84,11 +74,11 @@ public class RepositoryManager {
         return repoPurchase_.getAllPurchasesForDateRange(minDate, maxDate);
     }
 
-    public Purchase findPurchaseByProductId(int productId) {
-        return repoPurchase_.findLatestPurchase(ExpensesSQLiteHelper.PURCHASE_PRODUCT_ID, String.valueOf(productId));
+    public Purchase findLatestPurchase(Product product) {
+        return repoPurchase_.findLatestPurchase(ExpensesSQLiteHelper.PURCHASE_PRODUCT_ID, String.valueOf(product.getId()));
     }
 
-    public Purchase findPurchaseById( int purchaseId ){
+    public Purchase findPurchaseById(int purchaseId) {
         return repoPurchase_.findLatestPurchase(ExpensesSQLiteHelper.PURCHASE_ID, String.valueOf(purchaseId));
     }
 
@@ -98,12 +88,12 @@ public class RepositoryManager {
 
 
     // only for low level use
-    RepositoryProduct getRepositoryProduct(){
+    RepositoryProduct getRepositoryProduct() {
         return repoProduct_;
     }
 
     // only for low level use
-    RepositoryPurchase getRepositoryPurchase(){
+    RepositoryPurchase getRepositoryPurchase() {
         return repoPurchase_;
     }
 

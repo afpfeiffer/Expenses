@@ -32,6 +32,11 @@ import java.util.Map;
  * @author axelpfeiffer
  */
 public class ActivityMain extends Activity {
+
+    // TODO: http://developer.android.com/guide/topics/resources/runtime-changes.html
+    // Retain Objects through configuration change
+
+
     public static final String EXTRA_PURCHASE_ID = "purchaseId";
     private final String logTag_ = this.getClass().getName();
 

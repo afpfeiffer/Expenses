@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.util.Log;
 
 import com.pfeiffer.expenses.model.Barcode;
-import com.pfeiffer.expenses.model.CATEGORY;
 import com.pfeiffer.expenses.model.Product;
 
 import java.util.ArrayList;
@@ -13,10 +12,9 @@ import java.util.List;
 
 class RepositoryProduct extends RepositoryBase {
 
-    private final String logTag_=this.getClass().getName();
+    private final String logTag_ = this.getClass().getName();
 
     private final String[] allProductColumns_ = {ExpensesSQLiteHelper.PRODUCT_ID, ExpensesSQLiteHelper.PRODUCT_NAME,
-            ExpensesSQLiteHelper.PRODUCT_CATEGORY, ExpensesSQLiteHelper.PRODUCT_PRICE,
             ExpensesSQLiteHelper.PRODUCT_BARCODE};
 
     public RepositoryProduct(ExpensesSQLiteHelper dbHelper) {
@@ -26,28 +24,23 @@ class RepositoryProduct extends RepositoryBase {
     private Product cursorToProduct(Cursor cursor) {
         // Auto-generated method stub
         Log.d(logTag_, "Enter method cursorToProduct().");
-        Product ret = new Product(cursor.getInt(0), cursor.getString(1),
-                CATEGORY.valueOf(cursor.getString(2)), cursor.getString(3), new Barcode(cursor.getString(4)));
+        Product ret = new Product(cursor.getInt(0), cursor.getString(1), new Barcode(cursor.getString(2)));
 
         Log.d(logTag_, "Method cursorToProduct() returns value '" + ret + "'.");
         return ret;
     }
 
-    private Product createProduct(String name, CATEGORY category, String price, Barcode barcode) {
-        Log.d(this.getClass().getName(), "Enter method createProduct with arguments name=" + name + ", category="
-                + category + ", price=" + price + ", barcode=" + barcode + ".");
+    Product createProduct(Product product) {
+        String name=product.getName();
+        Barcode barcode=product.getBarcode();
+        Log.d(this.getClass().getName(), "Enter method createProduct with arguments name=" + name + ", " +
+                "barcode=" + barcode + ".");
 
         if (name == null || name.equals(""))
             throw new IllegalArgumentException("Name must be defined.");
-        if (category == null || category.toString().equals(""))
-            throw new IllegalArgumentException("Category must be defined.");
-        if (price == null || price.equals(""))
-            throw new IllegalArgumentException("Price must be defined.");
 
         ContentValues values = new ContentValues();
         values.put(ExpensesSQLiteHelper.PRODUCT_NAME, name);
-        values.put(ExpensesSQLiteHelper.PRODUCT_CATEGORY, category.name());
-        values.put(ExpensesSQLiteHelper.PRODUCT_PRICE, price);
         values.put(ExpensesSQLiteHelper.PRODUCT_BARCODE, barcode.toString());
 
         long insertId = database_.insert(ExpensesSQLiteHelper.TABLE_PRODUCT, null, values);
@@ -67,66 +60,6 @@ class RepositoryProduct extends RepositoryBase {
         cursor.close();
 
         return newProduct;
-    }
-
-    boolean updateProduct(int id, String name, CATEGORY category, String price, Barcode barcode) {
-        Log.d(logTag_, "Enter method updateProduct with arguments id=" + id + ", name=" + name
-                + ", category=" + category + ", price=" + price + ", barcode=" + barcode + ".");
-
-        if (id < 0)
-            throw new IllegalArgumentException();
-
-        ContentValues values = new ContentValues();
-        if (name != null && !name.equals(""))
-            values.put(ExpensesSQLiteHelper.PRODUCT_NAME, name);
-        if (category != null)
-            values.put(ExpensesSQLiteHelper.PRODUCT_CATEGORY, category.name());
-        if (price != null && !price.equals(""))
-            values.put(ExpensesSQLiteHelper.PRODUCT_PRICE, price);
-        if (barcode != null && !barcode.isEmpty())
-            values.put(ExpensesSQLiteHelper.PRODUCT_BARCODE, barcode.toString());
-
-        Log.d(logTag_, "Update values "+values);
-
-        int rowsAffected = database_.update(
-                ExpensesSQLiteHelper.TABLE_PRODUCT,
-                values,
-                ExpensesSQLiteHelper.PRODUCT_ID + "=" + id,
-                null);
-
-        Log.d(logTag_, "Update affected "+rowsAffected+" row(s).");
-
-        return (rowsAffected == 1);
-    }
-
-    Product updateOrCreateProduct(String name, CATEGORY category, String price, Barcode barcode) {
-        Log.d(logTag_, "Enter method updateOrCreateProduct with arguments name=" + name
-                + ", category=" + category + ", price=" + price + ", barcode=" + barcode + ".");
-
-        if (name == null || name.equals(""))
-            throw new IllegalArgumentException("Name must be defined.");
-        if (category == null || category.toString().equals(""))
-            throw new IllegalArgumentException("Category must be defined.");
-        if (price == null || price.equals(""))
-            throw new IllegalArgumentException("Price must be defined.");
-
-        // if barcode is known, return the associated Product.
-        if (barcode != null && !barcode.isEmpty()) {
-            Product temporaryProduct = findProduct(ExpensesSQLiteHelper.PRODUCT_BARCODE, barcode.toString());
-            // If the barcode is defined, we either have an existing product
-            // with this barcode, or we need to create one.
-            if (temporaryProduct != null) {
-                Log.d(this.getClass().getName(), "Method updateOrCreateProduct() obtained the product with id "
-                        + temporaryProduct.getId() + ".");
-                updateProduct(temporaryProduct.getId(), name, category, price, barcode);
-                // return product after db update
-                return findProduct(ExpensesSQLiteHelper.PRODUCT_ID, String.valueOf(temporaryProduct.getId()));
-            }
-        }
-        Product ret = createProduct(name, category, price, barcode);
-        Log.d(logTag_, "Method updateOrCreateProduct() created a product with id " + ret.getId() +
-                ".");
-        return ret;
     }
 
     Product findProduct(String searchField, String searchValue) {
