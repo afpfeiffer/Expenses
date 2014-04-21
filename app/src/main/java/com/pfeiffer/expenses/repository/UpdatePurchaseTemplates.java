@@ -36,11 +36,10 @@ public class UpdatePurchaseTemplates extends Service {
         // read DB and cache all purchases associated with products that don't have a barcode
         for (Product product : allProducts) {
             if (!product.hasBarcode()) {
-                List<Purchase> productPurchases = repositoryManager.getRepositoryPurchase().findPurchases(ExpensesSQLiteHelper
-                        .PURCHASE_PRODUCT_ID, String.valueOf(product.getId()));
+                List<Purchase> purchases = repositoryManager.getAllPurchases();
 
-                if (productPurchases != null && productPurchases.size() > 0) {
-                    templateCandidates.add(new PurchaseTemplate(product, productPurchases));
+                if (purchases != null && purchases.size() > 0) {
+//                    templateCandidates.add(new PurchaseTemplate(product, productPurchases));
                 }
             }
         }

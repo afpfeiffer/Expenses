@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.pfeiffer.expenses.model.CATEGORY;
 import com.pfeiffer.expenses.model.LOCATION;
+import com.pfeiffer.expenses.model.Money;
 import com.pfeiffer.expenses.model.Purchase;
 
 import java.util.ArrayList;
@@ -34,14 +35,14 @@ class RepositoryPurchase extends RepositoryBase {
 
         return new Purchase(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2),
                 new Date(Long.parseLong(cursor.getString(3))),
-                LOCATION.valueOf(cursor.getString(4)), cursor.getString(5), (cursor.getInt(6)) == 1,
+                LOCATION.valueOf(cursor.getString(4)), new Money(cursor.getString(5)), (cursor.getInt(6)) == 1,
                 cursor.getString(7), CATEGORY.valueOf(cursor.getString(8)));
     }
 
 
     Purchase createPurchase(Purchase purchase) {
         int productId = purchase.getProductId();
-        String price=purchase.getPrice();
+        Money price=purchase.getPrice();
         int amount=purchase.getAmount();
         LOCATION location=purchase.getLocation();
         boolean cash=purchase.isCash();
@@ -62,7 +63,7 @@ class RepositoryPurchase extends RepositoryBase {
         values.put(ExpensesSQLiteHelper.PURCHASE_AMOUNT, amount);
         values.put(ExpensesSQLiteHelper.PURCHASE_DATE, System.currentTimeMillis());
         values.put(ExpensesSQLiteHelper.PURCHASE_LOCATION, location.name());
-        values.put(ExpensesSQLiteHelper.PURCHASE_PRICE, String.valueOf(price));
+        values.put(ExpensesSQLiteHelper.PURCHASE_PRICE, price.getDataBaseRepresentation());
         values.put(ExpensesSQLiteHelper.PURCHASE_CASH, (cash) ? 1 : 0);
         values.put(ExpensesSQLiteHelper.PURCHASE_PRODUCT_NAME, productName);
         values.put(ExpensesSQLiteHelper.PURCHASE_CATEGORY, category.name());
@@ -89,7 +90,7 @@ class RepositoryPurchase extends RepositoryBase {
 
     boolean updatePurchase(Purchase purchase) {
         int purchaseId=purchase.getId();
-        String price=purchase.getPrice();
+        Money price=purchase.getPrice();
         int amount=purchase.getAmount();
         LOCATION location=purchase.getLocation();
         boolean cash=purchase.isCash();
@@ -110,7 +111,7 @@ class RepositoryPurchase extends RepositoryBase {
         ContentValues values = new ContentValues();
         values.put(ExpensesSQLiteHelper.PURCHASE_AMOUNT, amount);
         values.put(ExpensesSQLiteHelper.PURCHASE_LOCATION, location.name());
-        values.put(ExpensesSQLiteHelper.PURCHASE_PRICE, String.valueOf(price));
+        values.put(ExpensesSQLiteHelper.PURCHASE_PRICE, price.getDataBaseRepresentation());
         values.put(ExpensesSQLiteHelper.PURCHASE_CASH, (cash) ? 1 : 0);
         values.put(ExpensesSQLiteHelper.PURCHASE_PRODUCT_NAME, productName);
         values.put(ExpensesSQLiteHelper.PURCHASE_CATEGORY, category.name());

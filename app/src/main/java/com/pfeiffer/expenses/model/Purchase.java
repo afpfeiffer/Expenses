@@ -2,8 +2,6 @@ package com.pfeiffer.expenses.model;
 
 import android.util.Log;
 
-import com.pfeiffer.expenses.utility.Translation;
-
 import java.util.Date;
 
 
@@ -13,12 +11,12 @@ public class Purchase {
     private int productId_;
     final private int amount_;
     final private LOCATION location_;
-    final private String price_;
+    final private Money price_;
     final private Date purchaseDate_;
     final private String productName_;
     final private CATEGORY category_;
 
-    public Purchase(int purchaseId, int productId, int amount, Date date, LOCATION location, String price,
+    public Purchase(int purchaseId, int productId, int amount, Date date, LOCATION location, Money price,
                     boolean cash, String productName, CATEGORY category) {
         Log.d(this.getClass().getName(), "Enter Purchase constructor with arguments: purchaseId=" + purchaseId
                 + ", productId=" + productId + ", amount=" + amount + ", date=" + date + ", location=" + location
@@ -53,8 +51,8 @@ public class Purchase {
         return location_;
     }
 
-    public String getPrice() {
-        return Translation.getValidPrice(price_);
+    public Money getPrice() {
+        return price_;
     }
 
     public int getId() {
@@ -77,14 +75,17 @@ public class Purchase {
         return productId_ > 0;
     }
 
-    public String getTotalPrice() {
-        return Translation.getValidPrice(String.valueOf(Double.parseDouble(price_) * amount_));
+    public Money getTotalPrice() {
+        return price_.getScaled(amount_);
+    }
+
+    public String getTotalHumanReadablePrice(){
+        return price_.getHumanReadableRepresentation(amount_);
     }
 
     public boolean hasValidState() {
 
-        if (price_ == null || price_.equals("") || price_.equals(".") || price_.length() - price_.replaceAll("\\.",
-                "").length() > 1) return false;
+        if (!price_.isValid()) return false;
         if (productName_ == null || productName_.equals("")) return false;
         if (category_.equals(CATEGORY.NONE)) return false;
         if (location_.equals(LOCATION.NONE)) return false;

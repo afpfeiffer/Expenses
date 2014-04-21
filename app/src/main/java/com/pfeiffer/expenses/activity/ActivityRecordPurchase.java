@@ -22,6 +22,7 @@ import com.pfeiffer.expenses.R;
 import com.pfeiffer.expenses.model.Barcode;
 import com.pfeiffer.expenses.model.CATEGORY;
 import com.pfeiffer.expenses.model.LOCATION;
+import com.pfeiffer.expenses.model.Money;
 import com.pfeiffer.expenses.model.Product;
 import com.pfeiffer.expenses.model.Purchase;
 import com.pfeiffer.expenses.repository.RepositoryManager;
@@ -151,7 +152,7 @@ public class ActivityRecordPurchase extends Activity {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private void setFields(String name, CATEGORY category, LOCATION location, String price, int amount, boolean cash) {
+    private void setFields(String name, CATEGORY category, LOCATION location, Money price, int amount, boolean cash) {
         if (name != null && !name.equals("")) {
             name_.setText(name);
         }
@@ -163,8 +164,8 @@ public class ActivityRecordPurchase extends Activity {
             ArrayAdapter arrayAdapterCategory = (ArrayAdapter) location_.getAdapter();
             location_.setSelection(arrayAdapterCategory.getPosition(location));
         }
-        if (price != null && !price.equals("")) {
-            price_.setText(price);
+        if (price != null && price.isValid()) {
+            price_.setText(price.toString());
         }
         if (amount > 0) {
             amount_.setValue(amount);
@@ -183,11 +184,17 @@ public class ActivityRecordPurchase extends Activity {
     public void onClick(View view) {
 
         // create a temporary purchase from the ui entries
-        Purchase purchase = new Purchase(purchaseId_, productId_, amount_.getValue(),
-                new Date(System.currentTimeMillis()), LOCATION.fromString(location_.getSelectedItem().toString()),
-                price_.getText().toString().trim(), cash_.isChecked(),
-                name_.getText().toString().trim(), CATEGORY.fromString(category_.getSelectedItem().toString()) );
-
+        Purchase purchase;
+        try {
+            purchase = new Purchase(purchaseId_, productId_, amount_.getValue(),
+                    new Date(System.currentTimeMillis()), LOCATION.fromString(location_.getSelectedItem().toString()),
+                    new Money(price_.getText().toString().trim()), cash_.isChecked(),
+                    name_.getText().toString().trim(), CATEGORY.fromString(category_.getSelectedItem().toString()));
+        }
+        catch (IllegalArgumentException e){
+            Toast.makeText(this, R.string.values_not_valid, Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         // make sure that all field values are set correctly.
         if (purchase.hasValidState()) {

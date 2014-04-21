@@ -39,49 +39,4 @@ public class Translation {
         return cal.getTime();
     }
 
-
-
-    static private String adjustZeros(String arg) {
-        int len = arg.length();
-
-        // check if "." appears more than once
-        int numberOfDots = len - arg.replace(".", "").length();
-        // Log.d( "Translation", "Number of dots: " + String.valueOf(
-        // numberOfDots ) );
-        if (numberOfDots > 1)
-            return null;
-
-        String ret = arg;
-
-        if (numberOfDots == 0)
-            return ret + ".00";
-        else {
-            int dotPos = arg.indexOf(".");
-            // Log.d( "Translation", "Dot position: " + String.valueOf( dotPos )
-            // + ", length: " + len );
-            if (dotPos == 0)
-                ret = "0" + ret;
-            if (dotPos == len - 1)
-                ret += "00";
-            else if (dotPos == len - 2)
-                ret += "0";
-        }
-        return ret;
-    }
-
-    static public String getValidPrice(double arg) {
-        return getValidPrice(String.valueOf(arg));
-    }
-
-    static public String getValidPrice(String arg) {
-        // round long values
-        double value = (double) Math.round(Double.parseDouble(arg) * 100) / 100;
-
-        return adjustZeros(String.valueOf(value));
-    }
-//
-//    static public String getPercentage(double arg){
-//
-//    }
-
 }

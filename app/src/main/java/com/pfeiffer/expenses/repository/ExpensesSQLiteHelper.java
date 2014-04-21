@@ -54,7 +54,7 @@ public class ExpensesSQLiteHelper extends SQLiteOpenHelper {
 
 
     private static final String DATABASE_NAME = "expenses.db";
-    private static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 14;
 
     public ExpensesSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

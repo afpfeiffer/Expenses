@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.pfeiffer.expenses.R;
 import com.pfeiffer.expenses.model.CATEGORY;
+import com.pfeiffer.expenses.model.Money;
 import com.pfeiffer.expenses.model.Purchase;
 import com.pfeiffer.expenses.repository.RepositoryManager;
 import com.pfeiffer.expenses.utility.DataAnalysis;
@@ -56,8 +57,8 @@ public class ActivityMain extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         expandableListView_ = (ExpandableListView) findViewById(R.id.expandableListViewMain);
-        currentMonth_ =(TextView) findViewById(R.id.tvCurrentMonth);
-        totalExpenses_ =(TextView) findViewById(R.id.tvTotalExpenses);
+        currentMonth_ = (TextView) findViewById(R.id.tvCurrentMonth);
+        totalExpenses_ = (TextView) findViewById(R.id.tvTotalExpenses);
 
         registerForContextMenu(expandableListView_);
         showActivity();
@@ -72,7 +73,7 @@ public class ActivityMain extends Activity {
         repositoryManager_.open();
 
 
-        Date rightNow =new Date(System.currentTimeMillis());
+        Date rightNow = new Date(System.currentTimeMillis());
 
         List<Purchase> purchasesCurrentMonth = repositoryManager_.getAllPurchasesForDateRange(Translation.getFirstDateOfCurrentMonth
                 (), rightNow);
@@ -80,37 +81,35 @@ public class ActivityMain extends Activity {
         DataAnalysis dataAnalysis = new DataAnalysis(repositoryManager_, purchasesCurrentMonth);
 
         currentMonth_.setText(Translation.getMonthString(rightNow));
-        double totalExpenses=dataAnalysis.getExpensesPerMonth(rightNow);
-        totalExpenses_.setText(Translation.getValidPrice(String.valueOf(totalExpenses))
-                + " €");
+        Money totalExpenses = dataAnalysis.getExpensesPerMonth(rightNow);
+        totalExpenses_.setText(totalExpenses.getHumanReadableRepresentation());
 
-        List<Map.Entry<CATEGORY,Double>> categoryToExpenses = dataAnalysis.getSortedCategoryToExpensesForYearAndMonth
+        List<Map.Entry<CATEGORY, Money>> categoryToExpenses = dataAnalysis.getSortedCategoryToExpensesForYearAndMonth
                 (rightNow);
 
-        int len=categoryToExpenses.size();
-        for(int i = 0; i < len; ++i ){
-            Map.Entry<CATEGORY,Double> entry = categoryToExpenses.get(len-1-i);
-            CATEGORY category=entry.getKey();
-            List<Purchase> purchases=dataAnalysis.getPurchasesForYearMonthAndCategory(rightNow, category);
-            if(purchases!=null && !purchases.isEmpty()){
+        int len = categoryToExpenses.size();
+        for (int i = 0; i < len; ++i) {
+            Map.Entry<CATEGORY, Money> entry = categoryToExpenses.get(len - 1 - i);
+            CATEGORY category = entry.getKey();
+            List<Purchase> purchases = dataAnalysis.getPurchasesForYearMonthAndCategory(rightNow, category);
+            if (purchases != null && !purchases.isEmpty()) {
                 ArrayList<HashMap<String, String>> secList = new ArrayList<HashMap<String, String>>();
 
-                map1=new HashMap<String, String>();
-                int percentage= (int)(100*entry.getValue()/totalExpenses ) ;
-                map1.put("rowCategoryName", category.toString()+" ("+percentage+" %)" );
-                map1.put("rowCategoryExpenses", Translation.getValidPrice(String.valueOf(entry.getValue()))
-                        + " €");
+                map1 = new HashMap<String, String>();
+                int percentage = entry.getValue().percentage(totalExpenses);
+                map1.put("rowCategoryName", category.toString() + " (" + percentage + " %)");
+                map1.put("rowCategoryExpenses", entry.getValue().getHumanReadableRepresentation());
                 mylist_title.add(map1);
 
-                for(Purchase purchase : purchases){
+                for (Purchase purchase : purchases) {
 
                     map2 = new HashMap<String, String>();
                     map2.put("purchaseId", String.valueOf(purchase.getId()));
                     map2.put("rowDate", Translation.shortDate(purchase.getDate()));
-                    map2.put("rowName", ((purchase.getAmount()>1) ? purchase.getAmount() + "x " : "")
+                    map2.put("rowName", ((purchase.getAmount() > 1) ? purchase.getAmount() + "x " : "")
                             + purchase.getProductName());
 
-                    map2.put("rowTotalPrice", purchase.getTotalPrice() + " €");
+                    map2.put("rowTotalPrice", purchase.getTotalHumanReadablePrice());
                     secList.add(map2);
                 }
 
@@ -220,26 +219,28 @@ public class ActivityMain extends Activity {
 
         repositoryManager_.deletePurchase(Integer
                 .parseInt(mylist.get(groupPos).get(childPos).get("purchaseId")));
+        Money price = new Money(mylist.get(groupPos).get(childPos).get("rowTotalPrice"));
+
         mylist.get(groupPos).remove(childPos);
 
-        if (mylist.get(groupPos).isEmpty())
+        if (mylist.get(groupPos).isEmpty()) {
             mylist_title.remove(groupPos);
-
-        double sumTotalMonthExpenses = 0.;
-        int len = mylist.get(groupPos).size();
-        if (len == 0)
-            mylist.remove(groupPos);
+        }
         else {
-            for (int i = 0; i < len; ++i) {
-                String temp = mylist.get(groupPos).get(i).get("rowTotalPrice");
 
-                sumTotalMonthExpenses += Double.parseDouble(temp.substring(0, temp.length() - 2));
-            }
+            Money totalCategoryExpenses = new Money(mylist_title.get(groupPos).get("rowCategoryExpenses"));
+
+            totalCategoryExpenses.subtract(price);
 
             mylist_title.get(groupPos).put(
-                    "rowMonthExpenses",
-                    Translation.getValidPrice(String.valueOf(sumTotalMonthExpenses)) + " €");
+                    "rowCategoryExpenses",
+                    totalCategoryExpenses.getHumanReadableRepresentation());
         }
+
+        Money totalExpenses = new Money(totalExpenses_.getText().toString());
+        totalExpenses.subtract(price);
+        totalExpenses_.setText(totalExpenses.getHumanReadableRepresentation());
+
         expListAdapter.notifyDataSetChanged();
         Toast.makeText(this, R.string.purchase_deleted, Toast.LENGTH_SHORT).show();
         return true; // TODO what do we really need to return?

@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.util.Log;
 
 import com.pfeiffer.expenses.model.LOCATION;
+import com.pfeiffer.expenses.model.Money;
 import com.pfeiffer.expenses.model.PurchaseTemplate;
 
 import java.util.ArrayList;
@@ -28,14 +29,16 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
         super(dbHelper);
     }
 
-    void createPurchaseTemplate(
-            int productId,
-            String price,
-            int amount,
-            LOCATION location,
-            String productName,
-            int numberOfPurchases,
-            Date lastPurchaseDate) {
+    void createPurchaseTemplate(PurchaseTemplate purchaseTemplate) {
+
+        int productId=purchaseTemplate.getProductId();
+        Money price=purchaseTemplate.getPrice();
+        int amount=purchaseTemplate.getAmount();
+        LOCATION location=purchaseTemplate.getLocation();
+        String productName=purchaseTemplate.getProductName();
+        int numberOfPurchases=purchaseTemplate.getNumberOfPurchases();
+        Date lastPurchaseDate=purchaseTemplate.getLastPurchaseDate();
+
         Log.d(logTag_, "Enter method createPurchaseTemplate with arguments productId=" + productId
                 + ", price=" + price + ", amount=" + amount + ", location=" + location + ", " +
                 "productName="+productName+", numberOfPurchases="+numberOfPurchases+", " +
@@ -65,7 +68,8 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
             throw new IllegalStateException("Database cursor out of bounds.");
 
         return new PurchaseTemplate(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2),
-                LOCATION.valueOf(cursor.getString(3)), cursor.getString(4), cursor.getString(5), cursor.getInt(6),
+                LOCATION.valueOf(cursor.getString(3)), new Money(cursor.getString(4)), cursor.getString(5),
+                cursor.getInt(6),
                 new Date( Long.parseLong(cursor.getString(7)) ));
     }
 

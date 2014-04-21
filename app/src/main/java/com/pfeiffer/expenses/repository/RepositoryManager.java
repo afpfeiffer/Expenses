@@ -24,9 +24,6 @@ public class RepositoryManager {
     public void open() throws SQLException {
         repoProduct_.open();
         repoPurchase_.open();
-
-        // WARNING: Activate this for testing only. This will dump the Database.
-        // dbHelper_.onUpgrade( database_, 1, 1 );
     }
 
     public void close() {
@@ -50,14 +47,13 @@ public class RepositoryManager {
         return repoPurchase_.updatePurchase(purchase);
     }
 
-    public Purchase createPurchaseAndProduct(Purchase purchase,
-                                             Barcode barcode) {
+    public Purchase createPurchaseAndProduct(Purchase purchase, Barcode barcode) {
 
         if (!purchase.hasValidState()) throw new IllegalStateException();
 
         if (!barcode.isEmpty()) {
             Product product = repoProduct_.findProduct(ExpensesSQLiteHelper.PRODUCT_BARCODE, barcode.toString());
-            if (product==null){
+            if (product == null) {
                 product = repoProduct_.createProduct(new Product(-1, purchase.getProductName(), barcode));
             }
             purchase.setProductId(product.getId());
@@ -84,17 +80,6 @@ public class RepositoryManager {
 
     public int deletePurchase(int purchaseId) {
         return repoPurchase_.deletePurchase(purchaseId);
-    }
-
-
-    // only for low level use
-    RepositoryProduct getRepositoryProduct() {
-        return repoProduct_;
-    }
-
-    // only for low level use
-    RepositoryPurchase getRepositoryPurchase() {
-        return repoPurchase_;
     }
 
 }
