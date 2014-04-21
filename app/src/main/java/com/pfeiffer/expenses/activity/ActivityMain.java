@@ -143,6 +143,7 @@ public class ActivityMain extends Activity {
         switch (item.getItemId()) {
             case R.id.action_settings:
                 // About option clicked.
+                Log.d(logTag_, repositoryManager_.getAllPurchaseTemplates().toString());
                 return true;
             case R.id.action_sync_data:
                 startActivity(new Intent(this, ActivitySyncData.class));

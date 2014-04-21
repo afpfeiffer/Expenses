@@ -1,7 +1,5 @@
 package com.pfeiffer.expenses.model;
 
-import android.util.Log;
-
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -19,7 +17,7 @@ public class Money {
 
     public Money(String money) {
         money=money.replaceAll("[^\\d.]", "");
-        Log.d(logTag_, "string: " + money);
+//        Log.d(logTag_, "string: " + money);
 
 
         if(money.equals("")) throw new IllegalArgumentException();

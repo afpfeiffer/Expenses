@@ -5,12 +5,14 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.pfeiffer.expenses.model.Product;
 import com.pfeiffer.expenses.model.Purchase;
 import com.pfeiffer.expenses.model.PurchaseTemplate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by axelpfeiffer on 26.03.14.
@@ -27,34 +29,39 @@ public class UpdatePurchaseTemplates extends Service {
         repositoryManager.open();
 
 
-
-        List<PurchaseTemplate> templateCandidates = new ArrayList<PurchaseTemplate>();
+        Map<String, List<Purchase>> productNameToPurchases = new HashMap<String, List<Purchase>>();
 
         // get all Products, that don't have a barcode
-        List<Product> allProducts = repositoryManager.getAllProducts();
+        List<Purchase> purchaseList = repositoryManager.getAllPurchases();
 
-        // read DB and cache all purchases associated with products that don't have a barcode
-        for (Product product : allProducts) {
-            if (!product.hasBarcode()) {
-                List<Purchase> purchases = repositoryManager.getAllPurchases();
-
-                if (purchases != null && purchases.size() > 0) {
-//                    templateCandidates.add(new PurchaseTemplate(product, productPurchases));
+        // get a list map product -> purchases of this product
+        for (Purchase purchase : purchaseList) {
+            if (!purchase.hasProductAttached()) {
+                // identifier: productName
+                String productName=purchase.getProductName();
+                if(productNameToPurchases.containsKey(productName)){
+                    List<Purchase> pList=productNameToPurchases.get(productName);
+                    pList.add(purchase);
+                    productNameToPurchases.put(productName, pList);
+                }
+                else{
+                    List<Purchase> pList=new ArrayList<Purchase>();
+                    pList.add(purchase);
+                    productNameToPurchases.put(productName, pList);
                 }
             }
         }
 
-        if (templateCandidates.isEmpty()) return Service.START_NOT_STICKY;
+        repositoryManager.deleteAllPurchaseTemplates();
 
-
-
-        for(int i=0; i <Math.min(10, templateCandidates.size()); ++i) {
-            Log.d(logTag_, "product " + templateCandidates.get(i).getProductName()+
-                    " was purchased "+templateCandidates.get(i).getNumberOfPurchases()+" times.");
-
+        Iterator it=productNameToPurchases.entrySet().iterator();
+        while(it.hasNext()){
+            Map.Entry pairs = (Map.Entry)it.next();
+            ArrayList<Purchase> pList= (ArrayList<Purchase>) pairs.getValue();
+            PurchaseTemplate purchaseTemplate = new PurchaseTemplate(pList);
+            repositoryManager.savePurchaseTemplate(purchaseTemplate);
+            it.remove();
         }
-
-        Log.d(logTag_, templateCandidates.toString());
 
 
         return Service.START_NOT_STICKY;

@@ -43,6 +43,8 @@ public class ActivityRecordPurchase extends Activity {
 
     // TODO: http://developer.android.com/guide/topics/resources/runtime-changes.html
     // Retain Objects through configuration change
+    // TODO: autocomplete
+    // http://android.foxykeep.com/dev/how-to-add-autocompletion-to-an-edittext
 
     private RepositoryManager repositoryManager_;
 
@@ -190,8 +192,7 @@ public class ActivityRecordPurchase extends Activity {
                     new Date(System.currentTimeMillis()), LOCATION.fromString(location_.getSelectedItem().toString()),
                     new Money(price_.getText().toString().trim()), cash_.isChecked(),
                     name_.getText().toString().trim(), CATEGORY.fromString(category_.getSelectedItem().toString()));
-        }
-        catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             Toast.makeText(this, R.string.values_not_valid, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -242,7 +243,7 @@ public class ActivityRecordPurchase extends Activity {
                             setFields(purchaseFromDatabase.getProductName(), purchaseFromDatabase.getCategory(),
                                     purchaseFromDatabase.getLocation(), purchaseFromDatabase.getPrice(), 1, false);
                         } else {
-                            setFields(product.getName(), null , null, null, 1, false);
+                            setFields(product.getName(), null, null, null, 1, false);
                         }
                     }
                 }

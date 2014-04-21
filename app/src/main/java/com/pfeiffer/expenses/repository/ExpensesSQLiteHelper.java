@@ -22,7 +22,7 @@ public class ExpensesSQLiteHelper extends SQLiteOpenHelper {
     public static final String PURCHASE_AMOUNT = "amount";
     public static final String PURCHASE_DATE = "date";
     public static final String PURCHASE_LOCATION = "location";
-    public static final String PURCHASE_PRICE = "totalPrice";
+    public static final String PURCHASE_PRICE = "price";
     public static final String PURCHASE_CASH = "cash";
     public static final String PURCHASE_PRODUCT_NAME = "productName";
     public static final String PURCHASE_CATEGORY = "category";
@@ -35,16 +35,15 @@ public class ExpensesSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String TABLE_PURCHASE_TEMPLATE = "purchaseTemplates";
     public static final String PURCHASE_TEMPLATE_ID = "id";
-    public static final String PURCHASE_TEMPLATE_PRODUCT_ID = "productId";
     public static final String PURCHASE_TEMPLATE_AMOUNT = "amount";
     public static final String PURCHASE_TEMPLATE_LOCATION = "location";
-    public static final String PURCHASE_TEMPLATE_PRICE = "totalPrice";
+    public static final String PURCHASE_TEMPLATE_PRICE = "price";
     public static final String PURCHASE_TEMPLATE_PRODUCT_NAME = "productName";
     public static final String PURCHASE_TEMPLATE_NUMBER_OF_PURCHASES = "numberOfPurchases";
     public static final String PURCHASE_TEMPLATE_LAST_PURCHASE_DATE = "lastPurchase";
 
     private static final String CREATE_PURCHASE_TEMPLATE_TABLE = "create table " + TABLE_PURCHASE_TEMPLATE + "(" + PURCHASE_TEMPLATE_ID
-            + " integer primary key autoincrement, " + PURCHASE_TEMPLATE_PRODUCT_ID + " integer not null," + PURCHASE_TEMPLATE_AMOUNT
+            + " integer primary key autoincrement, " + PURCHASE_TEMPLATE_AMOUNT
             + " integer not null," + PURCHASE_TEMPLATE_LOCATION + " text not null,"
             + PURCHASE_TEMPLATE_PRICE + " text not null,"+PURCHASE_TEMPLATE_PRODUCT_NAME + " text not null," +
             "" + PURCHASE_TEMPLATE_NUMBER_OF_PURCHASES + " integer not null,"+ PURCHASE_TEMPLATE_LAST_PURCHASE_DATE +" " +
@@ -54,7 +53,7 @@ public class ExpensesSQLiteHelper extends SQLiteOpenHelper {
 
 
     private static final String DATABASE_NAME = "expenses.db";
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 17;
 
     public ExpensesSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
