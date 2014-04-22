@@ -4,8 +4,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;
 
-import com.pfeiffer.expenses.model.CATEGORY;
-import com.pfeiffer.expenses.model.LOCATION;
+import com.pfeiffer.expenses.model.Category;
+import com.pfeiffer.expenses.model.Location;
 import com.pfeiffer.expenses.model.Money;
 import com.pfeiffer.expenses.model.Purchase;
 
@@ -35,8 +35,8 @@ class RepositoryPurchase extends RepositoryBase {
 
         return new Purchase(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2),
                 new Date(Long.parseLong(cursor.getString(3))),
-                LOCATION.valueOf(cursor.getString(4)), new Money(cursor.getString(5)), (cursor.getInt(6)) == 1,
-                cursor.getString(7), CATEGORY.valueOf(cursor.getString(8)));
+                Location.valueOf(cursor.getString(4)), new Money(cursor.getString(5)), (cursor.getInt(6)) == 1,
+                cursor.getString(7), Category.valueOf(cursor.getString(8)));
     }
 
 
@@ -44,10 +44,10 @@ class RepositoryPurchase extends RepositoryBase {
         int productId = purchase.getProductId();
         Money price=purchase.getPrice();
         int amount=purchase.getAmount();
-        LOCATION location=purchase.getLocation();
+        Location location=purchase.getLocation();
         boolean cash=purchase.isCash();
         String productName=purchase.getProductName();
-        CATEGORY category=purchase.getCategory();
+        Category category=purchase.getCategory();
 
         Log.d(logTag_, "Enter method createPurchaseAndProduct with arguments productId=" + productId
                 + ", price=" + price + ", amount=" + amount + ", location=" + location + ", cash=" + cash + ", " +
@@ -92,10 +92,10 @@ class RepositoryPurchase extends RepositoryBase {
         int purchaseId=purchase.getId();
         Money price=purchase.getPrice();
         int amount=purchase.getAmount();
-        LOCATION location=purchase.getLocation();
+        Location location=purchase.getLocation();
         boolean cash=purchase.isCash();
         String productName=purchase.getProductName();
-        CATEGORY category=purchase.getCategory();
+        Category category=purchase.getCategory();
 
         Log.d(logTag_, "Enter method updatePurchase with arguments purchaseId=" + purchaseId
                 + ", price=" + price + ", amount=" + amount + ", location=" + location + ", cash=" + cash + ", " +

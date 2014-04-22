@@ -40,7 +40,8 @@ public class Money {
     }
 
     public int percentage(Money money){
-        return amount_.divide(money.getAmount(), MathContext.DECIMAL128).multiply(new BigDecimal(100)).intValue();
+        return amount_.divide(money.getAmount(), MathContext.DECIMAL128).multiply(new BigDecimal(100)).setScale(0,
+                RoundingMode.HALF_UP).intValue();
     }
 
     public void scale(int factor) {

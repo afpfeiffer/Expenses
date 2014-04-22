@@ -2,7 +2,7 @@ package com.pfeiffer.expenses.utility;
 
 import android.util.Log;
 
-import com.pfeiffer.expenses.model.CATEGORY;
+import com.pfeiffer.expenses.model.Category;
 import com.pfeiffer.expenses.model.Money;
 import com.pfeiffer.expenses.model.Product;
 import com.pfeiffer.expenses.model.Purchase;
@@ -24,17 +24,17 @@ public class DataAnalysis {
     private final String logTag_ = this.getClass().getName();
     private RepositoryManager repositoryManager_;
     private List<Purchase> purchaseList_;
-    private HashMap<String, HashMap<CATEGORY, Money>> expensesPerMonthAndCategory_;
+    private HashMap<String, HashMap<Category, Money>> expensesPerMonthAndCategory_;
     private HashMap<String, Money> expensesPerMonth_;
-    private HashMap<String, HashMap<CATEGORY, List<Purchase>>> purchasesPerMonthAndCategory_;
+    private HashMap<String, HashMap<Category, List<Purchase>>> purchasesPerMonthAndCategory_;
 
 
     public DataAnalysis(RepositoryManager repositoryManager) {
         repositoryManager_ = repositoryManager;
         purchaseList_ = repositoryManager_.getAllPurchases();
-        expensesPerMonthAndCategory_ = new HashMap<String, HashMap<CATEGORY, Money>>();
+        expensesPerMonthAndCategory_ = new HashMap<String, HashMap<Category, Money>>();
         expensesPerMonth_ = new HashMap<String, Money>();
-        purchasesPerMonthAndCategory_ = new HashMap<String, HashMap<CATEGORY, List<Purchase>>>();
+        purchasesPerMonthAndCategory_ = new HashMap<String, HashMap<Category, List<Purchase>>>();
 
         analyzePurchaseList();
     }
@@ -42,9 +42,9 @@ public class DataAnalysis {
     public DataAnalysis(RepositoryManager repositoryManager, List<Purchase> purchaseList) {
         repositoryManager_ = repositoryManager;
         purchaseList_ = purchaseList;
-        expensesPerMonthAndCategory_ = new HashMap<String, HashMap<CATEGORY, Money>>();
+        expensesPerMonthAndCategory_ = new HashMap<String, HashMap<Category, Money>>();
         expensesPerMonth_ = new HashMap<String, Money>();
-        purchasesPerMonthAndCategory_ = new HashMap<String, HashMap<CATEGORY, List<Purchase>>>();
+        purchasesPerMonthAndCategory_ = new HashMap<String, HashMap<Category, List<Purchase>>>();
         analyzePurchaseList();
     }
 
@@ -56,9 +56,9 @@ public class DataAnalysis {
 
         Date lastDate = purchaseList_.get(0).getDate();
 
-        HashMap<CATEGORY, Money> categoryToExpenses = new HashMap<CATEGORY, Money>();
+        HashMap<Category, Money> categoryToExpenses = new HashMap<Category, Money>();
         Money expensesSum=new Money("0.0");
-        HashMap<CATEGORY, List<Purchase>> categoryToPurchases = new HashMap<CATEGORY, List<Purchase>>();
+        HashMap<Category, List<Purchase>> categoryToPurchases = new HashMap<Category, List<Purchase>>();
 
 
 
@@ -72,14 +72,14 @@ public class DataAnalysis {
                 expensesPerMonth_.put(Translation.yearAndMonth(lastDate), expensesSum);
                 purchasesPerMonthAndCategory_.put(Translation.yearAndMonth(lastDate), categoryToPurchases);
 
-                categoryToExpenses = new HashMap<CATEGORY, Money>();
+                categoryToExpenses = new HashMap<Category, Money>();
                 expensesSum=new Money("0.0");
-                categoryToPurchases = new HashMap<CATEGORY, List<Purchase>>();
+                categoryToPurchases = new HashMap<Category, List<Purchase>>();
 
                 lastDate = purchase.getDate();
             }
 
-            CATEGORY category = purchase.getCategory();
+            Category category = purchase.getCategory();
             Money purchasePrice = purchase.getTotalPrice();
             expensesSum.add(purchasePrice);
 
@@ -107,7 +107,7 @@ public class DataAnalysis {
     }
 
 
-    public Money getExpensesForYearMonthAndCategory(Date date, CATEGORY category) {
+    public Money getExpensesForYearMonthAndCategory(Date date, Category category) {
         // TODO check arguments
         String yearMonth = Translation.yearAndMonth(date);
         if (expensesPerMonthAndCategory_.containsKey(yearMonth) && expensesPerMonthAndCategory_.get(yearMonth)
@@ -116,11 +116,11 @@ public class DataAnalysis {
         } else return new Money("0.0");
     }
 
-    public List<Map.Entry<CATEGORY, Money>> getSortedCategoryToExpensesForYearAndMonth(Date date){
-        List<Map.Entry<CATEGORY, Money>> ret = new ArrayList<Map.Entry<CATEGORY, Money>>();
+    public List<Map.Entry<Category, Money>> getSortedCategoryToExpensesForYearAndMonth(Date date){
+        List<Map.Entry<Category, Money>> ret = new ArrayList<Map.Entry<Category, Money>>();
 
-        for(CATEGORY category : CATEGORY.values()){
-            ret.add(new AbstractMap.SimpleEntry<CATEGORY, Money>(category, getExpensesForYearMonthAndCategory(date,
+        for(Category category : Category.values()){
+            ret.add(new AbstractMap.SimpleEntry<Category, Money>(category, getExpensesForYearMonthAndCategory(date,
                     category)));
         }
 
@@ -129,7 +129,7 @@ public class DataAnalysis {
         return ret;
     }
 
-    public List<Purchase> getPurchasesForYearMonthAndCategory(Date date, CATEGORY category){
+    public List<Purchase> getPurchasesForYearMonthAndCategory(Date date, Category category){
         // TODO check arguments
         String yearMonth = Translation.yearAndMonth(date);
         if (purchasesPerMonthAndCategory_.containsKey(yearMonth) && purchasesPerMonthAndCategory_.get(yearMonth)
@@ -146,9 +146,9 @@ public class DataAnalysis {
         } else return new Money("0.0");
     }
 
-    public class CategoryComparator implements Comparator<Map.Entry<CATEGORY, Money>> {
+    public class CategoryComparator implements Comparator<Map.Entry<Category, Money>> {
         @Override
-        public int compare(Map.Entry<CATEGORY, Money> o1, Map.Entry<CATEGORY, Money> o2) {
+        public int compare(Map.Entry<Category, Money> o1, Map.Entry<Category, Money> o2) {
             return o1.getValue().compareTo(o2.getValue());
         }
     }

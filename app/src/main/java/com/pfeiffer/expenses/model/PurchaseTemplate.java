@@ -12,12 +12,12 @@ import java.util.List;
 public class PurchaseTemplate {
     private int id_;
     final private int amount_;
-    final private LOCATION location_;
+    final private Location location_;
     final private Money price_;
-
     final private String productName_;
     final private int numberOfPurchases_;
     final private Date lastPurchaseDate_;
+    final private Category category_;
 
     public PurchaseTemplate(List<Purchase> purchaseList) {
         // TODO: refine algorithms!
@@ -27,15 +27,16 @@ public class PurchaseTemplate {
         productName_ = purchaseList.get(0).getProductName();
         numberOfPurchases_ = purchaseList.size();
         lastPurchaseDate_ = purchaseList.get(numberOfPurchases_ - 1).getDate();
-
+        category_=purchaseList.get(0).getCategory();
     }
 
-    public PurchaseTemplate(int purchaseTemplateId, int amount, LOCATION location,
-                            Money price, String productName, int numberOfPurchases, Date lastPurchaseDate) {
+    public PurchaseTemplate(int purchaseTemplateId, int amount, Location location,
+                            Money price, String productName, int numberOfPurchases, Date lastPurchaseDate,
+                            Category category) {
         Log.d(this.getClass().getName(), "Enter Purchase constructor with arguments: purchaseTemplateId=" + purchaseTemplateId
                 + ", amount=" + amount + ", location=" + location
                 + ", price=" + price + ", productName=" + productName + ", numberOfPurchases=" + numberOfPurchases +
-                ", lastPurchaseDate=" + lastPurchaseDate + ".");
+                ", lastPurchaseDate=" + lastPurchaseDate + ", category="+category+".");
 
         // TODO check arguments, throw exceptions
 
@@ -46,13 +47,14 @@ public class PurchaseTemplate {
         productName_ = productName;
         numberOfPurchases_ = numberOfPurchases;
         lastPurchaseDate_ = lastPurchaseDate;
+        category_=category;
     }
 
     public int getAmount() {
         return amount_;
     }
 
-    public LOCATION getLocation() {
+    public Location getLocation() {
         return location_;
     }
 
@@ -75,6 +77,8 @@ public class PurchaseTemplate {
     public Date getLastPurchaseDate() {
         return lastPurchaseDate_;
     }
+
+    public Category getCategory(){ return  category_;}
 
     public Money getTotalPrice() {
         return price_.getScaled(amount_);

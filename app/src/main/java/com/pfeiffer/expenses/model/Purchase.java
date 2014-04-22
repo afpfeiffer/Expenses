@@ -10,14 +10,14 @@ public class Purchase {
     private int id_ = -1;
     private int productId_;
     final private int amount_;
-    final private LOCATION location_;
+    final private Location location_;
     final private Money price_;
     final private Date purchaseDate_;
     final private String productName_;
-    final private CATEGORY category_;
+    final private Category category_;
 
-    public Purchase(int purchaseId, int productId, int amount, Date date, LOCATION location, Money price,
-                    boolean cash, String productName, CATEGORY category) {
+    public Purchase(int purchaseId, int productId, int amount, Date date, Location location, Money price,
+                    boolean cash, String productName, Category category) {
         Log.d(this.getClass().getName(), "Enter Purchase constructor with arguments: purchaseId=" + purchaseId
                 + ", productId=" + productId + ", amount=" + amount + ", date=" + date + ", location=" + location
                 + ", price=" + price + ", cash=" + cash + ", productName=" + productName + ", category=" + category + ".");
@@ -47,7 +47,7 @@ public class Purchase {
         return amount_;
     }
 
-    public LOCATION getLocation() {
+    public Location getLocation() {
         return location_;
     }
 
@@ -67,7 +67,7 @@ public class Purchase {
         return productName_;
     }
 
-    public CATEGORY getCategory() {
+    public Category getCategory() {
         return category_;
     }
 
@@ -87,8 +87,8 @@ public class Purchase {
 
         if (!price_.isValid()) return false;
         if (productName_ == null || productName_.equals("")) return false;
-        if (category_.equals(CATEGORY.NONE)) return false;
-        if (location_.equals(LOCATION.NONE)) return false;
+        if (category_.equals(Category.NONE)) return false;
+        if (location_.equals(Location.NONE)) return false;
 
         return true;
     }

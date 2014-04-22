@@ -16,7 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pfeiffer.expenses.R;
-import com.pfeiffer.expenses.model.CATEGORY;
+import com.pfeiffer.expenses.model.Category;
 import com.pfeiffer.expenses.model.Money;
 import com.pfeiffer.expenses.model.Purchase;
 import com.pfeiffer.expenses.repository.RepositoryManager;
@@ -84,13 +84,13 @@ public class ActivityMain extends Activity {
         Money totalExpenses = dataAnalysis.getExpensesPerMonth(rightNow);
         totalExpenses_.setText(totalExpenses.getHumanReadableRepresentation());
 
-        List<Map.Entry<CATEGORY, Money>> categoryToExpenses = dataAnalysis.getSortedCategoryToExpensesForYearAndMonth
+        List<Map.Entry<Category, Money>> categoryToExpenses = dataAnalysis.getSortedCategoryToExpensesForYearAndMonth
                 (rightNow);
 
         int len = categoryToExpenses.size();
         for (int i = 0; i < len; ++i) {
-            Map.Entry<CATEGORY, Money> entry = categoryToExpenses.get(len - 1 - i);
-            CATEGORY category = entry.getKey();
+            Map.Entry<Category, Money> entry = categoryToExpenses.get(len - 1 - i);
+            Category category = entry.getKey();
             List<Purchase> purchases = dataAnalysis.getPurchasesForYearMonthAndCategory(rightNow, category);
             if (purchases != null && !purchases.isEmpty()) {
                 ArrayList<HashMap<String, String>> secList = new ArrayList<HashMap<String, String>>();
@@ -143,7 +143,7 @@ public class ActivityMain extends Activity {
         switch (item.getItemId()) {
             case R.id.action_settings:
                 // About option clicked.
-                Log.d(logTag_, repositoryManager_.getAllPurchaseTemplates().toString());
+//                Log.d(logTag_, repositoryManager_.getAllPurchaseTemplates().toString());
                 return true;
             case R.id.action_sync_data:
                 startActivity(new Intent(this, ActivitySyncData.class));

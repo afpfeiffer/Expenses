@@ -12,7 +12,7 @@ public class ActivityPieChart extends Activity {
 //
 //    private DefaultRenderer mRenderer_ = new DefaultRenderer();
 //
-//    private ArrayList<CATEGORY> usedCategoryList_ = new ArrayList<CATEGORY>();
+//    private ArrayList<Category> usedCategoryList_ = new ArrayList<Category>();
 //
 //    private GraphicalView mChartView_;
 //
@@ -53,7 +53,7 @@ public class ActivityPieChart extends Activity {
 //        String monthKey = statistics_.getCurrentYearMonthKey();
 //        int counter = 0;
 //
-//        for (CATEGORY category : CATEGORY.values()) {
+//        for (Category category : Category.values()) {
 //            double expenses = statistics_.getExpensesForYearMonthAndCategory(monthKey, category);
 //            if (expenses > 1e-3) {
 //                usedCategoryList_.add(category);

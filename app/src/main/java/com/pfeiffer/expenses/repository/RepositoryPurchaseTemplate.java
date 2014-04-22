@@ -4,7 +4,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;
 
-import com.pfeiffer.expenses.model.LOCATION;
+import com.pfeiffer.expenses.model.Category;
+import com.pfeiffer.expenses.model.Location;
 import com.pfeiffer.expenses.model.Money;
 import com.pfeiffer.expenses.model.PurchaseTemplate;
 
@@ -19,7 +20,6 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
 
     private final String logTag_ = this.getClass().getName();
 
-
 //        PURCHASE_TEMPLATE_ID
 //        PURCHASE_TEMPLATE_AMOUNT
 //        PURCHASE_TEMPLATE_LOCATION
@@ -31,25 +31,27 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
     private final String[] allPurchaseTemplateColumns_ = {ExpensesSQLiteHelper.PURCHASE_TEMPLATE_ID,
             ExpensesSQLiteHelper.PURCHASE_TEMPLATE_AMOUNT, ExpensesSQLiteHelper.PURCHASE_TEMPLATE_LOCATION,
             ExpensesSQLiteHelper.PURCHASE_TEMPLATE_PRICE, ExpensesSQLiteHelper.PURCHASE_TEMPLATE_PRODUCT_NAME,
-            ExpensesSQLiteHelper.PURCHASE_TEMPLATE_NUMBER_OF_PURCHASES, ExpensesSQLiteHelper.PURCHASE_TEMPLATE_LAST_PURCHASE_DATE};
+            ExpensesSQLiteHelper.PURCHASE_TEMPLATE_NUMBER_OF_PURCHASES,
+            ExpensesSQLiteHelper.PURCHASE_TEMPLATE_LAST_PURCHASE_DATE, ExpensesSQLiteHelper.PURCHASE_TEMPLATE_CATEGORY};
 
     public RepositoryPurchaseTemplate(ExpensesSQLiteHelper dbHelper) {
         super(dbHelper);
     }
 
-    void createPurchaseTemplate(PurchaseTemplate purchaseTemplate) {
+    void savePurchaseTemplate (PurchaseTemplate purchaseTemplate) {
 
         Money price = purchaseTemplate.getPrice();
         int amount = purchaseTemplate.getAmount();
-        LOCATION location = purchaseTemplate.getLocation();
+        Location location = purchaseTemplate.getLocation();
         String productName = purchaseTemplate.getProductName();
         int numberOfPurchases = purchaseTemplate.getNumberOfPurchases();
         Date lastPurchaseDate = purchaseTemplate.getLastPurchaseDate();
+        Category category=purchaseTemplate.getCategory();
 
-        Log.d(logTag_, "Enter method createPurchaseTemplate with arguments price=" + price + ", " +
+        Log.d(logTag_, "Enter method savePurchaseTemplate with arguments price=" + price + ", " +
                 "amount=" + amount + ", location=" + location + ", " +
                 "productName=" + productName + ", numberOfPurchases=" + numberOfPurchases + ", " +
-                "lastPurchaseDate=" + lastPurchaseDate + ".");
+                "lastPurchaseDate=" + lastPurchaseDate + ", category="+category+".");
 
         if (amount <= 0)
             throw new IllegalArgumentException("Amount must be greater than 0.");
@@ -63,6 +65,7 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
         values.put(ExpensesSQLiteHelper.PURCHASE_TEMPLATE_PRODUCT_NAME, productName);
         values.put(ExpensesSQLiteHelper.PURCHASE_TEMPLATE_NUMBER_OF_PURCHASES, numberOfPurchases);
         values.put(ExpensesSQLiteHelper.PURCHASE_TEMPLATE_LAST_PURCHASE_DATE, lastPurchaseDate.getTime());
+        values.put(ExpensesSQLiteHelper.PURCHASE_TEMPLATE_CATEGORY, category.name());
 
         Log.d(logTag_, values.toString());
 
@@ -74,8 +77,8 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
             throw new IllegalStateException("Database cursor out of bounds.");
 
         return new PurchaseTemplate(cursor.getInt(0), cursor.getInt(1),
-                LOCATION.valueOf(cursor.getString(2)), new Money(cursor.getString(3)), cursor.getString(4),
-                cursor.getInt(5), new Date(Long.parseLong(cursor.getString(6))));
+                Location.valueOf(cursor.getString(2)), new Money(cursor.getString(3)), cursor.getString(4),
+                cursor.getInt(5), new Date(Long.parseLong(cursor.getString(6))), Category.valueOf(cursor.getString(7)));
     }
 
     List<PurchaseTemplate> getAllPurchaseTemplates() {

@@ -30,7 +30,7 @@ public class ExpensesSQLiteHelper extends SQLiteOpenHelper {
     private static final String CREATE_PURCHASE_TABLE = "create table " + TABLE_PURCHASE + "(" + PURCHASE_ID
             + " integer primary key autoincrement, " + PURCHASE_PRODUCT_ID + " integer not null," + PURCHASE_AMOUNT
             + " integer not null," + PURCHASE_DATE + " int," + PURCHASE_LOCATION + " text not null,"
-            + PURCHASE_PRICE + " text not null," + PURCHASE_CASH + " int unsigned not null," +
+            + PURCHASE_PRICE + " text not null," + PURCHASE_CASH + " integer unsigned not null," +
             PURCHASE_PRODUCT_NAME+" text not null,"+PURCHASE_CATEGORY+" text not null );";
 
     public static final String TABLE_PURCHASE_TEMPLATE = "purchaseTemplates";
@@ -41,19 +41,21 @@ public class ExpensesSQLiteHelper extends SQLiteOpenHelper {
     public static final String PURCHASE_TEMPLATE_PRODUCT_NAME = "productName";
     public static final String PURCHASE_TEMPLATE_NUMBER_OF_PURCHASES = "numberOfPurchases";
     public static final String PURCHASE_TEMPLATE_LAST_PURCHASE_DATE = "lastPurchase";
+    public static final String PURCHASE_TEMPLATE_CATEGORY = "category";
+
 
     private static final String CREATE_PURCHASE_TEMPLATE_TABLE = "create table " + TABLE_PURCHASE_TEMPLATE + "(" + PURCHASE_TEMPLATE_ID
             + " integer primary key autoincrement, " + PURCHASE_TEMPLATE_AMOUNT
             + " integer not null," + PURCHASE_TEMPLATE_LOCATION + " text not null,"
             + PURCHASE_TEMPLATE_PRICE + " text not null,"+PURCHASE_TEMPLATE_PRODUCT_NAME + " text not null," +
             "" + PURCHASE_TEMPLATE_NUMBER_OF_PURCHASES + " integer not null,"+ PURCHASE_TEMPLATE_LAST_PURCHASE_DATE +" " +
-            "int);";
+            "integer, "+PURCHASE_TEMPLATE_CATEGORY+" text not null);";
 
 
 
 
     private static final String DATABASE_NAME = "expenses.db";
-    private static final int DATABASE_VERSION = 17;
+    private static final int DATABASE_VERSION = 18;
 
     public ExpensesSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

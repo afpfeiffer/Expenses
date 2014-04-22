@@ -91,7 +91,7 @@ public class RepositoryManager {
     }
 
     public void savePurchaseTemplate(PurchaseTemplate purchaseTemplate){
-        repoPurchaseTemplate_.createPurchaseTemplate(purchaseTemplate);
+        repoPurchaseTemplate_.savePurchaseTemplate(purchaseTemplate);
     }
 
 }
