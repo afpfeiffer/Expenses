@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;
 
+import com.pfeiffer.expenses.model.Barcode;
 import com.pfeiffer.expenses.model.Category;
 import com.pfeiffer.expenses.model.Location;
 import com.pfeiffer.expenses.model.Money;
@@ -18,10 +19,11 @@ class RepositoryPurchase extends RepositoryBase {
 
 
     private final String[] allPurchaseColumns_ = {ExpensesSQLiteHelper.PURCHASE_ID,
-            ExpensesSQLiteHelper.PURCHASE_PRODUCT_ID, ExpensesSQLiteHelper.PURCHASE_AMOUNT,
+            ExpensesSQLiteHelper.PURCHASE_BARCODE, ExpensesSQLiteHelper.PURCHASE_AMOUNT,
             ExpensesSQLiteHelper.PURCHASE_DATE, ExpensesSQLiteHelper.PURCHASE_LOCATION,
             ExpensesSQLiteHelper.PURCHASE_PRICE, ExpensesSQLiteHelper.PURCHASE_CASH,
-            ExpensesSQLiteHelper.PURCHASE_PRODUCT_NAME, ExpensesSQLiteHelper.PURCHASE_CATEGORY};
+            ExpensesSQLiteHelper.PURCHASE_PRODUCT_NAME, ExpensesSQLiteHelper.PURCHASE_CATEGORY,
+            ExpensesSQLiteHelper.PURCHASE_OWNER};
 
     public RepositoryPurchase(ExpensesSQLiteHelper dbHelper) {
         super(dbHelper);
@@ -33,25 +35,27 @@ class RepositoryPurchase extends RepositoryBase {
         if (cursor.isAfterLast())
             throw new IllegalStateException("Database cursor out of bounds.");
 
-        return new Purchase(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2),
+        String barcodeString = cursor.getString(1);
+        return new Purchase(cursor.getInt(0), (barcodeString==null)? null: new Barcode(barcodeString), cursor.getInt(2),
                 new Date(Long.parseLong(cursor.getString(3))),
                 Location.valueOf(cursor.getString(4)), new Money(cursor.getString(5)), (cursor.getInt(6)) == 1,
-                cursor.getString(7), Category.valueOf(cursor.getString(8)));
+                cursor.getString(7), Category.valueOf(cursor.getString(8)),cursor.getString(9));
     }
 
 
     Purchase createPurchase(Purchase purchase) {
-        int productId = purchase.getProductId();
+        Barcode barcode = purchase.getBarcode();
         Money price=purchase.getPrice();
         int amount=purchase.getAmount();
         Location location=purchase.getLocation();
         boolean cash=purchase.isCash();
         String productName=purchase.getProductName();
         Category category=purchase.getCategory();
+        String owner=purchase.getOwner();
 
-        Log.d(logTag_, "Enter method createPurchaseAndProduct with arguments productId=" + productId
+        Log.d(logTag_, "Enter method createPurchase with arguments barcode=" + barcode
                 + ", price=" + price + ", amount=" + amount + ", location=" + location + ", cash=" + cash + ", " +
-                "productName="+productName+", category="+category+".");
+                "productName="+productName+", category="+category+", owner="+owner+".");
 
         if (amount <= 0)
             throw new IllegalArgumentException("Amount must be greater than 0.");
@@ -59,7 +63,11 @@ class RepositoryPurchase extends RepositoryBase {
             throw new IllegalArgumentException("Location must be defined.");
 
         ContentValues values = new ContentValues();
-        values.put(ExpensesSQLiteHelper.PURCHASE_PRODUCT_ID, productId);
+        if( barcode != null )
+            values.put(ExpensesSQLiteHelper.PURCHASE_BARCODE, barcode.toString());
+        else
+            values.put(ExpensesSQLiteHelper.PURCHASE_BARCODE, (String) null );
+
         values.put(ExpensesSQLiteHelper.PURCHASE_AMOUNT, amount);
         values.put(ExpensesSQLiteHelper.PURCHASE_DATE, System.currentTimeMillis());
         values.put(ExpensesSQLiteHelper.PURCHASE_LOCATION, location.name());
@@ -67,6 +75,7 @@ class RepositoryPurchase extends RepositoryBase {
         values.put(ExpensesSQLiteHelper.PURCHASE_CASH, (cash) ? 1 : 0);
         values.put(ExpensesSQLiteHelper.PURCHASE_PRODUCT_NAME, productName);
         values.put(ExpensesSQLiteHelper.PURCHASE_CATEGORY, category.name());
+        values.put(ExpensesSQLiteHelper.PURCHASE_OWNER, owner);
 
         long insertId = database_.insert(ExpensesSQLiteHelper.TABLE_PURCHASE, null, values);
 
@@ -83,7 +92,7 @@ class RepositoryPurchase extends RepositoryBase {
         Purchase newPurchase = cursorToPurchase(cursor);
         cursor.close();
 
-        Log.d(logTag_, "Method createPurchaseAndProduct() returns value '" + newPurchase + "'.");
+        Log.d(logTag_, "Method createPurchase() returns value '" + newPurchase + "'.");
         return newPurchase;
     }
 

@@ -147,11 +147,15 @@ public class ActivityMain extends Activity {
                 return true;
             case R.id.action_sync_data:
                 startActivity(new Intent(this, ActivitySyncData.class));
+                finish();
 
                 return true;
+
             case R.id.action_record_purchase:
                 Intent intent = new Intent(this, ActivityRecordPurchase.class);
                 startActivity(intent);
+                finish();
+
                 return true;
 
             default:
@@ -213,6 +217,8 @@ public class ActivityMain extends Activity {
         Intent intent = new Intent(this, ActivityRecordPurchase.class);
         intent.putExtra(EXTRA_PURCHASE_ID, purchaseId);
         startActivity(intent);
+        finish();
+
         return true; //TODO
     }
 
@@ -251,6 +257,8 @@ public class ActivityMain extends Activity {
     public void statistik(View view) {
 //        Intent intent = new Intent(this, ActivityPieChart.class);
 //        startActivity(intent);
+//        finish();
+
 
     }
 }

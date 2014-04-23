@@ -36,7 +36,7 @@ public class UpdatePurchaseTemplates extends Service {
 
         // get a list map product -> purchases of this product
         for (Purchase purchase : purchaseList) {
-            if (!purchase.hasProductAttached()) {
+            if (purchase.getBarcode()==null) {
                 // identifier: productName
                 String productName=purchase.getProductName();
                 if(productNameToPurchases.containsKey(productName)){

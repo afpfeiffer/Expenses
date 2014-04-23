@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.SQLException;
 
 import com.pfeiffer.expenses.model.Barcode;
-import com.pfeiffer.expenses.model.Product;
 import com.pfeiffer.expenses.model.Purchase;
 import com.pfeiffer.expenses.model.PurchaseTemplate;
 
@@ -12,52 +11,33 @@ import java.util.Date;
 import java.util.List;
 
 public class RepositoryManager {
-    private final RepositoryProduct repoProduct_;
     private final RepositoryPurchase repoPurchase_;
     private final RepositoryPurchaseTemplate repoPurchaseTemplate_;
 
     public RepositoryManager(Context context) {
         ExpensesSQLiteHelper dbHelper = new ExpensesSQLiteHelper(context);
 
-        repoProduct_ = new RepositoryProduct(dbHelper);
         repoPurchase_ = new RepositoryPurchase(dbHelper);
         repoPurchaseTemplate_ = new RepositoryPurchaseTemplate(dbHelper);
     }
 
     public void open() throws SQLException {
-        repoProduct_.open();
         repoPurchase_.open();
         repoPurchaseTemplate_.open();
     }
 
     public void close() {
-        repoProduct_.close();
         repoPurchase_.close();
-    }
-
-    public Product findProductByBarcode(Barcode barcode) {
-        return repoProduct_.findProduct(ExpensesSQLiteHelper.PRODUCT_BARCODE, barcode.toString());
-    }
-
-    public Product findProductById(int productId) {
-        return repoProduct_.findProduct(ExpensesSQLiteHelper.PRODUCT_ID, String.valueOf(productId));
+        repoPurchaseTemplate_.close();
     }
 
     public boolean updatePurchase(Purchase purchase) {
         return repoPurchase_.updatePurchase(purchase);
     }
 
-    public Purchase createPurchaseAndProduct(Purchase purchase, Barcode barcode) {
+    public Purchase createPurchase(Purchase purchase) {
 
         if (!purchase.hasValidState()) throw new IllegalStateException();
-
-        if (!barcode.isEmpty()) {
-            Product product = repoProduct_.findProduct(ExpensesSQLiteHelper.PRODUCT_BARCODE, barcode.toString());
-            if (product == null) {
-                product = repoProduct_.createProduct(new Product(-1, purchase.getProductName(), barcode));
-            }
-            purchase.setProductId(product.getId());
-        }
 
         return repoPurchase_.createPurchase(purchase);
     }
@@ -70,8 +50,8 @@ public class RepositoryManager {
         return repoPurchase_.getAllPurchasesForDateRange(minDate, maxDate);
     }
 
-    public Purchase findLatestPurchase(Product product) {
-        return repoPurchase_.findLatestPurchase(ExpensesSQLiteHelper.PURCHASE_PRODUCT_ID, String.valueOf(product.getId()));
+    public Purchase findLatestPurchase(Barcode barcode) {
+        return repoPurchase_.findLatestPurchase(ExpensesSQLiteHelper.PURCHASE_BARCODE, barcode.toString());
     }
 
     public Purchase findPurchaseById(int purchaseId) {

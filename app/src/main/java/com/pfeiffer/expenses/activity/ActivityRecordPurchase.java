@@ -1,11 +1,14 @@
 package com.pfeiffer.expenses.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -27,7 +30,6 @@ import com.pfeiffer.expenses.model.Barcode;
 import com.pfeiffer.expenses.model.Category;
 import com.pfeiffer.expenses.model.Location;
 import com.pfeiffer.expenses.model.Money;
-import com.pfeiffer.expenses.model.Product;
 import com.pfeiffer.expenses.model.Purchase;
 import com.pfeiffer.expenses.model.PurchaseTemplate;
 import com.pfeiffer.expenses.repository.RepositoryManager;
@@ -49,13 +51,15 @@ public class ActivityRecordPurchase extends Activity {
 
     private Button bScan_;
     private Button bDone_;
-    private AutoCompleteTextView actvName_;
-    private EditText etPrice_;
+    private Button bCancel_;
     private Spinner sCategory_;
     private Spinner sLocation_;
+    private AutoCompleteTextView actvName_;
+    private EditText etPrice_;
+    private TextView tvBarcodeStatus_;
     private NumberPicker npAmount_;
     private CheckBox cbCash_;
-    private TextView tvBarcodeStatus_;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,7 +104,8 @@ public class ActivityRecordPurchase extends Activity {
         cbCash_ = (CheckBox) findViewById(R.id.cbCash);
         tvBarcodeStatus_ = (TextView) findViewById(R.id.tvBarcodeStatus);
         bScan_ = (Button) findViewById(R.id.bScanBarcode);
-        bDone_=(Button) findViewById(R.id.bDone);
+        bDone_ = (Button) findViewById(R.id.bDone);
+        bCancel_ = (Button) findViewById(R.id.bCancel);
     }
 
     private void preparePurchaseTemplates() {
@@ -160,7 +165,34 @@ public class ActivityRecordPurchase extends Activity {
             }
         });
 
-        bDone_.setOnClickListener(new Button.OnClickListener(){
+        bCancel_.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+
+
+                new AlertDialog.Builder(view.getContext())
+                        .setTitle(R.string.button_cancel)
+                        .setMessage(R.string.question_cancel)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // return to Main Acitivty
+                                startActivity(new Intent(view.getContext(), ActivityMain.class));
+
+                                finish();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+
+            }
+        });
+
+        bDone_.setOnClickListener(new Button.OnClickListener() {
 
             @Override
             public void onClick(View view) {
@@ -168,11 +200,20 @@ public class ActivityRecordPurchase extends Activity {
                 // create a temporary purchase from the ui entries
                 Purchase purchase;
                 try {
-                    purchase = new Purchase(dataFragment_.getPurchaseId(), dataFragment_.getProductId(), npAmount_.getValue(),
-                            new Date(System.currentTimeMillis()), Location.fromString(sLocation_.getSelectedItem().toString()),
-                            new Money(etPrice_.getText().toString().trim()), cbCash_.isChecked(),
-                            actvName_.getText().toString().trim(), Category.fromString(sCategory_.getSelectedItem().toString()));
-                } catch (IllegalArgumentException e) {
+                    purchase = new Purchase(
+                            dataFragment_.getPurchaseId(),
+                            dataFragment_.getBarcode(),
+                            npAmount_.getValue(),
+                            new Date(System.currentTimeMillis()),
+                            Location.fromString(sLocation_.getSelectedItem().toString()),
+                            new Money(etPrice_.getText().toString().trim()),
+                            cbCash_.isChecked(),
+                            actvName_.getText().toString().trim(),
+                            Category.fromString(sCategory_.getSelectedItem().toString()),
+                            Settings.Secure.getString(view.getContext().getContentResolver(), Settings.Secure.ANDROID_ID)
+                    );
+                }
+                catch (IllegalArgumentException e) {
                     Toast.makeText(view.getContext(), R.string.values_not_valid, Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -187,7 +228,7 @@ public class ActivityRecordPurchase extends Activity {
                         Toast.makeText(view.getContext(), R.string.purchase_updated, Toast.LENGTH_SHORT).show();
                     } else {
                         // else: create purchase and product (if applies)
-                        repositoryManager_.createPurchaseAndProduct(purchase, new Barcode(dataFragment_.getBarcodeString()));
+                        repositoryManager_.createPurchase(purchase);
                         Toast.makeText(view.getContext(), R.string.purchase_created, Toast.LENGTH_SHORT).show();
                     }
 
@@ -196,20 +237,19 @@ public class ActivityRecordPurchase extends Activity {
 
                     // return to Main Acitivty
                     startActivity(new Intent(view.getContext(), ActivityMain.class));
+                    finish();
 
                 } else {
                     Toast.makeText(view.getContext(), R.string.values_not_valid, Toast.LENGTH_SHORT).show();
                 }
-
             }
-
         });
 
         configureBarcodeUiElements();
     }
 
     private void configureBarcodeUiElements() {
-        if (dataFragment_.getBarcodeString() != null && !dataFragment_.getBarcodeString().equals("")) {
+        if (dataFragment_.getBarcode() != null) {
             bScan_.setVisibility(View.GONE);
             tvBarcodeStatus_.setVisibility(View.VISIBLE);
         } else {
@@ -229,17 +269,8 @@ public class ActivityRecordPurchase extends Activity {
                 purchase.getPrice(),
                 purchase.getAmount(), purchase.isCash());
 
-        if (purchase.hasProductAttached()) {
-            Product product = repositoryManager_.findProductById(purchase.getProductId());
-
-            if (product == null) throw new IllegalStateException();
-
-            dataFragment_.setBarcodeString(product.getBarcode().toString());
-
-            if (dataFragment_.getBarcodeString() == null || dataFragment_.getBarcodeString().equals(""))
-                throw new IllegalStateException();
-
-            dataFragment_.setProductId(product.getId());
+        if (purchase.getBarcode() != null) {
+            dataFragment_.setBarcode(purchase.getBarcode());
         }
     }
 
@@ -276,25 +307,23 @@ public class ActivityRecordPurchase extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
-                dataFragment_.setBarcodeString(intent.getStringExtra("SCAN_RESULT"));
+                dataFragment_.setBarcode(new Barcode(intent.getStringExtra("SCAN_RESULT")));
 
-                if (dataFragment_.getBarcodeString() != null && !dataFragment_.getBarcodeString().equals("")) {
-                    Log.d(logTag_, "Scan result: " + dataFragment_.getBarcodeString());
+                if (dataFragment_.getBarcode() != null) {
+                    Log.d(logTag_, "Scan result: " + dataFragment_.getBarcode().toString());
 
                     configureBarcodeUiElements();
 
                     repositoryManager_.open();
-                    Product product = repositoryManager_.findProductByBarcode(new Barcode(dataFragment_.getBarcodeString()));
                     // only continue if a product could be obtained
-                    if (product != null) {
-                        dataFragment_.setProductId(product.getId());
-                        Purchase purchaseFromDatabase = repositoryManager_.findLatestPurchase(product);
-                        if (purchaseFromDatabase != null) {
-                            setFields(purchaseFromDatabase.getProductName(), purchaseFromDatabase.getCategory(),
-                                    purchaseFromDatabase.getLocation(), purchaseFromDatabase.getPrice(), 1, false);
-                        } else {
-                            setFields(product.getName(), null, null, null, 1, false);
-                        }
+                    Purchase purchase = repositoryManager_.findLatestPurchase(dataFragment_
+                            .getBarcode());
+
+                    if (purchase != null) {
+
+                        setFields(purchase.getProductName(), purchase.getCategory(),
+                                purchase.getLocation(), purchase.getPrice(), 1, false);
+
                     }
                 }
             } else if (resultCode == RESULT_CANCELED) {
@@ -325,9 +354,8 @@ public class ActivityRecordPurchase extends Activity {
     }
 
     private class DataFragment extends Fragment {
-        private String barcodeString_;
+        private Barcode barcode_;
         private int purchaseId_ = -1;
-        private int productId_ = -1;
         private boolean editMode_ = false;
         private Map<String, PurchaseTemplate> productNameToPurchaseTemplate_ = new HashMap<String, PurchaseTemplate>();
         private String templateProductName_[];
@@ -340,16 +368,12 @@ public class ActivityRecordPurchase extends Activity {
             setRetainInstance(true);
         }
 
-        public void setBarcodeString(String barcodeString) {
-            barcodeString_ = barcodeString;
+        public void setBarcode(Barcode barcode) {
+            barcode_ = barcode;
         }
 
         public void setPurchaseId(int purchaseId) {
             purchaseId_ = purchaseId;
-        }
-
-        public void setProductId(int productId) {
-            productId_ = productId;
         }
 
         public void setEditMode(boolean editMode) {
@@ -364,16 +388,12 @@ public class ActivityRecordPurchase extends Activity {
             templateProductName_ = templateProductName;
         }
 
-        public String getBarcodeString() {
-            return barcodeString_;
+        public Barcode getBarcode() {
+            return barcode_;
         }
 
         public int getPurchaseId() {
             return purchaseId_;
-        }
-
-        public int getProductId() {
-            return productId_;
         }
 
         public boolean isEditMode_() {

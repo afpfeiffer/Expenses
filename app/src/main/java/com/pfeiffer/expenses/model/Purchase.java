@@ -8,24 +8,26 @@ import java.util.Date;
 public class Purchase {
     final boolean cash_;
     private int id_ = -1;
-    private int productId_;
+    private Barcode barcode_;
     final private int amount_;
     final private Location location_;
     final private Money price_;
     final private Date purchaseDate_;
     final private String productName_;
     final private Category category_;
+    final private String owner_;
 
-    public Purchase(int purchaseId, int productId, int amount, Date date, Location location, Money price,
-                    boolean cash, String productName, Category category) {
+    public Purchase(int purchaseId, Barcode barcode, int amount, Date date, Location location, Money price,
+                    boolean cash, String productName, Category category, String owner) {
         Log.d(this.getClass().getName(), "Enter Purchase constructor with arguments: purchaseId=" + purchaseId
-                + ", productId=" + productId + ", amount=" + amount + ", date=" + date + ", location=" + location
-                + ", price=" + price + ", cash=" + cash + ", productName=" + productName + ", category=" + category + ".");
+                + ", barcode=" + barcode + ", amount=" + amount + ", date=" + date + ", location=" + location
+                + ", price=" + price + ", cash=" + cash + ", productName=" + productName + ", " +
+                "category=" + category + ", owner=" + owner + ".");
 
         // TODO check arguments, throw exceptions
 
         id_ = purchaseId;
-        productId_ = productId;
+        barcode_ = barcode;
         amount_ = amount;
         purchaseDate_ = date;
         location_ = location;
@@ -33,14 +35,15 @@ public class Purchase {
         cash_ = cash;
         productName_ = productName;
         category_ = category;
+        owner_ = owner;
     }
 
     public Date getDate() {
         return purchaseDate_;
     }
 
-    public int getProductId() {
-        return productId_;
+    public Barcode getBarcode() {
+        return barcode_;
     }
 
     public int getAmount() {
@@ -71,15 +74,15 @@ public class Purchase {
         return category_;
     }
 
-    public boolean hasProductAttached() {
-        return productId_ > 0;
+    public String getOwner() {
+        return owner_;
     }
 
     public Money getTotalPrice() {
         return price_.getScaled(amount_);
     }
 
-    public String getTotalHumanReadablePrice(){
+    public String getTotalHumanReadablePrice() {
         return price_.getHumanReadableRepresentation(amount_);
     }
 
@@ -91,9 +94,5 @@ public class Purchase {
         if (location_.equals(Location.NONE)) return false;
 
         return true;
-    }
-
-    public void setProductId(int productId) {
-        productId_ = productId;
     }
 }

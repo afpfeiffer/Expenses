@@ -1,6 +1,7 @@
 package com.pfeiffer.expenses.activity;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
@@ -57,6 +58,10 @@ public class ActivitySyncData extends Activity {
     private List<BluetoothDevice> displayedDevices_;
     private ListView devicesListView_;
     private ArrayAdapter<String> BTArrayAdapter_;
+
+    private ServerThread server_;
+    private ClientThread client_;
+    private final String logTag_ = this.getClass().getName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,8 +129,15 @@ public class ActivitySyncData extends Activity {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     BluetoothDevice device = displayedDevices_.get(position);
 
-                    // Toast.makeText( getApplicationContext(),
-                    // device.getName(), Toast.LENGTH_SHORT ).show();
+//                    Toast.makeText(getApplicationContext(), device.getName(), Toast.LENGTH_SHORT).show();
+
+                    if (client_ != null) {
+                        client_.cancel();
+                    }
+
+                    client_ = new ClientThread(device);
+                    client_.start();
+
 
                 }
             });
@@ -154,6 +166,15 @@ public class ActivitySyncData extends Activity {
                 Toast.makeText(getApplicationContext(), R.string.blu_turned_on, Toast.LENGTH_SHORT).show();
 
                 textViewStatus_.setText(R.string.blu_status_turned_on);
+
+                if (server_ != null) {
+                    server_.cancel();
+                }
+
+                server_ = new ServerThread();
+//                Log.d(logTag_, server_.toString());
+                server_.start();
+
             } else {
                 textViewStatus_.setText(R.string.blu_status_turned_off);
             }
@@ -185,6 +206,7 @@ public class ActivitySyncData extends Activity {
     }
 
     void off(View view) {
+        server_.cancel();
         bluetoothAdapter_.disable();
         textViewStatus_.setText(R.string.blu_status_turned_off);
 
@@ -207,15 +229,15 @@ public class ActivitySyncData extends Activity {
         }
     }
 
-    private class ConnectThread extends Thread {
-        private final BluetoothSocket mmSocket;
-        private final BluetoothDevice mmDevice;
+    private class ClientThread extends Thread {
+        private final BluetoothSocket mmSocket_;
+        private final BluetoothDevice mmDevice_;
 
-        public ConnectThread(BluetoothDevice device) {
-            // Use a temporary object that is later assigned to mmSocket,
-            // because mmSocket is final
+        public ClientThread(BluetoothDevice device) {
+            // Use a temporary object that is later assigned to mmSocket_,
+            // because mmSocket_ is final
             BluetoothSocket tmp = null;
-            mmDevice = device;
+            mmDevice_ = device;
 
             // Get a BluetoothSocket to connect with the given BluetoothDevice
             try {
@@ -225,7 +247,7 @@ public class ActivitySyncData extends Activity {
             } catch (IOException e) {
                 //TODO
             }
-            mmSocket = tmp;
+            mmSocket_ = tmp;
         }
 
         public void run() {
@@ -235,11 +257,11 @@ public class ActivitySyncData extends Activity {
             try {
                 // Connect the device through the socket. This will block
                 // until it succeeds or throws an exception
-                mmSocket.connect();
+                mmSocket_.connect();
             } catch (IOException connectException) {
                 // Unable to connect; close the socket and get out
                 try {
-                    mmSocket.close();
+                    mmSocket_.close();
                 } catch (IOException closeException) {
                     //TODO
                 }
@@ -247,7 +269,7 @@ public class ActivitySyncData extends Activity {
             }
 
             // Do work to manage the connection (in a separate thread)
-            manageConnectedSocket(mmSocket);
+            manageConnectedSocket(mmSocket_);
         }
 
         /**
@@ -255,29 +277,30 @@ public class ActivitySyncData extends Activity {
          */
         public void cancel() {
             try {
-                mmSocket.close();
+                mmSocket_.close();
             } catch (IOException e) {
                 //TODO
             }
         }
     }
 
-    private class AcceptThread extends Thread {
-        private final BluetoothServerSocket mmServerSocket;
+    private class ServerThread extends Thread {
+        private final BluetoothServerSocket mmServerSocket_;
+        private final String logTag_ = this.getClass().getName();
 
-        public AcceptThread() {
-            // Use a temporary object that is later assigned to mmServerSocket,
-            // because mmServerSocket is final
+        public ServerThread() {
+            // Use a temporary object that is later assigned to mmServerSocket_,
+            // because mmServerSocket_ is final
             BluetoothServerSocket tmp = null;
             try {
                 // MY_UUID is the app's UUID string, also used by the client
                 // code
 
-                tmp = bluetoothAdapter_.listenUsingRfcommWithServiceRecord("ExpensesAssistant", UUID_);
+                tmp = bluetoothAdapter_.listenUsingRfcommWithServiceRecord("Expenses", UUID_);
             } catch (IOException e) {
                 //TODO
             }
-            mmServerSocket = tmp;
+            mmServerSocket_ = tmp;
         }
 
         public void run() {
@@ -285,7 +308,8 @@ public class ActivitySyncData extends Activity {
             // Keep listening until exception occurs or a socket is returned
             while (true) {
                 try {
-                    socket = mmServerSocket.accept();
+//                    Log.d(logTag_, "running");
+                    socket = mmServerSocket_.accept();
                 } catch (IOException e) {
                     break;
                 }
@@ -294,7 +318,7 @@ public class ActivitySyncData extends Activity {
                     // Do work to manage the connection (in a separate thread)
                     manageConnectedSocket(socket);
                     try {
-                        mmServerSocket.close();
+                        mmServerSocket_.close();
                     } catch (IOException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -309,11 +333,24 @@ public class ActivitySyncData extends Activity {
          */
         public void cancel() {
             try {
-                mmServerSocket.close();
+                mmServerSocket_.close();
             } catch (IOException e) {
                 //TODO
             }
         }
+    }
+
+    class DataFragment extends Fragment {
+
+
+        // this method is only called once for this fragment
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            // retain this fragment
+            setRetainInstance(true);
+        }
+
     }
 
 }

@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.pfeiffer.expenses.model.Category;
 import com.pfeiffer.expenses.model.Money;
-import com.pfeiffer.expenses.model.Product;
 import com.pfeiffer.expenses.model.Purchase;
 import com.pfeiffer.expenses.repository.RepositoryManager;
 
@@ -63,9 +62,6 @@ public class DataAnalysis {
 
 
         for (Purchase purchase : purchaseList_) {
-
-            // obtain product
-            Product product = repositoryManager_.findProductById(purchase.getProductId());
 
             if ( !Translation.sameMonthAndYear(lastDate, purchase.getDate()) ) {
                 expensesPerMonthAndCategory_.put(Translation.yearAndMonth(lastDate), categoryToExpenses);
