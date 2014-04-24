@@ -35,7 +35,7 @@ public class ActivitySyncData extends Activity {
 
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int DISCOVER_DURATION = 300;
-    private final UUID UUID_ = UUID.fromString("294FD210-A894-11E3-A5E2-0800200C9A66");
+    private final UUID UUID_ = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     private final BroadcastReceiver bReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -206,7 +206,8 @@ public class ActivitySyncData extends Activity {
     }
 
     void off(View view) {
-        server_.cancel();
+        if (server_ != null)
+            server_.cancel();
         bluetoothAdapter_.disable();
         textViewStatus_.setText(R.string.blu_status_turned_off);
 
@@ -231,22 +232,27 @@ public class ActivitySyncData extends Activity {
 
     private class ClientThread extends Thread {
         private final BluetoothSocket mmSocket_;
-        private final BluetoothDevice mmDevice_;
 
-        public ClientThread(BluetoothDevice device) {
+
+        public ClientThread(BluetoothDevice device){
             // Use a temporary object that is later assigned to mmSocket_,
             // because mmSocket_ is final
             BluetoothSocket tmp = null;
-            mmDevice_ = device;
 
             // Get a BluetoothSocket to connect with the given BluetoothDevice
             try {
                 // MY_UUID is the app's UUID string, also used by the server
                 // code
                 tmp = device.createRfcommSocketToServiceRecord(UUID_);
-            } catch (IOException e) {
+
+                // HACK
+//                Method m = device.getClass().getMethod("createRfcommSocket", new Class[] { int.class });
+//                tmp = (BluetoothSocket) m.invoke(device, 1);
+
+            } catch (Exception e) {
                 //TODO
             }
+            Log.d(logTag_, tmp.toString());
             mmSocket_ = tmp;
         }
 
@@ -258,8 +264,12 @@ public class ActivitySyncData extends Activity {
                 // Connect the device through the socket. This will block
                 // until it succeeds or throws an exception
                 mmSocket_.connect();
+                Log.d(logTag_, "Connected!!!");
+
             } catch (IOException connectException) {
                 // Unable to connect; close the socket and get out
+                Log.d(logTag_, connectException.getMessage());
+
                 try {
                     mmSocket_.close();
                 } catch (IOException closeException) {
