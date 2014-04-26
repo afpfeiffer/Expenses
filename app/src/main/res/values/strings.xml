@@ -37,6 +37,23 @@
     <string name="barcodeScanned">Barcode hinterlegt</string>
     <string name="button_cancel">Abbrechen</string>
     <string name="question_cancel">Bist Du sicher?</string>
-
+    <string name="title_activity_activity_share_data">ActivityShareData</string>
+    <string name="title_activity_activity_bluetooth_devices">ActivityBluetoothDevices</string>
+    <string name="menuConnect">Verbinden</string>
+    <string name="menuDiscoverable">Sichtar</string>
+    <string name="titleActivityShareData">Ausgaben Synchronisieren</string>
+    <string name="title_paired_devices">Paired Devices</string>
+    <string name="title_other_devices">Other Devices</string>
+    <string name="none_paired">Keine gekoppelten Geräte</string>
+    <string name="scanning">Suchen...</string>
+    <string name="select_device">Gerät Auswählen</string>
+    <string name="none_found">Keine Gefunden</string>
+    <string name="send">Senden</string>
+    <string name="not_connected">Nicht Verbunden</string>
+    <string name="title_connected_to">Verbunden</string>
+    <string name="title_connecting">Verbindungsaufbau</string>
+    <string name="title_not_connected">Nicht Verbunden</string>
+    <string name="bt_not_enabled_leaving">Bluetooth nicht verfügbar</string>
+    <string name="button_scan_for_devices">Nach Geräten Suchen</string>
 
 </resources>
