@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.pfeiffer.expenses.activity.ActivityShareData" >
+    <item android:id="@+id/scan"
+        android:icon="@android:drawable/ic_menu_search"
+        android:showAsAction="ifRoom"
+        android:title="@string/menuConnect" />
+    <item android:id="@+id/discoverable"
+        android:icon="@android:drawable/ic_menu_mylocation"
+        android:showAsAction="ifRoom"
+        android:title="@string/menuDiscoverable" />
+</menu>
