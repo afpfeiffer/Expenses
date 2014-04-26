@@ -1,6 +1,8 @@
 package com.pfeiffer.expenses.model;
 
-public class Barcode {
+import java.io.Serializable;
+
+public class Barcode implements Serializable{
     private final String barcode_;
 
     public Barcode(String barcode) {

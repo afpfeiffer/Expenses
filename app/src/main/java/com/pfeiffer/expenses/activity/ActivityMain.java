@@ -146,8 +146,8 @@ public class ActivityMain extends Activity {
 //                Log.d(logTag_, repositoryManager_.getAllPurchaseTemplates().toString());
                 return true;
             case R.id.action_sync_data:
-                startActivity(new Intent(this, ActivitySyncData.class));
-
+//                startActivity(new Intent(this, ActivitySyncData.class));
+                startActivity(new Intent(this, ActivityShareData.class ));
                 return true;
 
             case R.id.action_record_purchase:
@@ -230,8 +230,7 @@ public class ActivityMain extends Activity {
 
         if (mylist.get(groupPos).isEmpty()) {
             mylist_title.remove(groupPos);
-        }
-        else {
+        } else {
 
             Money totalCategoryExpenses = new Money(mylist_title.get(groupPos).get("rowCategoryExpenses"));
 
