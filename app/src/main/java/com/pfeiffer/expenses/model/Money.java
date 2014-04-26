@@ -1,5 +1,6 @@
 package com.pfeiffer.expenses.model;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -8,7 +9,7 @@ import java.util.Currency;
 /**
  * Created by axelpfeiffer on 21.04.14.
  */
-public class Money {
+public class Money implements Serializable {
     private BigDecimal amount_;
     private static final Currency currency_ = Currency.getInstance("EUR");
     private static final RoundingMode roundingMode_ = RoundingMode.HALF_UP;
