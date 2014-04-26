@@ -27,13 +27,13 @@ import android.widget.Toast;
 
 import com.pfeiffer.expenses.R;
 import com.pfeiffer.expenses.model.Barcode;
-import com.pfeiffer.expenses.model.Category;
-import com.pfeiffer.expenses.model.Location;
+import com.pfeiffer.expenses.model.EnumCategory;
+import com.pfeiffer.expenses.model.EnumLocation;
 import com.pfeiffer.expenses.model.Money;
 import com.pfeiffer.expenses.model.Purchase;
 import com.pfeiffer.expenses.model.PurchaseTemplate;
 import com.pfeiffer.expenses.repository.RepositoryManager;
-import com.pfeiffer.expenses.repository.UpdatePurchaseTemplates;
+import com.pfeiffer.expenses.utility.UpdatePurchaseTemplates;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -131,10 +131,10 @@ public class ActivityRecordPurchase extends Activity {
         npAmount_.setMaxValue(20);
         npAmount_.setWrapSelectorWheel(false);
 
-        sCategory_.setAdapter(new ArrayAdapter<Category>(this, android.R.layout.simple_spinner_dropdown_item, Category
+        sCategory_.setAdapter(new ArrayAdapter<EnumCategory>(this, android.R.layout.simple_spinner_dropdown_item, EnumCategory
                 .values()));
 
-        sLocation_.setAdapter(new ArrayAdapter<Location>(this, android.R.layout.simple_spinner_dropdown_item, Location
+        sLocation_.setAdapter(new ArrayAdapter<EnumLocation>(this, android.R.layout.simple_spinner_dropdown_item, EnumLocation
                 .values()));
 
         bScan_.setOnClickListener(new Button.OnClickListener() {
@@ -205,15 +205,15 @@ public class ActivityRecordPurchase extends Activity {
                             dataFragment_.getBarcode(),
                             npAmount_.getValue(),
                             new Date(System.currentTimeMillis()),
-                            Location.fromString(sLocation_.getSelectedItem().toString()),
+                            EnumLocation.fromString(sLocation_.getSelectedItem().toString()),
                             new Money(etPrice_.getText().toString().trim()),
                             cbCash_.isChecked(),
                             actvName_.getText().toString().trim(),
-                            Category.fromString(sCategory_.getSelectedItem().toString()),
-                            Settings.Secure.getString(view.getContext().getContentResolver(), Settings.Secure.ANDROID_ID)
-                    );
-                }
-                catch (IllegalArgumentException e) {
+                            EnumCategory.fromString(sCategory_.getSelectedItem().toString()),
+                            Settings.Secure.getString(view.getContext().getContentResolver(), Settings.Secure.ANDROID_ID),
+                            -1);
+
+                } catch (IllegalArgumentException e) {
                     Toast.makeText(view.getContext(), R.string.values_not_valid, Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -228,7 +228,7 @@ public class ActivityRecordPurchase extends Activity {
                         Toast.makeText(view.getContext(), R.string.purchase_updated, Toast.LENGTH_SHORT).show();
                     } else {
                         // else: create purchase and product (if applies)
-                        repositoryManager_.createPurchase(purchase);
+                        repositoryManager_.savePurchase(purchase);
                         Toast.makeText(view.getContext(), R.string.purchase_created, Toast.LENGTH_SHORT).show();
                     }
 
@@ -275,7 +275,7 @@ public class ActivityRecordPurchase extends Activity {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private void setFields(String name, Category category, Location location, Money price, int amount, boolean cash) {
+    private void setFields(String name, EnumCategory category, EnumLocation location, Money price, int amount, boolean cash) {
         if (name != null && !name.equals("")) {
             actvName_.setText(name);
         }
@@ -355,7 +355,7 @@ public class ActivityRecordPurchase extends Activity {
 
     private class DataFragment extends Fragment {
         private Barcode barcode_;
-        private int purchaseId_ = -1;
+        private long purchaseId_ = -1;
         private boolean editMode_ = false;
         private Map<String, PurchaseTemplate> productNameToPurchaseTemplate_ = new HashMap<String, PurchaseTemplate>();
         private String templateProductName_[];
@@ -372,7 +372,7 @@ public class ActivityRecordPurchase extends Activity {
             barcode_ = barcode;
         }
 
-        public void setPurchaseId(int purchaseId) {
+        public void setPurchaseId(long purchaseId) {
             purchaseId_ = purchaseId;
         }
 
@@ -392,7 +392,7 @@ public class ActivityRecordPurchase extends Activity {
             return barcode_;
         }
 
-        public int getPurchaseId() {
+        public long getPurchaseId() {
             return purchaseId_;
         }
 

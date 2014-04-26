@@ -24,6 +24,30 @@ import android.widget.Toast;
 import com.pfeiffer.expenses.R;
 import com.pfeiffer.expenses.utility.BluetoothService;
 
+
+/*
+ * Concept for sharing Data with several devices
+ *
+ * Modifications to Database Tables:
+ * - New table PurchaseHistory(id, timestamp, purchaseId, operation(New, Delete, Modify)
+ * - New table PartnerDevice(id, Andoid_ID, lasConnectionTimeStamp)
+ * - add field "owner(Andoid_IDs)" and "owner id" to Purchase table
+ *
+ * Upon Connection:
+ *  - The Devices exchange their Andoid_IDs
+  * - Both Devies know from lasConnectionTimeStamp and the Table PurchaseTableHistory
+  *   which data to share.
+  *     - new and modified purchases are send as such
+  *     - for deleted purchases, an empty Purchase, containing only the purchase Id is sent
+  * - Each Device loops over the Purchases that it received from the other device and
+  *     - Adds new Purchases to the db
+  *     - Updates existing Purchases
+  *     - Deletes Purchases (no matter who created the Purchase)
+  *   according to the received data.
+ *
+ */
+
+
 public class ActivityShareData extends Activity {
     private final String logTag_ = this.getClass().getName();
 

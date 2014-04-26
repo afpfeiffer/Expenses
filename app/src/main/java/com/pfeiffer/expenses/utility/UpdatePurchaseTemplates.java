@@ -1,4 +1,4 @@
-package com.pfeiffer.expenses.repository;
+package com.pfeiffer.expenses.utility;
 
 import android.app.Service;
 import android.content.Intent;
@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.pfeiffer.expenses.model.Purchase;
 import com.pfeiffer.expenses.model.PurchaseTemplate;
+import com.pfeiffer.expenses.repository.RepositoryManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;

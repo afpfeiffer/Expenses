@@ -7,23 +7,24 @@ import java.util.Date;
 
 
 public class Purchase implements Serializable {
-    final boolean cash_;
-    private int id_ = -1;
+    private final boolean cash_;
+    private long id_ = -1;
     private Barcode barcode_;
-    final private int amount_;
-    final private Location location_;
-    final private Money price_;
-    final private Date purchaseDate_;
-    final private String productName_;
-    final private Category category_;
-    final private String owner_;
+    private final int amount_;
+    private final EnumLocation location_;
+    private final Money price_;
+    private final Date purchaseDate_;
+    private final String productName_;
+    private final EnumCategory category_;
+    private final String owner_;
+    private final long purchaseIdOwner_;
 
-    public Purchase(int purchaseId, Barcode barcode, int amount, Date date, Location location, Money price,
-                    boolean cash, String productName, Category category, String owner) {
+    public Purchase(long purchaseId, Barcode barcode, int amount, Date date, EnumLocation location, Money price,
+                    boolean cash, String productName, EnumCategory category, String owner, long purchaseIdOwner) {
         Log.d(this.getClass().getName(), "Enter Purchase constructor with arguments: purchaseId=" + purchaseId
                 + ", barcode=" + barcode + ", amount=" + amount + ", date=" + date + ", location=" + location
                 + ", price=" + price + ", cash=" + cash + ", productName=" + productName + ", " +
-                "category=" + category + ", owner=" + owner + ".");
+                "category=" + category + ", owner=" + owner + ", idOwner=" + purchaseIdOwner + ".");
 
         // TODO check arguments, throw exceptions
 
@@ -37,6 +38,7 @@ public class Purchase implements Serializable {
         productName_ = productName;
         category_ = category;
         owner_ = owner;
+        purchaseIdOwner_ = purchaseIdOwner;
     }
 
     public Date getDate() {
@@ -51,7 +53,7 @@ public class Purchase implements Serializable {
         return amount_;
     }
 
-    public Location getLocation() {
+    public EnumLocation getLocation() {
         return location_;
     }
 
@@ -59,7 +61,7 @@ public class Purchase implements Serializable {
         return price_;
     }
 
-    public int getId() {
+    public long getId() {
         return id_;
     }
 
@@ -71,12 +73,16 @@ public class Purchase implements Serializable {
         return productName_;
     }
 
-    public Category getCategory() {
+    public EnumCategory getCategory() {
         return category_;
     }
 
     public String getOwner() {
         return owner_;
+    }
+
+    public long getPurchaseIdOwner() {
+        return purchaseIdOwner_;
     }
 
     public Money getTotalPrice() {
@@ -91,8 +97,8 @@ public class Purchase implements Serializable {
 
         if (!price_.isValid()) return false;
         if (productName_ == null || productName_.equals("")) return false;
-        if (category_.equals(Category.NONE)) return false;
-        if (location_.equals(Location.NONE)) return false;
+        if (category_.equals(EnumCategory.NONE)) return false;
+        if (location_.equals(EnumLocation.NONE)) return false;
 
         return true;
     }

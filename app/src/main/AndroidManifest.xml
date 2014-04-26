@@ -38,7 +38,7 @@
             android:label="@string/title_activity_activity_pie_chart" >
         </activity>
 
-        <service android:name="com.pfeiffer.expenses.repository.UpdatePurchaseTemplates" />
+        <service android:name=".utility.UpdatePurchaseTemplates" />
 
         <activity
             android:name="com.pfeiffer.expenses.activity.ActivityShareData"

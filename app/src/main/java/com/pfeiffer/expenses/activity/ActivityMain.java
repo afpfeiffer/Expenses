@@ -16,7 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pfeiffer.expenses.R;
-import com.pfeiffer.expenses.model.Category;
+import com.pfeiffer.expenses.model.EnumCategory;
 import com.pfeiffer.expenses.model.Money;
 import com.pfeiffer.expenses.model.Purchase;
 import com.pfeiffer.expenses.repository.RepositoryManager;
@@ -84,13 +84,13 @@ public class ActivityMain extends Activity {
         Money totalExpenses = dataAnalysis.getExpensesPerMonth(rightNow);
         totalExpenses_.setText(totalExpenses.getHumanReadableRepresentation());
 
-        List<Map.Entry<Category, Money>> categoryToExpenses = dataAnalysis.getSortedCategoryToExpensesForYearAndMonth
+        List<Map.Entry<EnumCategory, Money>> categoryToExpenses = dataAnalysis.getSortedCategoryToExpensesForYearAndMonth
                 (rightNow);
 
         int len = categoryToExpenses.size();
         for (int i = 0; i < len; ++i) {
-            Map.Entry<Category, Money> entry = categoryToExpenses.get(len - 1 - i);
-            Category category = entry.getKey();
+            Map.Entry<EnumCategory, Money> entry = categoryToExpenses.get(len - 1 - i);
+            EnumCategory category = entry.getKey();
             List<Purchase> purchases = dataAnalysis.getPurchasesForYearMonthAndCategory(rightNow, category);
             if (purchases != null && !purchases.isEmpty()) {
                 ArrayList<HashMap<String, String>> secList = new ArrayList<HashMap<String, String>>();

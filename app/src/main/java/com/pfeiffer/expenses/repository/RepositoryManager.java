@@ -4,74 +4,105 @@ import android.content.Context;
 import android.database.SQLException;
 
 import com.pfeiffer.expenses.model.Barcode;
+import com.pfeiffer.expenses.model.PartnerDevice;
 import com.pfeiffer.expenses.model.Purchase;
+import com.pfeiffer.expenses.model.PurchaseHistory;
 import com.pfeiffer.expenses.model.PurchaseTemplate;
 
 import java.util.Date;
 import java.util.List;
 
 public class RepositoryManager {
-    private final RepositoryPurchase repoPurchase_;
-    private final RepositoryPurchaseTemplate repoPurchaseTemplate_;
+    private final RepositoryPurchase repositoryPurchase_;
+    private final RepositoryPurchaseTemplate repositoryPurchaseTemplate_;
+    private final RepositoryPartnerDevice repositoryPartnerDevice_;
+    private final RepositoryPurchaseHistory repositoryPurchaseHistory_;
 
     public RepositoryManager(Context context) {
         ExpensesSQLiteHelper dbHelper = new ExpensesSQLiteHelper(context);
 
-        repoPurchase_ = new RepositoryPurchase(dbHelper);
-        repoPurchaseTemplate_ = new RepositoryPurchaseTemplate(dbHelper);
+        repositoryPurchase_ = new RepositoryPurchase(dbHelper);
+        repositoryPurchaseTemplate_ = new RepositoryPurchaseTemplate(dbHelper);
+        repositoryPartnerDevice_ = new RepositoryPartnerDevice(dbHelper);
+        repositoryPurchaseHistory_=new RepositoryPurchaseHistory(dbHelper);
     }
 
     public void open() throws SQLException {
-        repoPurchase_.open();
-        repoPurchaseTemplate_.open();
+        repositoryPurchase_.open();
+        repositoryPurchaseTemplate_.open();
+        repositoryPartnerDevice_.open();
+        repositoryPurchaseHistory_.open();
     }
 
     public void close() {
-        repoPurchase_.close();
-        repoPurchaseTemplate_.close();
+        repositoryPurchase_.close();
+        repositoryPurchaseTemplate_.close();
+        repositoryPartnerDevice_.close();
+        repositoryPurchaseHistory_.close();
     }
 
     public boolean updatePurchase(Purchase purchase) {
-        return repoPurchase_.updatePurchase(purchase);
+        return repositoryPurchase_.updatePurchase(purchase);
     }
 
-    public Purchase createPurchase(Purchase purchase) {
+    public long savePurchase(Purchase purchase) {
 
         if (!purchase.hasValidState()) throw new IllegalStateException();
 
-        return repoPurchase_.createPurchase(purchase);
+        return repositoryPurchase_.savePurchase(purchase);
     }
 
     public List<Purchase> getAllPurchases() {
-        return repoPurchase_.getAllPurchases();
+        return repositoryPurchase_.getAllPurchases();
     }
 
     public List<Purchase> getAllPurchasesForDateRange(Date minDate, Date maxDate) {
-        return repoPurchase_.getAllPurchasesForDateRange(minDate, maxDate);
+        return repositoryPurchase_.getAllPurchasesForDateRange(minDate, maxDate);
     }
 
     public Purchase findLatestPurchase(Barcode barcode) {
-        return repoPurchase_.findLatestPurchase(ExpensesSQLiteHelper.PURCHASE_BARCODE, barcode.toString());
+        return repositoryPurchase_.findLatestPurchase(ExpensesSQLiteHelper.PURCHASE_BARCODE, barcode.toString());
     }
 
-    public Purchase findPurchaseById(int purchaseId) {
-        return repoPurchase_.findLatestPurchase(ExpensesSQLiteHelper.PURCHASE_ID, String.valueOf(purchaseId));
+    public Purchase findPurchaseById(long purchaseId) {
+        return repositoryPurchase_.findLatestPurchase(ExpensesSQLiteHelper.PURCHASE_ID, String.valueOf(purchaseId));
     }
 
-    public int deletePurchase(int purchaseId) {
-        return repoPurchase_.deletePurchase(purchaseId);
+    public int deletePurchase(long purchaseId) {
+        return repositoryPurchase_.deletePurchase(purchaseId);
     }
 
     public void deleteAllPurchaseTemplates(){
-        repoPurchaseTemplate_.deleteAllPurchaseTemplates();
+        repositoryPurchaseTemplate_.deleteAllPurchaseTemplates();
     }
 
     public List<PurchaseTemplate> getAllPurchaseTemplates(){
-        return repoPurchaseTemplate_.getAllPurchaseTemplates();
+        return repositoryPurchaseTemplate_.getAllPurchaseTemplates();
     }
 
-    public void savePurchaseTemplate(PurchaseTemplate purchaseTemplate){
-        repoPurchaseTemplate_.savePurchaseTemplate(purchaseTemplate);
+    public long savePurchaseTemplate(PurchaseTemplate purchaseTemplate){
+        return repositoryPurchaseTemplate_.savePurchaseTemplate(purchaseTemplate);
     }
+
+    public long savePurchaseHistory(PurchaseHistory purchaseHistory){
+        return repositoryPurchaseHistory_.savePurchaseHistory(purchaseHistory);
+    }
+
+    public List<PurchaseHistory> getPurchaseHistoryAfter( Date date ){
+        return repositoryPurchaseHistory_.getPurchaseHistoryAfter(date);
+    }
+
+    public long savePartnerDevice( PartnerDevice partnerDevice){
+        return repositoryPartnerDevice_.savePartnerDevice(partnerDevice);
+    }
+
+    public boolean updatePartnerDevice( PartnerDevice partnerDevice){
+        return repositoryPartnerDevice_.updatePartnerDevice(partnerDevice);
+    }
+
+    public PartnerDevice findPartnerDeviceByAndroidId(String androidId){
+        return repositoryPartnerDevice_.findPartnerDeviceByAndroidId(androidId);
+    }
+
 
 }

@@ -4,8 +4,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;
 
-import com.pfeiffer.expenses.model.Category;
-import com.pfeiffer.expenses.model.Location;
+import com.pfeiffer.expenses.model.EnumCategory;
+import com.pfeiffer.expenses.model.EnumLocation;
 import com.pfeiffer.expenses.model.Money;
 import com.pfeiffer.expenses.model.PurchaseTemplate;
 
@@ -38,15 +38,15 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
         super(dbHelper);
     }
 
-    void savePurchaseTemplate (PurchaseTemplate purchaseTemplate) {
+    long savePurchaseTemplate (PurchaseTemplate purchaseTemplate) {
 
         Money price = purchaseTemplate.getPrice();
         int amount = purchaseTemplate.getAmount();
-        Location location = purchaseTemplate.getLocation();
+        EnumLocation location = purchaseTemplate.getLocation();
         String productName = purchaseTemplate.getProductName();
         int numberOfPurchases = purchaseTemplate.getNumberOfPurchases();
         Date lastPurchaseDate = purchaseTemplate.getLastPurchaseDate();
-        Category category=purchaseTemplate.getCategory();
+        EnumCategory category=purchaseTemplate.getCategory();
 
         Log.d(logTag_, "Enter method savePurchaseTemplate with arguments price=" + price + ", " +
                 "amount=" + amount + ", location=" + location + ", " +
@@ -69,7 +69,7 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
 
         Log.d(logTag_, values.toString());
 
-        database_.insert(ExpensesSQLiteHelper.TABLE_PURCHASE_TEMPLATE, null, values);
+        return database_.insert(ExpensesSQLiteHelper.TABLE_PURCHASE_TEMPLATE, null, values);
     }
 
     private PurchaseTemplate cursorToPurchaseTemplate(Cursor cursor) {
@@ -77,8 +77,8 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
             throw new IllegalStateException("Database cursor out of bounds.");
 
         return new PurchaseTemplate(cursor.getInt(0), cursor.getInt(1),
-                Location.valueOf(cursor.getString(2)), new Money(cursor.getString(3)), cursor.getString(4),
-                cursor.getInt(5), new Date(Long.parseLong(cursor.getString(6))), Category.valueOf(cursor.getString(7)));
+                EnumLocation.valueOf(cursor.getString(2)), new Money(cursor.getString(3)), cursor.getString(4),
+                cursor.getInt(5), new Date(Long.parseLong(cursor.getString(6))), EnumCategory.valueOf(cursor.getString(7)));
     }
 
     List<PurchaseTemplate> getAllPurchaseTemplates() {

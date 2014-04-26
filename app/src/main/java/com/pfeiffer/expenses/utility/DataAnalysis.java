@@ -2,7 +2,7 @@ package com.pfeiffer.expenses.utility;
 
 import android.util.Log;
 
-import com.pfeiffer.expenses.model.Category;
+import com.pfeiffer.expenses.model.EnumCategory;
 import com.pfeiffer.expenses.model.Money;
 import com.pfeiffer.expenses.model.Purchase;
 import com.pfeiffer.expenses.repository.RepositoryManager;
@@ -23,17 +23,17 @@ public class DataAnalysis {
     private final String logTag_ = this.getClass().getName();
     private RepositoryManager repositoryManager_;
     private List<Purchase> purchaseList_;
-    private HashMap<String, HashMap<Category, Money>> expensesPerMonthAndCategory_;
+    private HashMap<String, HashMap<EnumCategory, Money>> expensesPerMonthAndCategory_;
     private HashMap<String, Money> expensesPerMonth_;
-    private HashMap<String, HashMap<Category, List<Purchase>>> purchasesPerMonthAndCategory_;
+    private HashMap<String, HashMap<EnumCategory, List<Purchase>>> purchasesPerMonthAndCategory_;
 
 
     public DataAnalysis(RepositoryManager repositoryManager) {
         repositoryManager_ = repositoryManager;
         purchaseList_ = repositoryManager_.getAllPurchases();
-        expensesPerMonthAndCategory_ = new HashMap<String, HashMap<Category, Money>>();
+        expensesPerMonthAndCategory_ = new HashMap<String, HashMap<EnumCategory, Money>>();
         expensesPerMonth_ = new HashMap<String, Money>();
-        purchasesPerMonthAndCategory_ = new HashMap<String, HashMap<Category, List<Purchase>>>();
+        purchasesPerMonthAndCategory_ = new HashMap<String, HashMap<EnumCategory, List<Purchase>>>();
 
         analyzePurchaseList();
     }
@@ -41,9 +41,9 @@ public class DataAnalysis {
     public DataAnalysis(RepositoryManager repositoryManager, List<Purchase> purchaseList) {
         repositoryManager_ = repositoryManager;
         purchaseList_ = purchaseList;
-        expensesPerMonthAndCategory_ = new HashMap<String, HashMap<Category, Money>>();
+        expensesPerMonthAndCategory_ = new HashMap<String, HashMap<EnumCategory, Money>>();
         expensesPerMonth_ = new HashMap<String, Money>();
-        purchasesPerMonthAndCategory_ = new HashMap<String, HashMap<Category, List<Purchase>>>();
+        purchasesPerMonthAndCategory_ = new HashMap<String, HashMap<EnumCategory, List<Purchase>>>();
         analyzePurchaseList();
     }
 
@@ -55,9 +55,9 @@ public class DataAnalysis {
 
         Date lastDate = purchaseList_.get(0).getDate();
 
-        HashMap<Category, Money> categoryToExpenses = new HashMap<Category, Money>();
+        HashMap<EnumCategory, Money> categoryToExpenses = new HashMap<EnumCategory, Money>();
         Money expensesSum=new Money("0.0");
-        HashMap<Category, List<Purchase>> categoryToPurchases = new HashMap<Category, List<Purchase>>();
+        HashMap<EnumCategory, List<Purchase>> categoryToPurchases = new HashMap<EnumCategory, List<Purchase>>();
 
 
 
@@ -68,14 +68,14 @@ public class DataAnalysis {
                 expensesPerMonth_.put(Translation.yearAndMonth(lastDate), expensesSum);
                 purchasesPerMonthAndCategory_.put(Translation.yearAndMonth(lastDate), categoryToPurchases);
 
-                categoryToExpenses = new HashMap<Category, Money>();
+                categoryToExpenses = new HashMap<EnumCategory, Money>();
                 expensesSum=new Money("0.0");
-                categoryToPurchases = new HashMap<Category, List<Purchase>>();
+                categoryToPurchases = new HashMap<EnumCategory, List<Purchase>>();
 
                 lastDate = purchase.getDate();
             }
 
-            Category category = purchase.getCategory();
+            EnumCategory category = purchase.getCategory();
             Money purchasePrice = purchase.getTotalPrice();
             expensesSum.add(purchasePrice);
 
@@ -103,7 +103,7 @@ public class DataAnalysis {
     }
 
 
-    public Money getExpensesForYearMonthAndCategory(Date date, Category category) {
+    public Money getExpensesForYearMonthAndCategory(Date date, EnumCategory category) {
         // TODO check arguments
         String yearMonth = Translation.yearAndMonth(date);
         if (expensesPerMonthAndCategory_.containsKey(yearMonth) && expensesPerMonthAndCategory_.get(yearMonth)
@@ -112,11 +112,11 @@ public class DataAnalysis {
         } else return new Money("0.0");
     }
 
-    public List<Map.Entry<Category, Money>> getSortedCategoryToExpensesForYearAndMonth(Date date){
-        List<Map.Entry<Category, Money>> ret = new ArrayList<Map.Entry<Category, Money>>();
+    public List<Map.Entry<EnumCategory, Money>> getSortedCategoryToExpensesForYearAndMonth(Date date){
+        List<Map.Entry<EnumCategory, Money>> ret = new ArrayList<Map.Entry<EnumCategory, Money>>();
 
-        for(Category category : Category.values()){
-            ret.add(new AbstractMap.SimpleEntry<Category, Money>(category, getExpensesForYearMonthAndCategory(date,
+        for(EnumCategory category : EnumCategory.values()){
+            ret.add(new AbstractMap.SimpleEntry<EnumCategory, Money>(category, getExpensesForYearMonthAndCategory(date,
                     category)));
         }
 
@@ -125,7 +125,7 @@ public class DataAnalysis {
         return ret;
     }
 
-    public List<Purchase> getPurchasesForYearMonthAndCategory(Date date, Category category){
+    public List<Purchase> getPurchasesForYearMonthAndCategory(Date date, EnumCategory category){
         // TODO check arguments
         String yearMonth = Translation.yearAndMonth(date);
         if (purchasesPerMonthAndCategory_.containsKey(yearMonth) && purchasesPerMonthAndCategory_.get(yearMonth)
@@ -142,9 +142,9 @@ public class DataAnalysis {
         } else return new Money("0.0");
     }
 
-    public class CategoryComparator implements Comparator<Map.Entry<Category, Money>> {
+    public class CategoryComparator implements Comparator<Map.Entry<EnumCategory, Money>> {
         @Override
-        public int compare(Map.Entry<Category, Money> o1, Map.Entry<Category, Money> o2) {
+        public int compare(Map.Entry<EnumCategory, Money> o1, Map.Entry<EnumCategory, Money> o2) {
             return o1.getValue().compareTo(o2.getValue());
         }
     }

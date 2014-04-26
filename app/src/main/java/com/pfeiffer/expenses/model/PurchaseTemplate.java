@@ -12,12 +12,12 @@ import java.util.List;
 public class PurchaseTemplate {
     private int id_;
     final private int amount_;
-    final private Location location_;
+    final private EnumLocation location_;
     final private Money price_;
     final private String productName_;
     final private int numberOfPurchases_;
     final private Date lastPurchaseDate_;
-    final private Category category_;
+    final private EnumCategory category_;
 
     public PurchaseTemplate(List<Purchase> purchaseList) {
         // TODO: refine algorithms!
@@ -30,9 +30,9 @@ public class PurchaseTemplate {
         category_=purchaseList.get(0).getCategory();
     }
 
-    public PurchaseTemplate(int purchaseTemplateId, int amount, Location location,
+    public PurchaseTemplate(int purchaseTemplateId, int amount, EnumLocation location,
                             Money price, String productName, int numberOfPurchases, Date lastPurchaseDate,
-                            Category category) {
+                            EnumCategory category) {
         Log.d(this.getClass().getName(), "Enter Purchase constructor with arguments: purchaseTemplateId=" + purchaseTemplateId
                 + ", amount=" + amount + ", location=" + location
                 + ", price=" + price + ", productName=" + productName + ", numberOfPurchases=" + numberOfPurchases +
@@ -54,7 +54,7 @@ public class PurchaseTemplate {
         return amount_;
     }
 
-    public Location getLocation() {
+    public EnumLocation getLocation() {
         return location_;
     }
 
@@ -78,7 +78,7 @@ public class PurchaseTemplate {
         return lastPurchaseDate_;
     }
 
-    public Category getCategory(){ return  category_;}
+    public EnumCategory getCategory(){ return  category_;}
 
     public Money getTotalPrice() {
         return price_.getScaled(amount_);
