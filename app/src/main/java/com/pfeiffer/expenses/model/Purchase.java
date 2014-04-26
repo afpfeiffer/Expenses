@@ -2,10 +2,11 @@ package com.pfeiffer.expenses.model;
 
 import android.util.Log;
 
+import java.io.Serializable;
 import java.util.Date;
 
 
-public class Purchase {
+public class Purchase implements Serializable {
     final boolean cash_;
     private int id_ = -1;
     private Barcode barcode_;
