@@ -1,6 +1,7 @@
 package com.pfeiffer.expenses.repository;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
@@ -26,8 +27,8 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
             ExpensesSQLiteHelper.PURCHASE_TEMPLATE_NUMBER_OF_PURCHASES,
             ExpensesSQLiteHelper.PURCHASE_TEMPLATE_LAST_PURCHASE_DATE, ExpensesSQLiteHelper.PURCHASE_TEMPLATE_CATEGORY};
 
-    public RepositoryPurchaseTemplate(ExpensesSQLiteHelper dbHelper) {
-        super(dbHelper);
+    public RepositoryPurchaseTemplate(Context context, ExpensesSQLiteHelper dbHelper) {
+        super(context, dbHelper);
     }
 
     long savePurchaseTemplate(PurchaseTemplate purchaseTemplate) {

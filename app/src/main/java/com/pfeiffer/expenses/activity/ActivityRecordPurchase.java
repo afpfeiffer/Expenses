@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -71,13 +72,13 @@ public class ActivityRecordPurchase extends Activity {
         repositoryManager_.open();
 
         FragmentManager fragmentManager = getFragmentManager();
-        dataFragment_ = (DataFragment) fragmentManager.findFragmentByTag("recordPurchaseData");
+        dataFragment_ = (DataFragment) fragmentManager.findFragmentByTag("ActivityRecordPurchase");
 
         // create the fragment and data the first time
         if (dataFragment_ == null) {
             // add the fragment
             dataFragment_ = new DataFragment();
-            fragmentManager.beginTransaction().add(dataFragment_, "recordPurchaseData").commit();
+            fragmentManager.beginTransaction().add(dataFragment_, "ActivityRecordPurchase").commit();
 
             dataFragment_.setPurchaseId(getIntent().getIntExtra(ActivityMain.EXTRA_PURCHASE_ID, -1));
             dataFragment_.setEditMode(dataFragment_.getPurchaseId() > 0);
@@ -169,25 +170,30 @@ public class ActivityRecordPurchase extends Activity {
             @Override
             public void onClick(final View view) {
 
-
-                new AlertDialog.Builder(view.getContext())
-                        .setTitle(R.string.button_cancel)
-                        .setMessage(R.string.question_cancel)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // return to Main Acitivty
-                                startActivity(new Intent(view.getContext(), ActivityMain.class));
-
-                                finish();
-                            }
-                        })
-                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // do nothing
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
+                if (!actvName_.getText().toString().trim().equals("")
+                        || dataFragment_.getBarcode() != null) {
+                    new AlertDialog.Builder(view.getContext())
+                            .setTitle(R.string.button_cancel)
+                            .setMessage(R.string.question_cancel)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // return to Main Acitivty
+                                    startActivity(new Intent(view.getContext(), ActivityMain.class));
+                                    finish();
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // do nothing
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                } else {
+                    // return to Main Acitivty
+                    startActivity(new Intent(view.getContext(), ActivityMain.class));
+                    finish();
+                }
 
             }
         });
@@ -351,6 +357,15 @@ public class ActivityRecordPurchase extends Activity {
     protected void onPause() {
         repositoryManager_.close();
         super.onPause();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            startActivity(new Intent(this, ActivityMain.class));
+            finish();
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     private class DataFragment extends Fragment {

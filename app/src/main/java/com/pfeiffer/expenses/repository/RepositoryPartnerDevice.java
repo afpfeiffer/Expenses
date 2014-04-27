@@ -1,6 +1,7 @@
 package com.pfeiffer.expenses.repository;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
@@ -18,8 +19,8 @@ public class RepositoryPartnerDevice extends RepositoryBase {
             ExpensesSQLiteHelper.PARTNER_DEVICE_ANDROID_ID,
             ExpensesSQLiteHelper.PARTNER_DEVICE_LAST_SYNCHRONIZATION};
 
-    public RepositoryPartnerDevice(ExpensesSQLiteHelper dbHelper) {
-        super(dbHelper);
+    public RepositoryPartnerDevice(Context context, ExpensesSQLiteHelper dbHelper) {
+        super(context, dbHelper);
     }
 
     private PartnerDevice cursorToPartnerDevice(Cursor cursor) {

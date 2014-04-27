@@ -148,12 +148,13 @@ public class ActivityMain extends Activity {
             case R.id.action_sync_data:
 //                startActivity(new Intent(this, ActivitySyncData.class));
                 startActivity(new Intent(this, ActivityShareData.class ));
+                finish();
                 return true;
 
             case R.id.action_record_purchase:
                 Intent intent = new Intent(this, ActivityRecordPurchase.class);
                 startActivity(intent);
-
+                finish();
                 return true;
 
             default:

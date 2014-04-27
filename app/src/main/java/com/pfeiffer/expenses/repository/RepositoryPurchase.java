@@ -1,6 +1,7 @@
 package com.pfeiffer.expenses.repository;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
@@ -25,8 +26,8 @@ class RepositoryPurchase extends RepositoryBase {
             ExpensesSQLiteHelper.PURCHASE_PRODUCT_NAME, ExpensesSQLiteHelper.PURCHASE_CATEGORY,
             ExpensesSQLiteHelper.PURCHASE_OWNER, ExpensesSQLiteHelper.PURCHASE_ID_OWNER};
 
-    public RepositoryPurchase(ExpensesSQLiteHelper dbHelper) {
-        super(dbHelper);
+    public RepositoryPurchase(Context context, ExpensesSQLiteHelper dbHelper) {
+        super(context, dbHelper);
     }
 
 
@@ -77,7 +78,17 @@ class RepositoryPurchase extends RepositoryBase {
         values.put(ExpensesSQLiteHelper.PURCHASE_OWNER, owner);
         values.put(ExpensesSQLiteHelper.PURCHASE_ID_OWNER, purchaseIdOwner);
 
-        return database_.insert(ExpensesSQLiteHelper.TABLE_PURCHASE, null, values);
+        long purchaseId = database_.insert(ExpensesSQLiteHelper.TABLE_PURCHASE, null, values);
+
+        if (purchaseIdOwner < 0 && owner.equals(deviceOwner_)) {
+            values.clear();
+            values.put(ExpensesSQLiteHelper.PURCHASE_ID_OWNER, purchaseId);
+            database_.update(ExpensesSQLiteHelper.TABLE_PURCHASE, values,
+                    ExpensesSQLiteHelper.PURCHASE_ID + "=" + purchaseId,
+                    null);
+        }
+
+        return purchaseId;
     }
 
 
@@ -179,7 +190,6 @@ class RepositoryPurchase extends RepositoryBase {
     }
 
     int deletePurchase(long purchaseId) {
-        // TODO Auto-generated method stub
         Log.d(logTag_, "deletePurchase(" + purchaseId + ")");
 
         int numberOfRowsDeleted = database_.delete(

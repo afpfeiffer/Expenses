@@ -1,6 +1,7 @@
 package com.pfeiffer.expenses.repository;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
@@ -21,8 +22,8 @@ public class RepositoryPurchaseHistory extends RepositoryBase {
             ExpensesSQLiteHelper.PURCHASE_HISTORY_PURCHASE_ID,
             ExpensesSQLiteHelper.PURCHASE_HISTORY_OPERATION};
 
-    public RepositoryPurchaseHistory(ExpensesSQLiteHelper dbHelper) {
-        super(dbHelper);
+    public RepositoryPurchaseHistory(Context context, ExpensesSQLiteHelper dbHelper) {
+        super(context, dbHelper);
     }
 
     private PurchaseHistory cursorToPurchaseHistory(Cursor cursor) {

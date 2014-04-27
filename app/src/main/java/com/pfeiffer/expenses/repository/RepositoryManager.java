@@ -21,10 +21,10 @@ public class RepositoryManager {
     public RepositoryManager(Context context) {
         ExpensesSQLiteHelper dbHelper = new ExpensesSQLiteHelper(context);
 
-        repositoryPurchase_ = new RepositoryPurchase(dbHelper);
-        repositoryPurchaseTemplate_ = new RepositoryPurchaseTemplate(dbHelper);
-        repositoryPartnerDevice_ = new RepositoryPartnerDevice(dbHelper);
-        repositoryPurchaseHistory_=new RepositoryPurchaseHistory(dbHelper);
+        repositoryPurchase_ = new RepositoryPurchase(context, dbHelper);
+        repositoryPurchaseTemplate_ = new RepositoryPurchaseTemplate(context, dbHelper);
+        repositoryPartnerDevice_ = new RepositoryPartnerDevice(context, dbHelper);
+        repositoryPurchaseHistory_=new RepositoryPurchaseHistory(context, dbHelper);
     }
 
     public void open() throws SQLException {

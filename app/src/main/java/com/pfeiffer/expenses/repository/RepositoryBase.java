@@ -1,14 +1,18 @@
 package com.pfeiffer.expenses.repository;
 
+import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.Settings;
 
 class RepositoryBase {
 
     final ExpensesSQLiteHelper dbHelper_;
     SQLiteDatabase database_;
+    final String deviceOwner_;
 
-    RepositoryBase(ExpensesSQLiteHelper dbHelper) {
+    RepositoryBase(Context context, ExpensesSQLiteHelper dbHelper) {
+        deviceOwner_= Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         dbHelper_ = dbHelper;
     }
 
