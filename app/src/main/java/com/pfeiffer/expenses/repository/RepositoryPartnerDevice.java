@@ -47,7 +47,6 @@ public class RepositoryPartnerDevice extends RepositoryBase {
         values.put(ExpensesSQLiteHelper.PARTNER_DEVICE_LAST_SYNCHRONIZATION, lastSynchronization.getTime());
 
         return database_.insert(ExpensesSQLiteHelper.TABLE_PARTNER_DEVICE, null, values);
-
     }
 
     boolean updatePartnerDevice(PartnerDevice partnerDevice) {
@@ -67,28 +66,32 @@ public class RepositoryPartnerDevice extends RepositoryBase {
         ContentValues values = new ContentValues();
         values.put(ExpensesSQLiteHelper.PARTNER_DEVICE_LAST_SYNCHRONIZATION, lastSynchronization.getTime());
 
-        int result=database_.update(ExpensesSQLiteHelper.TABLE_PARTNER_DEVICE, values,
+        int result = database_.update(ExpensesSQLiteHelper.TABLE_PARTNER_DEVICE, values,
                 ExpensesSQLiteHelper.PARTNER_DEVICE_ID + "=" + id, null);
-        return ( result == 1); // true if one row was updated
+        boolean oneRowUpdated = (result == 1);
+        Log.d(logTag_, "updatePartnerDevice returns" + oneRowUpdated);
+        return oneRowUpdated; // true if one row was updated
     }
 
 
     public PartnerDevice findPartnerDeviceByAndroidId(String androidId) {
-        Log.d(logTag_,"findPartnerDeviceByAndroidId("+androidId+")");
+        Log.d(logTag_, "findPartnerDeviceByAndroidId(" + androidId + ")");
 
         Cursor cursor = database_.query(ExpensesSQLiteHelper.TABLE_PARTNER_DEVICE,
                 allPartnerDeviceColumns_, " " + ExpensesSQLiteHelper.PARTNER_DEVICE_ANDROID_ID
-                + " = ?", new String[]{androidId}, null, null, null, null);
+                        + " = ?", new String[]{androidId}, null, null, null, null
+        );
 
         cursor.moveToFirst();
 
-        PartnerDevice partnerDevice=null;
-        if(!cursor.isAfterLast()) {
+        PartnerDevice partnerDevice = null;
+        if (!cursor.isAfterLast()) {
             partnerDevice = cursorToPartnerDevice(cursor);
 
         }
         cursor.close();
 
+        Log.d(logTag_, "findPartnerDeviceByAndroidId returns " + partnerDevice);
         return partnerDevice;
     }
 

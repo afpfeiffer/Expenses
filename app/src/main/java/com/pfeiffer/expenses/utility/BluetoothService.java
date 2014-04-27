@@ -11,9 +11,12 @@ import android.os.Message;
 import android.util.Log;
 
 import com.pfeiffer.expenses.activity.ActivityShareData;
+import com.pfeiffer.expenses.model.Purchase;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
@@ -211,6 +214,22 @@ public class BluetoothService {
         r.write(out);
     }
 
+    public void write(Purchase purchase) {
+        // Create temporary object
+        ConnectedThread r;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (mState_ != STATE_CONNECTED) return;
+            r = mConnectedThread_;
+        }
+        // Perform the write unsynchronized
+        r.write(purchase);
+    }
+
+    public ConnectedThread getConnetedThread() {
+        return mConnectedThread_;
+    }
+
     /**
      * Indicate that the connection attempt failed and notify the UI Activity.
      */
@@ -388,23 +407,29 @@ public class BluetoothService {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
+        private final ObjectOutputStream mmObjectOutStream;
+
 
         public ConnectedThread(BluetoothSocket socket) {
             Log.d(TAG, "create ConnectedThread");
             mmSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
+            ObjectOutputStream tmpObjectOut=null;
 
             // Get the BluetoothSocket input and output streams
             try {
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
+                tmpObjectOut=new ObjectOutputStream(tmpOut);
             } catch (IOException e) {
                 Log.e(TAG, "temp sockets not created", e);
             }
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
+            mmObjectOutStream =tmpObjectOut;
+
         }
 
         public void run() {
@@ -412,18 +437,32 @@ public class BluetoothService {
             byte[] buffer = new byte[1024];
             int bytes;
 
+            ObjectInputStream ois = null;
+
+            try {
+                ois = new ObjectInputStream(mmInStream);
+            } catch (Exception e) {
+                return;
+            }
+
+
             // Keep listening to the InputStream while connected
             while (true) {
                 try {
                     // Read from the InputStream
-                    bytes = mmInStream.read(buffer);
+//                    bytes = mmInStream.read(buffer);
 
                     // Send the obtained bytes to the UI Activity
-                    mHandler_.obtainMessage(ActivityShareData.MESSAGE_READ, bytes, -1, buffer)
+//                    mHandler_.obtainMessage(ActivityShareData.MESSAGE_READ, bytes, -1, buffer)
+//                            .sendToTarget();
+                    Object object = ois.readObject();
+                    mHandler_.obtainMessage(ActivityShareData.MESSAGE_READ, 1, -1, object)
                             .sendToTarget();
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
                     connectionLost();
+                    break;
+                } catch (ClassNotFoundException e) {
                     break;
                 }
             }
@@ -439,12 +478,22 @@ public class BluetoothService {
                 mmOutStream.write(buffer);
 
                 // Share the sent message back to the UI Activity
-                mHandler_.obtainMessage(ActivityShareData.MESSAGE_WRITE, -1, -1, buffer)
-                        .sendToTarget();
+//                mHandler_.obtainMessage(ActivityShareData.MESSAGE_WRITE, -1, -1, buffer)
+//                        .sendToTarget();
             } catch (IOException e) {
                 Log.e(TAG, "Exception during write", e);
             }
         }
+
+        public void write(Purchase purchase) {
+            try {
+                mmObjectOutStream.writeObject(purchase);
+
+            } catch (IOException e) {
+                Log.e(TAG, "Exception during write", e);
+            }
+        }
+
 
         public void cancel() {
             try {

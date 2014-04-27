@@ -44,6 +44,8 @@ class RepositoryPurchase extends RepositoryBase {
 
 
     long savePurchase(Purchase purchase) {
+        Log.d(logTag_, "savePurchase(" + purchase + ")");
+
         Barcode barcode = purchase.getBarcode();
         Money price = purchase.getPrice();
         int amount = purchase.getAmount();
@@ -53,11 +55,6 @@ class RepositoryPurchase extends RepositoryBase {
         EnumCategory category = purchase.getCategory();
         String owner = purchase.getOwner();
         Long purchaseIdOwner = purchase.getPurchaseIdOwner();
-
-        Log.d(logTag_, "Enter method savePurchase with arguments barcode=" + barcode + ", price=" +
-                price + ", amount=" + amount + ", location=" + location + ", cash=" + cash + ", " +
-                "productName=" + productName + ", category=" + category + ", owner=" + owner +
-                "purchaseIdOwner=" + purchaseIdOwner + ".");
 
         if (amount <= 0)
             throw new IllegalArgumentException("Amount must be greater than 0.");
@@ -93,9 +90,7 @@ class RepositoryPurchase extends RepositoryBase {
         String productName = purchase.getProductName();
         EnumCategory category = purchase.getCategory();
 
-        Log.d(logTag_, "Enter method updatePurchase with arguments purchaseId=" + purchaseId
-                + ", price=" + price + ", amount=" + amount + ", location=" + location + ", cash=" + cash + ", " +
-                "productName=" + productName + ", category=" + category + ".");
+        Log.d(logTag_, "updatePurchase(" + purchase + ")");
 
         if (purchaseId <= 0)
             throw new IllegalArgumentException("Value productId is infalid (<=0).");
@@ -112,17 +107,14 @@ class RepositoryPurchase extends RepositoryBase {
         values.put(ExpensesSQLiteHelper.PURCHASE_PRODUCT_NAME, productName);
         values.put(ExpensesSQLiteHelper.PURCHASE_CATEGORY, category.name());
 
-        Log.d(logTag_, "Update values " + values);
-
         int rowsAffected = database_.update(
                 ExpensesSQLiteHelper.TABLE_PURCHASE,
                 values,
                 ExpensesSQLiteHelper.PURCHASE_ID + "=" + purchaseId,
                 null);
 
-        Log.d(logTag_, "Update affected " + rowsAffected + " row(s).");
-
-
+        boolean oneRowUpdated = rowsAffected == 1;
+        Log.d(logTag_, "updatePurchase returns " + oneRowUpdated);
         return (rowsAffected == 1);
     }
 
@@ -132,8 +124,8 @@ class RepositoryPurchase extends RepositoryBase {
     }
 
     List<Purchase> findPurchases(String searchField, String searchValue) {
-        Log.d(logTag_, "Enter method findPurchases() with argument field=" + searchField + ", value="
-                + searchValue + ".");
+        Log.d(logTag_, "findPurchases(searchField=" + searchField + ", searchValue="
+                + searchValue + ")");
         String orderBy = ExpensesSQLiteHelper.PURCHASE_DATE + " DESC";
         Cursor cursor;
         if (searchField != null && !searchField.equals(""))
@@ -152,6 +144,7 @@ class RepositoryPurchase extends RepositoryBase {
         }
         cursor.close();
 
+        Log.d(logTag_, "findPurchases returns " + purchases);
         return purchases;
     }
 
@@ -161,6 +154,9 @@ class RepositoryPurchase extends RepositoryBase {
     }
 
     List<Purchase> getAllPurchasesForDateRange(Date minDate, Date maxDate) {
+        Log.d(logTag_, "getAllPurchasesForDateRange( minDate=" + minDate.toString() + ", maxDate="
+                + maxDate.toString());
+
         String orderBy = ExpensesSQLiteHelper.PURCHASE_DATE + " DESC";
 
         Cursor cursor = database_.query(ExpensesSQLiteHelper.TABLE_PURCHASE, null,
@@ -177,16 +173,20 @@ class RepositoryPurchase extends RepositoryBase {
             cursor.moveToNext();
         }
         cursor.close();
+
+        Log.d(logTag_, "getAllPurchasesForDateRange returns " + purchases);
         return purchases;
     }
 
     int deletePurchase(long purchaseId) {
         // TODO Auto-generated method stub
-        Log.d(logTag_, "Enter method deletePurchase() with argument id=" + purchaseId + ".");
+        Log.d(logTag_, "deletePurchase(" + purchaseId + ")");
 
-        return database_.delete(
+        int numberOfRowsDeleted = database_.delete(
                 ExpensesSQLiteHelper.TABLE_PURCHASE,
                 ExpensesSQLiteHelper.PURCHASE_ID + " = ?",
                 new String[]{String.valueOf(purchaseId)});
+        Log.d(logTag_, "deletePurchase returns " + numberOfRowsDeleted);
+        return numberOfRowsDeleted;
     }
 }

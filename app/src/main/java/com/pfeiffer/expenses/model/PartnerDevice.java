@@ -29,4 +29,6 @@ public class PartnerDevice {
         return lastSynchronization_;
     }
 
+    public String toString(){return "PartnerDevice (id="+id_+", androidId="+androidId_+
+            ", lastSychronization="+lastSynchronization_.toString()+")";}
 }

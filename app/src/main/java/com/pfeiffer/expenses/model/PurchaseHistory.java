@@ -43,4 +43,9 @@ public class PurchaseHistory {
         return date_;
     }
 
+    public String toString() {
+        return "PurchaseHistory(id=" + id_ + ", purchaseId=" + purchaseId_ + ", date=" +
+                date_.toString() + ", operation=" + operation_ + ")";
+    }
+
 }

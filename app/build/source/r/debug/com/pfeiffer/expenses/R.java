@@ -23,45 +23,43 @@ public final class R {
     public static final class id {
         public static final int LinearLayout1=0x7f080005;
         public static final int PieChart=0x7f080009;
-        public static final int action_record_purchase=0x7f080029;
-        public static final int action_settings=0x7f080025;
-        public static final int action_sync_data=0x7f080028;
+        public static final int action_record_purchase=0x7f080027;
+        public static final int action_settings=0x7f080023;
+        public static final int action_sync_data=0x7f080026;
         public static final int actvName=0x7f08000d;
         public static final int bCancel=0x7f080013;
         public static final int bDone=0x7f080014;
         public static final int bScanBarcode=0x7f08000b;
-        public static final int bluetooth_status_text=0x7f080018;
+        public static final int bluetooth_status_text=0x7f080016;
         public static final int button_scan_for_devices=0x7f080004;
-        public static final int button_send=0x7f080017;
         public static final int cbCash=0x7f080012;
-        public static final int discoverable=0x7f080027;
-        public static final int edit_text_out=0x7f080016;
+        public static final int discoverable=0x7f080025;
         public static final int etPrice=0x7f080010;
         public static final int expandableListViewMain=0x7f080008;
         public static final int graphChart=0x7f08000a;
-        public static final int in=0x7f080015;
-        public static final int listView1=0x7f08001d;
+        public static final int listView1=0x7f08001b;
         public static final int new_devices=0x7f080003;
         public static final int npAmount=0x7f080011;
-        public static final int paired=0x7f08001b;
+        public static final int paired=0x7f080019;
         public static final int paired_devices=0x7f080001;
-        public static final int rowCategoryExpenses=0x7f080021;
-        public static final int rowCategoryName=0x7f080020;
-        public static final int rowDate=0x7f080022;
-        public static final int rowName=0x7f080023;
-        public static final int rowTotalPrice=0x7f080024;
+        public static final int rowCategoryExpenses=0x7f08001f;
+        public static final int rowCategoryName=0x7f08001e;
+        public static final int rowDate=0x7f080020;
+        public static final int rowName=0x7f080021;
+        public static final int rowTotalPrice=0x7f080022;
         public static final int sCategory=0x7f08000e;
         public static final int sLocation=0x7f08000f;
-        public static final int scan=0x7f080026;
-        public static final int search=0x7f08001c;
-        public static final int title_left_text=0x7f08001e;
+        public static final int scan=0x7f080024;
+        public static final int search=0x7f08001a;
+        public static final int title_left_text=0x7f08001c;
         public static final int title_new_devices=0x7f080002;
         public static final int title_paired_devices=0x7f080000;
-        public static final int title_right_text=0x7f08001f;
-        public static final int turnOff=0x7f08001a;
-        public static final int turnOn=0x7f080019;
+        public static final int title_right_text=0x7f08001d;
+        public static final int turnOff=0x7f080018;
+        public static final int turnOn=0x7f080017;
         public static final int tvBarcodeStatus=0x7f08000c;
         public static final int tvCurrentMonth=0x7f080006;
+        public static final int tvSyncInfo=0x7f080015;
         public static final int tvTotalExpenses=0x7f080007;
     }
     public static final class layout {
@@ -74,8 +72,7 @@ public final class R {
         public static final int custom_title=0x7f030006;
         public static final int device_name=0x7f030007;
         public static final int group_row=0x7f030008;
-        public static final int message=0x7f030009;
-        public static final int row=0x7f03000a;
+        public static final int row=0x7f030009;
     }
     public static final class menu {
         public static final int activity_bluetooth_devices=0x7f070000;

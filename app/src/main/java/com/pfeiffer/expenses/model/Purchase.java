@@ -102,4 +102,13 @@ public class Purchase implements Serializable {
 
         return true;
     }
+
+    public String toString() {
+        return "Purchase(id=" + id_ + ", barcode=" +
+                ((barcode_ == null) ? null : barcode_.toString()) + ", amount=" + amount_ +
+                ", purchaseDate=" + purchaseDate_.toString() + ", location=" + location_ +
+                ", price=" + price_.toString() + ", cash=" + cash_ + ", productName=" + productName_
+                + ", category=" + category_ + ", owner=" + owner_ + ", purchaseIdOwner=" +
+                purchaseIdOwner_ + ")";
+    }
 }

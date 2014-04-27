@@ -12,17 +12,16 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pfeiffer.expenses.R;
+import com.pfeiffer.expenses.model.Purchase;
+import com.pfeiffer.expenses.repository.RepositoryManager;
 import com.pfeiffer.expenses.utility.BluetoothService;
+
+import java.util.List;
 
 
 /*
@@ -44,6 +43,9 @@ import com.pfeiffer.expenses.utility.BluetoothService;
   *     - Updates existing Purchases
   *     - Deletes Purchases (no matter who created the Purchase)
   *   according to the received data.
+  *
+  *
+  *   Communication
  *
  */
 
@@ -67,16 +69,12 @@ public class ActivityShareData extends Activity {
     private static final int REQUEST_ENABLE_BT = 2;
 
 
-    private ListView mConversationView;
-    private EditText mOutEditText;
-    private Button mSendButton;
-
+    TextView tvSyncInfo_;
 
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothService mBluetoothService = null;
+    private RepositoryManager repositoryManager_ = null;
 
-    private ArrayAdapter<String> mConversationArrayAdapter;
-    private StringBuffer mOutStringBuffer;
     private String mConnectedDeviceName = null;
 
 
@@ -84,6 +82,9 @@ public class ActivityShareData extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.e(logTag_, "+++ ON CREATE +++");
+
+        repositoryManager_ = new RepositoryManager(this);
+        repositoryManager_.open();
 
         setContentView(R.layout.activity_share_data);
 
@@ -99,6 +100,8 @@ public class ActivityShareData extends Activity {
             finish();
             return;
         }
+
+        tvSyncInfo_ = (TextView) findViewById(R.id.tvSyncInfo);
     }
 
     @Override
@@ -137,31 +140,19 @@ public class ActivityShareData extends Activity {
     private void setupChat() {
         Log.d(logTag_, "setupChat()");
 
-        // Initialize the array adapter for the conversation thread
-        mConversationArrayAdapter = new ArrayAdapter<String>(this, R.layout.message);
-        mConversationView = (ListView) findViewById(R.id.in);
-        mConversationView.setAdapter(mConversationArrayAdapter);
-
-        // Initialize the compose field with a listener for the return key
-        mOutEditText = (EditText) findViewById(R.id.edit_text_out);
-        mOutEditText.setOnEditorActionListener(mWriteListener);
-
         // Initialize the send button with a listener that for click events
-        mSendButton = (Button) findViewById(R.id.button_send);
-        mSendButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Send a message using content of the edit text widget
-                TextView view = (TextView) findViewById(R.id.edit_text_out);
-                String message = view.getText().toString();
-                sendMessage(message);
-            }
-        });
+//        mSendButton.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                // Send a message using content of the edit text widget
+//                TextView view = (TextView) findViewById(R.id.edit_text_out);
+//                String message = view.getText().toString();
+//                sendMessage(message);
+//            }
+//        });
 
         // Initialize the BluetoothChatService to perform bluetooth connections
         mBluetoothService = new BluetoothService(this, mHandler);
 
-        // Initialize the buffer for outgoing messages
-        mOutStringBuffer = new StringBuffer("");
     }
 
     @Override
@@ -197,7 +188,8 @@ public class ActivityShareData extends Activity {
 
     /**
      * Sends a message.
-     * @param message  A string of text to send.
+     *
+     * @param message A string of text to send.
      */
     private void sendMessage(String message) {
         // Check that we're actually connected before trying anything
@@ -212,9 +204,50 @@ public class ActivityShareData extends Activity {
             byte[] send = message.getBytes();
             mBluetoothService.write(send);
 
-            // Reset out string buffer to zero and clear the edit text field
-            mOutStringBuffer.setLength(0);
-            mOutEditText.setText(mOutStringBuffer);
+        }
+    }
+
+//    public static byte[] serializeObject(Object o) {
+//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//
+//        try {
+//            ObjectOutput out = new ObjectOutputStream(bos);
+//            out.writeObject(o);
+//            out.close();
+//
+//            // Get the bytes of the serialized object
+//            byte[] buf = bos.toByteArray();
+//
+//            return buf;
+//        } catch(IOException ioe) {
+//            Log.e("serializeObject", "error", ioe);
+//
+//            return null;
+//        }
+//    }
+//
+//    public static Object deserializeObject(byte[] b) {
+//        try {
+//            ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(b));
+//            Object object = in.readObject();
+//            in.close();
+//
+//            return object;
+//        } catch(ClassNotFoundException cnfe) {
+//            Log.e("deserializeObject", "class not found error", cnfe);
+//
+//            return null;
+//        } catch(IOException ioe) {
+//            Log.e("deserializeObject", "io error", ioe);
+//
+//            return null;
+//        }
+//    }
+
+    private void sendAllPurchases() {
+        List<Purchase> allPurchases = repositoryManager_.getAllPurchases();
+        for (Purchase purchase : allPurchases) {
+            mBluetoothService.write(purchase);
         }
     }
 
@@ -285,7 +318,6 @@ public class ActivityShareData extends Activity {
     }
 
 
-
     // The Handler that gets information back from the BluetoothChatService
     private final Handler mHandler = new Handler() {
         @Override
@@ -295,10 +327,10 @@ public class ActivityShareData extends Activity {
                     Log.i(logTag_, "MESSAGE_STATE_CHANGE: " + msg.arg1);
                     switch (msg.arg1) {
                         case BluetoothService.STATE_CONNECTED:
-                            String titleString=getString(R.string.title_connected_to);
-                            titleString+=": "+mConnectedDeviceName;
+                            String titleString = getString(R.string.title_connected_to);
+                            titleString += ": " + mConnectedDeviceName;
                             setTitle(titleString);
-                            mConversationArrayAdapter.clear();
+                            sendAllPurchases();
                             break;
                         case BluetoothService.STATE_CONNECTING:
                             setTitle(R.string.title_connecting);
@@ -313,13 +345,20 @@ public class ActivityShareData extends Activity {
                     byte[] writeBuf = (byte[]) msg.obj;
                     // construct a string from the buffer
                     String writeMessage = new String(writeBuf);
-                    mConversationArrayAdapter.add("Me:  " + writeMessage);
                     break;
                 case MESSAGE_READ:
-                    byte[] readBuf = (byte[]) msg.obj;
-                    // construct a string from the valid bytes in the buffer
-                    String readMessage = new String(readBuf, 0, msg.arg1);
-                    mConversationArrayAdapter.add(mConnectedDeviceName+":  " + readMessage);
+//                    byte[] readBuf = (byte[]) msg.obj;
+                    Object object = msg.obj;
+                    if (object instanceof Purchase) {
+                        Log.d(logTag_, "Purchase received via bluetooth: " + (Purchase) object);
+                        //...
+                    } else if (object instanceof String) {
+                        Log.d(logTag_, "Purchase received via bluetooth: " + (String) object);
+                        //...
+                    } else {
+                        System.out.println("Unexpected object type:  " + object.getClass().getName());
+                    }
+
                     break;
                 case MESSAGE_DEVICE_NAME:
                     // save the connected device's name

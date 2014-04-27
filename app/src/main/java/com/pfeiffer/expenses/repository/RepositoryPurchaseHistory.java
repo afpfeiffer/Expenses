@@ -35,13 +35,13 @@ public class RepositoryPurchaseHistory extends RepositoryBase {
 
     long savePurchaseHistory(PurchaseHistory purchaseHistory) {
         Log.d(logTag_, "savePurchaseHistory(" + purchaseHistory + ")");
-        if (purchaseHistory == null || purchaseHistory.getDate()==null ) {
+        if (purchaseHistory == null || purchaseHistory.getDate() == null) {
             throw new IllegalArgumentException();
         }
 
-        Date date=purchaseHistory.getDate();
-        int purchaseId=purchaseHistory.getPurchaseId();
-        int operation=purchaseHistory.getOperation();
+        Date date = purchaseHistory.getDate();
+        int purchaseId = purchaseHistory.getPurchaseId();
+        int operation = purchaseHistory.getOperation();
 
         ContentValues values = new ContentValues();
         values.put(ExpensesSQLiteHelper.PURCHASE_HISTORY_TIMESTAMP, date.getTime());
@@ -52,22 +52,24 @@ public class RepositoryPurchaseHistory extends RepositoryBase {
     }
 
     public List<PurchaseHistory> getPurchaseHistoryAfter(Date date) {
-        if(date==null){
+        Log.d(logTag_, "getPurchaseHistoryAfter(" + date.toString() + ")");
+
+        if (date == null) {
             throw new IllegalArgumentException();
         }
 
         String orderBy = ExpensesSQLiteHelper.PURCHASE_HISTORY_TIMESTAMP + " DESC";
 
         Cursor cursor = database_.query(ExpensesSQLiteHelper.TABLE_PURCHASE_HISTORY, allPurchaseHistoryColumns_,
-                ExpensesSQLiteHelper.PURCHASE_HISTORY_TIMESTAMP+
+                ExpensesSQLiteHelper.PURCHASE_HISTORY_TIMESTAMP +
                         " BETWEEN ? AND ?", new String[]{String.valueOf(date.getTime()),
                         String.valueOf(System.currentTimeMillis())},
-                null, null,
-                orderBy, null
+                null, null, orderBy, null
         );
 
         List<PurchaseHistory> purchaseHistoryList = new ArrayList<PurchaseHistory>();
         cursor.moveToFirst();
+
         while (!cursor.isAfterLast()) {
             PurchaseHistory purchaseHistory = cursorToPurchaseHistory(cursor);
             purchaseHistoryList.add(purchaseHistory);
@@ -75,6 +77,7 @@ public class RepositoryPurchaseHistory extends RepositoryBase {
         }
         cursor.close();
 
+        Log.d(logTag_, "getPurchaseHistoryAfter returns "+purchaseHistoryList);
         return purchaseHistoryList;
     }
 

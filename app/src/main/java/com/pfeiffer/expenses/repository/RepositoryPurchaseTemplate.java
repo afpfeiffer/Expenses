@@ -20,14 +20,6 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
 
     private final String logTag_ = this.getClass().getName();
 
-//        PURCHASE_TEMPLATE_ID
-//        PURCHASE_TEMPLATE_AMOUNT
-//        PURCHASE_TEMPLATE_LOCATION
-//        PURCHASE_TEMPLATE_PRICE
-//        PURCHASE_TEMPLATE_PRODUCT_NAME
-//        PURCHASE_TEMPLATE_NUMBER_OF_PURCHASES
-//        PURCHASE_TEMPLATE_LAST_PURCHASE_DATE
-
     private final String[] allPurchaseTemplateColumns_ = {ExpensesSQLiteHelper.PURCHASE_TEMPLATE_ID,
             ExpensesSQLiteHelper.PURCHASE_TEMPLATE_AMOUNT, ExpensesSQLiteHelper.PURCHASE_TEMPLATE_LOCATION,
             ExpensesSQLiteHelper.PURCHASE_TEMPLATE_PRICE, ExpensesSQLiteHelper.PURCHASE_TEMPLATE_PRODUCT_NAME,
@@ -38,7 +30,8 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
         super(dbHelper);
     }
 
-    long savePurchaseTemplate (PurchaseTemplate purchaseTemplate) {
+    long savePurchaseTemplate(PurchaseTemplate purchaseTemplate) {
+       Log.d(logTag_, "savePurchaseTemplate("+purchaseTemplate+")");
 
         Money price = purchaseTemplate.getPrice();
         int amount = purchaseTemplate.getAmount();
@@ -46,12 +39,7 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
         String productName = purchaseTemplate.getProductName();
         int numberOfPurchases = purchaseTemplate.getNumberOfPurchases();
         Date lastPurchaseDate = purchaseTemplate.getLastPurchaseDate();
-        EnumCategory category=purchaseTemplate.getCategory();
-
-        Log.d(logTag_, "Enter method savePurchaseTemplate with arguments price=" + price + ", " +
-                "amount=" + amount + ", location=" + location + ", " +
-                "productName=" + productName + ", numberOfPurchases=" + numberOfPurchases + ", " +
-                "lastPurchaseDate=" + lastPurchaseDate + ", category="+category+".");
+        EnumCategory category = purchaseTemplate.getCategory();
 
         if (amount <= 0)
             throw new IllegalArgumentException("Amount must be greater than 0.");
@@ -82,7 +70,7 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
     }
 
     List<PurchaseTemplate> getAllPurchaseTemplates() {
-        // TODO log entry
+        Log.d(logTag_, "getAllPurchaseTemplates()");
         List<PurchaseTemplate> purchaseTemplates = new ArrayList<PurchaseTemplate>();
 
         String orderBy = ExpensesSQLiteHelper.PURCHASE_TEMPLATE_NUMBER_OF_PURCHASES + " DESC";
@@ -104,7 +92,8 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
             cursor.moveToNext();
         }
         cursor.close();
-        // TODO log exit
+
+        Log.d(logTag_, "getAllPurchaseTemplates returns "+purchaseTemplates);
         return purchaseTemplates;
     }
 

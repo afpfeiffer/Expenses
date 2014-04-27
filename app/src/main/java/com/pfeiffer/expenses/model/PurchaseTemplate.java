@@ -27,7 +27,7 @@ public class PurchaseTemplate {
         productName_ = purchaseList.get(0).getProductName();
         numberOfPurchases_ = purchaseList.size();
         lastPurchaseDate_ = purchaseList.get(numberOfPurchases_ - 1).getDate();
-        category_=purchaseList.get(0).getCategory();
+        category_ = purchaseList.get(0).getCategory();
     }
 
     public PurchaseTemplate(int purchaseTemplateId, int amount, EnumLocation location,
@@ -36,7 +36,7 @@ public class PurchaseTemplate {
         Log.d(this.getClass().getName(), "Enter Purchase constructor with arguments: purchaseTemplateId=" + purchaseTemplateId
                 + ", amount=" + amount + ", location=" + location
                 + ", price=" + price + ", productName=" + productName + ", numberOfPurchases=" + numberOfPurchases +
-                ", lastPurchaseDate=" + lastPurchaseDate + ", category="+category+".");
+                ", lastPurchaseDate=" + lastPurchaseDate + ", category=" + category + ".");
 
         // TODO check arguments, throw exceptions
 
@@ -47,7 +47,7 @@ public class PurchaseTemplate {
         productName_ = productName;
         numberOfPurchases_ = numberOfPurchases;
         lastPurchaseDate_ = lastPurchaseDate;
-        category_=category;
+        category_ = category;
     }
 
     public int getAmount() {
@@ -78,13 +78,15 @@ public class PurchaseTemplate {
         return lastPurchaseDate_;
     }
 
-    public EnumCategory getCategory(){ return  category_;}
+    public EnumCategory getCategory() {
+        return category_;
+    }
 
     public Money getTotalPrice() {
         return price_.getScaled(amount_);
     }
 
-    public String getTotalHumanReadablePrice(){
+    public String getTotalHumanReadablePrice() {
         return price_.getHumanReadableRepresentation(amount_);
     }
 
@@ -94,4 +96,12 @@ public class PurchaseTemplate {
             return new Integer(o1.getNumberOfPurchases()).compareTo(new Integer(o2.getNumberOfPurchases()));
         }
     }
+
+    public String toString() {
+        return "PurchaseTemplate(id=" + id_ + ", amount=" + amount_ + ", location=" + location_ +
+                ", price=" + price_ + ", productName=" + productName_ + ", numberOfPurchases=" +
+                numberOfPurchases_ + ", lastPurchaseDate=" + lastPurchaseDate_ + ", category=" +
+                category_+")";
+    }
 }
+
