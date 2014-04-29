@@ -3,6 +3,7 @@ package com.pfeiffer.expenses.utility;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.pfeiffer.expenses.model.Purchase;
@@ -29,6 +30,8 @@ public class UpdatePurchaseTemplates extends Service {
         RepositoryManager repositoryManager = new RepositoryManager(this);
         repositoryManager.open();
 
+        String deviceOwner_ = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+
 
         Map<String, List<Purchase>> productNameToPurchases = new HashMap<String, List<Purchase>>();
 
@@ -37,16 +40,15 @@ public class UpdatePurchaseTemplates extends Service {
 
         // get a list map product -> purchases of this product
         for (Purchase purchase : purchaseList) {
-            if (purchase.getBarcode()==null) {
+            if (purchase.getBarcode() == null && purchase.getOwner().equals(deviceOwner_)) {
                 // identifier: productName
-                String productName=purchase.getProductName();
-                if(productNameToPurchases.containsKey(productName)){
-                    List<Purchase> pList=productNameToPurchases.get(productName);
+                String productName = purchase.getProductName();
+                if (productNameToPurchases.containsKey(productName)) {
+                    List<Purchase> pList = productNameToPurchases.get(productName);
                     pList.add(purchase);
                     productNameToPurchases.put(productName, pList);
-                }
-                else{
-                    List<Purchase> pList=new ArrayList<Purchase>();
+                } else {
+                    List<Purchase> pList = new ArrayList<Purchase>();
                     pList.add(purchase);
                     productNameToPurchases.put(productName, pList);
                 }
@@ -55,10 +57,10 @@ public class UpdatePurchaseTemplates extends Service {
 
         repositoryManager.deleteAllPurchaseTemplates();
 
-        Iterator it=productNameToPurchases.entrySet().iterator();
-        while(it.hasNext()){
-            Map.Entry pairs = (Map.Entry)it.next();
-            ArrayList<Purchase> pList= (ArrayList<Purchase>) pairs.getValue();
+        Iterator it = productNameToPurchases.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pairs = (Map.Entry) it.next();
+            ArrayList<Purchase> pList = (ArrayList<Purchase>) pairs.getValue();
             PurchaseTemplate purchaseTemplate = new PurchaseTemplate(pList);
             repositoryManager.savePurchaseTemplate(purchaseTemplate);
             it.remove();
@@ -72,7 +74,6 @@ public class UpdatePurchaseTemplates extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
-
 
 
 }

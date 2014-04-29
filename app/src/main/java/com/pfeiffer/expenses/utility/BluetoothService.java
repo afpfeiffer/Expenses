@@ -11,6 +11,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.pfeiffer.expenses.activity.ActivityShareData;
+import com.pfeiffer.expenses.model.MetaInformation;
 import com.pfeiffer.expenses.model.Purchase;
 
 import java.io.IOException;
@@ -214,7 +215,7 @@ public class BluetoothService {
         r.write(out);
     }
 
-    public void write(Purchase purchase) {
+    public void write(MetaInformation object) {
         // Create temporary object
         ConnectedThread r;
         // Synchronize a copy of the ConnectedThread
@@ -223,7 +224,19 @@ public class BluetoothService {
             r = mConnectedThread_;
         }
         // Perform the write unsynchronized
-        r.write(purchase);
+        r.write(object);
+    }
+
+    public void write(Purchase object) {
+        // Create temporary object
+        ConnectedThread r;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (mState_ != STATE_CONNECTED) return;
+            r = mConnectedThread_;
+        }
+        // Perform the write unsynchronized
+        r.write(object);
     }
 
     public ConnectedThread getConnetedThread() {
@@ -485,15 +498,23 @@ public class BluetoothService {
             }
         }
 
-        public void write(Purchase purchase) {
+        public void write(Purchase object) {
             try {
-                mmObjectOutStream.writeObject(purchase);
+                mmObjectOutStream.writeObject(object);
 
             } catch (IOException e) {
                 Log.e(TAG, "Exception during write", e);
             }
         }
 
+        public void write(MetaInformation object) {
+            try {
+                mmObjectOutStream.writeObject(object);
+
+            } catch (IOException e) {
+                Log.e(TAG, "Exception during write", e);
+            }
+        }
 
         public void cancel() {
             try {

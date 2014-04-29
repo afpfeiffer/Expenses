@@ -13,7 +13,6 @@ import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.pfeiffer.expenses.R;
 import com.pfeiffer.expenses.model.EnumCategory;
@@ -147,7 +146,7 @@ public class ActivityMain extends Activity {
                 return true;
             case R.id.action_sync_data:
 //                startActivity(new Intent(this, ActivitySyncData.class));
-                startActivity(new Intent(this, ActivityShareData.class ));
+                startActivity(new Intent(this, ActivityShareData.class));
                 finish();
                 return true;
 
@@ -225,38 +224,10 @@ public class ActivityMain extends Activity {
 
         repositoryManager_.deletePurchase(Integer
                 .parseInt(mylist.get(groupPos).get(childPos).get("purchaseId")));
-        Money price = new Money(mylist.get(groupPos).get(childPos).get("rowTotalPrice"));
 
-        mylist.get(groupPos).remove(childPos);
+        startActivity(new Intent(this, ActivityMain.class));
+        finish();
 
-        if (mylist.get(groupPos).isEmpty()) {
-            mylist_title.remove(groupPos);
-        } else {
-
-            Money totalCategoryExpenses = new Money(mylist_title.get(groupPos).get("rowCategoryExpenses"));
-
-            totalCategoryExpenses.subtract(price);
-
-            mylist_title.get(groupPos).put(
-                    "rowCategoryExpenses",
-                    totalCategoryExpenses.getHumanReadableRepresentation());
-        }
-
-        Money totalExpenses = new Money(totalExpenses_.getText().toString());
-        totalExpenses.subtract(price);
-        totalExpenses_.setText(totalExpenses.getHumanReadableRepresentation());
-
-        expListAdapter.notifyDataSetChanged();
-        Toast.makeText(this, R.string.purchase_deleted, Toast.LENGTH_SHORT).show();
-        return true; // TODO what do we really need to return?
-
-    }
-
-    public void statistik(View view) {
-//        Intent intent = new Intent(this, ActivityPieChart.class);
-//        startActivity(intent);
-//        finish();
-
-
+        return true;
     }
 }

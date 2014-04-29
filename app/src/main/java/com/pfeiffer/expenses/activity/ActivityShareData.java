@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pfeiffer.expenses.R;
+import com.pfeiffer.expenses.model.MetaInformation;
 import com.pfeiffer.expenses.model.Purchase;
 import com.pfeiffer.expenses.repository.RepositoryManager;
 import com.pfeiffer.expenses.utility.BluetoothService;
@@ -123,7 +124,9 @@ public class ActivityShareData extends Activity {
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
             // Otherwise, setup the chat session
         } else {
-            if (dataFragment_.getBluetoothService() == null) setupChat();
+            if (dataFragment_.getBluetoothService() == null) {
+                dataFragment_.setBluetoothService(new BluetoothService(this, mHandler));
+            }
         }
     }
 
@@ -142,14 +145,6 @@ public class ActivityShareData extends Activity {
                 dataFragment_.getBluetoothService().start();
             }
         }
-    }
-
-    private void setupChat() {
-        Log.d(logTag_, "setupChat()");
-
-        // Initialize the BluetoothChatService to perform bluetooth connections
-        dataFragment_.setBluetoothService(new BluetoothService(this, mHandler));
-
     }
 
     @Override
@@ -196,42 +191,6 @@ public class ActivityShareData extends Activity {
         }
     }
 
-    private void sendAllPurchases() {
-        List<Purchase> allPurchases = dataFragment_.getRepositoryManager().getAllPurchases();
-        for (Purchase purchase : allPurchases) {
-            dataFragment_.getBluetoothService().write(purchase);
-        }
-    }
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(logTag_, "onActivityResult " + resultCode);
-        switch (requestCode) {
-            case REQUEST_CONNECT_DEVICE:
-                // When DeviceListActivity returns with a device to connect
-                if (resultCode == Activity.RESULT_OK) {
-                    // Get the device MAC address
-                    String address = data.getExtras()
-                            .getString(ActivityBluetoothDevices.EXTRA_DEVICE_ADDRESS);
-                    // Get the BLuetoothDevice object
-                    BluetoothDevice device = dataFragment_.getBluetoothAdapter().getRemoteDevice(address);
-                    // Attempt to connect to the device
-                    dataFragment_.getBluetoothService().connect(device);
-                }
-                break;
-            case REQUEST_ENABLE_BT:
-                // When the request to enable Bluetooth returns
-                if (resultCode == Activity.RESULT_OK) {
-                    // Bluetooth is now enabled, so set up a chat session
-                    setupChat();
-                } else {
-                    // User did not enable Bluetooth or an error occured
-                    Log.d(logTag_, "BT not enabled");
-                    Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-        }
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -255,6 +214,46 @@ public class ActivityShareData extends Activity {
         return false;
     }
 
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(logTag_, "onActivityResult " + resultCode);
+        switch (requestCode) {
+            case REQUEST_CONNECT_DEVICE:
+                // When DeviceListActivity returns with a device to connect
+                if (resultCode == Activity.RESULT_OK) {
+                    // Get the device MAC address
+                    String address = data.getExtras()
+                            .getString(ActivityBluetoothDevices.EXTRA_DEVICE_ADDRESS);
+                    // Get the BLuetoothDevice object
+                    BluetoothDevice device = dataFragment_.getBluetoothAdapter().getRemoteDevice(address);
+                    // Attempt to connect to the device
+                    dataFragment_.getBluetoothService().connect(device);
+                }
+                break;
+            case REQUEST_ENABLE_BT:
+                // When the request to enable Bluetooth returns
+                if (resultCode == Activity.RESULT_OK) {
+                    // Bluetooth is now enabled, so set up a chat session
+                    dataFragment_.setBluetoothService(new BluetoothService(this, mHandler));
+                } else {
+                    // User did not enable Bluetooth or an error occured
+                    Log.d(logTag_, "BT not enabled");
+                    Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+        }
+    }
+
+    private void sendPurchases(MetaInformation metaInformation) {
+        if (metaInformation.getMessageFunction() != MetaInformation.REQUEST) {
+            throw new IllegalArgumentException();
+        }
+
+        List<Purchase> allPurchases = dataFragment_.getRepositoryManager().getAllPurchases();
+        for (Purchase purchase : allPurchases) {
+            dataFragment_.getBluetoothService().write(purchase);
+        }
+    }
+
 
     // The Handler that gets information back from the BluetoothChatService
     private final Handler mHandler = new Handler() {
@@ -268,7 +267,9 @@ public class ActivityShareData extends Activity {
                             String titleString = getString(R.string.title_connected_to);
                             titleString += ": " + dataFragment_.getConnectedDeviceName();
                             setTitle(titleString);
-                            sendAllPurchases();
+                            MetaInformation metaInformation=new MetaInformation();
+                            metaInformation.setRequest(new Date(0));
+                            dataFragment_.getBluetoothService().write(metaInformation);
                             break;
                         case BluetoothService.STATE_CONNECTING:
                             setTitle(R.string.title_connecting);
@@ -293,8 +294,19 @@ public class ActivityShareData extends Activity {
                         dataFragment_.getRepositoryManager().savePurchase(purchase);
                         //...
                     } else if (object instanceof MetaInformation) {
-                        Log.d(logTag_, "MetaInformation received via bluetooth: " + (MetaInformation) object);
-                        //...
+                        MetaInformation metaInformation = (MetaInformation) object;
+                        Log.d(logTag_, "MetaInformation received via bluetooth: " + metaInformation);
+                        switch (metaInformation.getMessageFunction()) {
+
+                            case MetaInformation.REQUEST:
+                                sendPurchases(metaInformation);
+                                break;
+                            case MetaInformation.REPLY_HEADER:
+                                break;
+                            case MetaInformation.REPLY_TRAILER:
+                                break;
+
+                        }
                     } else {
                         System.out.println("Unexpected object type:  " + object.getClass().getName());
                     }
@@ -314,45 +326,6 @@ public class ActivityShareData extends Activity {
         }
     };
 
-    class MetaInformation {
-        // request Purchases (after some date)
-        // Header (ObjectStream) (int numberOfPurchases)
-        // Trailer (ObjectStream)
-        public static final int REQUEST = 1;
-        public static final int REPLY_HEADER = 2;
-        public static final int REPLY_TRAILER = 3;
-
-        private int messageFunction_;
-        private Date date_;
-        private int numberOfObjects_;
-
-
-        public int getMessageFunction() {
-            return messageFunction_;
-        }
-
-        public Date getDate() {
-            return date_;
-        }
-
-        public int getNumberOfObjects() {
-            return numberOfObjects_;
-        }
-
-        public void setRequest(Date date) {
-            messageFunction_ = REQUEST;
-            date_ = date;
-        }
-        public void setHeader(int numberOfObjects){
-            messageFunction_= REPLY_HEADER;
-            numberOfObjects_=numberOfObjects;
-        }
-        public void setTrailer(int numberOfObjects)
-        {
-            messageFunction_= REPLY_TRAILER;
-            numberOfObjects_=numberOfObjects;
-        }
-    }
 
     class DataFragment extends Fragment {
 
@@ -360,10 +333,30 @@ public class ActivityShareData extends Activity {
         private BluetoothService bluetoothService_ = null;
         private RepositoryManager repositoryManager_ = null;
         private String connectedDeviceName_ = null;
+        private int recievedPurchases_ = 0;
+        private MetaInformation replyHeader_;
+
+        public MetaInformation getReplyHeader() {
+            return replyHeader_;
+        }
+
+        public void setReplyHeader(MetaInformation replyHeader) {
+            this.replyHeader_ = replyHeader;
+        }
+
 
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setRetainInstance(true); // retain this fragment
+        }
+
+
+        public int getRecievedPurchases() {
+            return recievedPurchases_;
+        }
+
+        public void setRecievedPurchases(int recievedPurchases) {
+            this.recievedPurchases_ = recievedPurchases;
         }
 
         public BluetoothService getBluetoothService() {
