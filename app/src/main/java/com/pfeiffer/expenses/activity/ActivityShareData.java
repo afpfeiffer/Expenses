@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -79,9 +80,9 @@ public class ActivityShareData extends Activity {
     TextView tvDatatransfer_;
     ProgressBar pbDataTransfer_;
     private Handler progressBarHandler_ = new Handler();
-    int progressBarStatus_=0;
-    int progressBarMax_=0;
-    boolean transferCompleted_=false;
+    int progressBarStatus_ = 0;
+    int progressBarMax_ = 0;
+    boolean transferCompleted_ = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,10 +118,10 @@ public class ActivityShareData extends Activity {
             return;
         }
 
-        pbDataTransfer_ =(ProgressBar) findViewById(R.id.pbDatatransfer);
+        pbDataTransfer_ = (ProgressBar) findViewById(R.id.pbDatatransfer);
         pbDataTransfer_.setVisibility(ProgressBar.GONE);
 
-        tvDatatransfer_ =(TextView) findViewById(R.id.tvDatatransfer);
+        tvDatatransfer_ = (TextView) findViewById(R.id.tvDatatransfer);
         tvDatatransfer_.setVisibility(TextView.GONE);
     }
 
@@ -189,7 +190,7 @@ public class ActivityShareData extends Activity {
 
     void leaveForMainActivity() {
         // Stop the Bluetooth chat services
-        transferCompleted_=true;
+        transferCompleted_ = true;
         if (dataFragment_.getBluetoothService() != null)
             dataFragment_.getBluetoothService().stop();
         dataFragment_.getBluetoothAdapter().disable();
@@ -272,8 +273,13 @@ public class ActivityShareData extends Activity {
         messageHeader.setHeader(numberOfPurchases);
         dataFragment_.getBluetoothService().write(messageHeader);
 
+        String deviceOwner = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+
         for (Purchase purchase : allPurchases) {
-            dataFragment_.getBluetoothService().write(purchase);
+            // only send own purchases, do not update partner device with its own purchases (and possibly override changes)
+            if (purchase.getOwner().equals(deviceOwner)) {
+                dataFragment_.getBluetoothService().write(purchase);
+            }
         }
 
         MetaInformation messageTrailer = new MetaInformation();
@@ -380,7 +386,7 @@ public class ActivityShareData extends Activity {
                         Log.d(logTag_, "Purchase received via bluetooth: " + purchase);
                         dataFragment_.getReceivedPurchases().add(purchase);
                         progressBarStatus_++;
-                        tvDatatransfer_.setText("Empfangen: "+progressBarStatus_+"/"+progressBarMax_);
+                        tvDatatransfer_.setText("Empfangen: " + progressBarStatus_ + "/" + progressBarMax_);
                         //...
                     } else if (object instanceof MetaInformation) {
                         MetaInformation metaInformation = (MetaInformation) object;
@@ -392,7 +398,7 @@ public class ActivityShareData extends Activity {
                                 break;
                             case MetaInformation.REPLY_HEADER:
                                 pbDataTransfer_.setMax(metaInformation.getNumberOfObjects());
-                                progressBarMax_=metaInformation.getNumberOfObjects();
+                                progressBarMax_ = metaInformation.getNumberOfObjects();
                                 break;
                             case MetaInformation.REPLY_TRAILER:
                                 savePurchases(metaInformation);
