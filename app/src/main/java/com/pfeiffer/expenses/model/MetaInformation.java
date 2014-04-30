@@ -13,6 +13,7 @@ public class MetaInformation implements Serializable {
     public static final int REQUEST = 1;
     public static final int REPLY_HEADER = 2;
     public static final int REPLY_TRAILER = 3;
+    public static final int DISCONNECT = 4;
 
     private int messageFunction_;
     private Date date_;
@@ -44,6 +45,10 @@ public class MetaInformation implements Serializable {
     public void setTrailer(int numberOfObjects) {
         messageFunction_ = REPLY_TRAILER;
         numberOfObjects_ = numberOfObjects;
+    }
+
+    public void setDisconnect(){
+        messageFunction_=DISCONNECT;
     }
 }
 

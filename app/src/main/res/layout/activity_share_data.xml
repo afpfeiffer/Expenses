@@ -20,8 +20,21 @@
     android:layout_height="fill_parent"
     >
 
-    <TextView
-        android:id="@+id/tvSyncInfo"
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:id="@+id/pbDatatransfer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_marginTop="12dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal" />
+
+    <TextView
+        android:id="@+id/tvDatatransfer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:layout_gravity="center_horizontal" />
 </LinearLayout>

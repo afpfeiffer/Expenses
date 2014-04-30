@@ -14,6 +14,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +24,7 @@ import com.pfeiffer.expenses.model.Purchase;
 import com.pfeiffer.expenses.repository.RepositoryManager;
 import com.pfeiffer.expenses.utility.BluetoothService;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -71,9 +73,15 @@ public class ActivityShareData extends Activity {
     private static final int REQUEST_CONNECT_DEVICE = 1;
     private static final int REQUEST_ENABLE_BT = 2;
 
+    private static final int MAX_RETRY = 3;
     DataFragment dataFragment_;
 
-    TextView tvSyncInfo_;
+    TextView tvDatatransfer_;
+    ProgressBar pbDataTransfer_;
+    private Handler progressBarHandler_ = new Handler();
+    int progressBarStatus_=0;
+    int progressBarMax_=0;
+    boolean transferCompleted_=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,7 +117,11 @@ public class ActivityShareData extends Activity {
             return;
         }
 
-        tvSyncInfo_ = (TextView) findViewById(R.id.tvSyncInfo);
+        pbDataTransfer_ =(ProgressBar) findViewById(R.id.pbDatatransfer);
+        pbDataTransfer_.setVisibility(ProgressBar.GONE);
+
+        tvDatatransfer_ =(TextView) findViewById(R.id.tvDatatransfer);
+        tvDatatransfer_.setVisibility(TextView.GONE);
     }
 
     @Override
@@ -169,16 +181,21 @@ public class ActivityShareData extends Activity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-            // Stop the Bluetooth chat services
-            if (dataFragment_.getBluetoothService() != null)
-                dataFragment_.getBluetoothService().stop();
-            dataFragment_.getBluetoothAdapter().disable();
-
-            startActivity(new Intent(this, ActivityMain.class));
-            finish();
+            leaveForMainActivity();
         }
 
         return super.onKeyDown(keyCode, event);
+    }
+
+    void leaveForMainActivity() {
+        // Stop the Bluetooth chat services
+        transferCompleted_=true;
+        if (dataFragment_.getBluetoothService() != null)
+            dataFragment_.getBluetoothService().stop();
+        dataFragment_.getBluetoothAdapter().disable();
+
+        startActivity(new Intent(this, ActivityMain.class));
+        finish();
     }
 
     private void ensureDiscoverable() {
@@ -249,9 +266,76 @@ public class ActivityShareData extends Activity {
         }
 
         List<Purchase> allPurchases = dataFragment_.getRepositoryManager().getAllPurchases();
+        int numberOfPurchases = allPurchases.size();
+
+        MetaInformation messageHeader = new MetaInformation();
+        messageHeader.setHeader(numberOfPurchases);
+        dataFragment_.getBluetoothService().write(messageHeader);
+
         for (Purchase purchase : allPurchases) {
             dataFragment_.getBluetoothService().write(purchase);
         }
+
+        MetaInformation messageTrailer = new MetaInformation();
+        messageTrailer.setTrailer(numberOfPurchases);
+        dataFragment_.getBluetoothService().write(messageTrailer);
+    }
+
+    private void savePurchases(MetaInformation metaInformation) {
+        if (metaInformation.getMessageFunction() != MetaInformation.REPLY_TRAILER) {
+            throw new IllegalArgumentException();
+        }
+
+        tvDatatransfer_.setText("Speichern...");
+
+
+        List<Purchase> receivedPurchases = dataFragment_.getReceivedPurchases();
+
+        // check if all purchases were received
+        if (receivedPurchases.size() != metaInformation.getNumberOfObjects()) {
+            // if not: retry
+            if (dataFragment_.getNumberOfRequests() >= MAX_RETRY) {
+                // cancel
+                leaveForMainActivity();
+            } else {
+                // retry
+                throw new IllegalStateException();
+
+//                MetaInformation request = new MetaInformation();
+//                request.setRequest(new Date(0));
+//                dataFragment_.getBluetoothService().write(request);
+//                dataFragment_.setNumberOfRequests(dataFragment_.getNumberOfRequests() + 1);
+            }
+        } else {
+            // process received purchases
+            RepositoryManager repositoryManager = dataFragment_.getRepositoryManager();
+            for (Purchase purchase : receivedPurchases) {
+                Purchase storedPurchase = repositoryManager.findPurchaseByOwnerAndId(
+                        purchase.getOwner(),
+                        purchase.getPurchaseIdOwner());
+
+                // delete db entry if it exists
+                if (storedPurchase != null) {
+                    repositoryManager.deletePurchase(storedPurchase.getId());
+                }
+
+                // save received purchase if it has a valid state
+                if (purchase.hasValidState()) {
+                    repositoryManager.savePurchase(purchase);
+                }
+            }
+
+            MetaInformation disconnect = new MetaInformation();
+            disconnect.setDisconnect();
+            dataFragment_.getBluetoothService().write(disconnect);
+            if (dataFragment_.isDisconnectReceived()) {
+                leaveForMainActivity();
+            } else {
+                dataFragment_.setDisconnectSend(true);
+                tvDatatransfer_.setText("Auf Partnergerät warten...");
+            }
+        }
+
     }
 
 
@@ -267,9 +351,12 @@ public class ActivityShareData extends Activity {
                             String titleString = getString(R.string.title_connected_to);
                             titleString += ": " + dataFragment_.getConnectedDeviceName();
                             setTitle(titleString);
-                            MetaInformation metaInformation=new MetaInformation();
+                            MetaInformation metaInformation = new MetaInformation();
                             metaInformation.setRequest(new Date(0));
                             dataFragment_.getBluetoothService().write(metaInformation);
+                            pbDataTransfer_.setVisibility(ProgressBar.VISIBLE);
+                            pbDataTransfer_.setProgress(progressBarStatus_);
+                            pbThread_.start();
                             break;
                         case BluetoothService.STATE_CONNECTING:
                             setTitle(R.string.title_connecting);
@@ -291,7 +378,9 @@ public class ActivityShareData extends Activity {
 
                         Purchase purchase = (Purchase) object;
                         Log.d(logTag_, "Purchase received via bluetooth: " + purchase);
-                        dataFragment_.getRepositoryManager().savePurchase(purchase);
+                        dataFragment_.getReceivedPurchases().add(purchase);
+                        progressBarStatus_++;
+                        tvDatatransfer_.setText("Empfangen: "+progressBarStatus_+"/"+progressBarMax_);
                         //...
                     } else if (object instanceof MetaInformation) {
                         MetaInformation metaInformation = (MetaInformation) object;
@@ -302,8 +391,18 @@ public class ActivityShareData extends Activity {
                                 sendPurchases(metaInformation);
                                 break;
                             case MetaInformation.REPLY_HEADER:
+                                pbDataTransfer_.setMax(metaInformation.getNumberOfObjects());
+                                progressBarMax_=metaInformation.getNumberOfObjects();
                                 break;
                             case MetaInformation.REPLY_TRAILER:
+                                savePurchases(metaInformation);
+                                break;
+                            case MetaInformation.DISCONNECT:
+                                if (dataFragment_.isDisconnectSend()) {
+                                    leaveForMainActivity();
+                                } else {
+                                    dataFragment_.setDisconnectReceived(true);
+                                }
                                 break;
 
                         }
@@ -326,6 +425,40 @@ public class ActivityShareData extends Activity {
         }
     };
 
+    Thread pbThread_ = new Thread(new Runnable() {
+        public void run() {
+            while (!transferCompleted_) {
+                // your computer is too fast, sleep 1 second
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                // Update the progress bar
+                progressBarHandler_.post(new Runnable() {
+                    public void run() {
+                        pbDataTransfer_.setProgress(progressBarStatus_);
+                    }
+                });
+            }
+
+            // ok, file is downloaded,
+            if (transferCompleted_) {
+
+                // sleep 2 seconds, so that you can see the 100%
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                // close the progress bar dialog
+                pbDataTransfer_.setVisibility(ProgressBar.INVISIBLE);
+            }
+        }
+    });
+
 
     class DataFragment extends Fragment {
 
@@ -333,30 +466,44 @@ public class ActivityShareData extends Activity {
         private BluetoothService bluetoothService_ = null;
         private RepositoryManager repositoryManager_ = null;
         private String connectedDeviceName_ = null;
-        private int recievedPurchases_ = 0;
-        private MetaInformation replyHeader_;
+        private List<Purchase> receivedPurchases_ = null;
+        private int numberOfRequests_ = 0;
+        private boolean disconnectSend_ = false;
+        private boolean disconnectReceived_ = false;
 
-        public MetaInformation getReplyHeader() {
-            return replyHeader_;
+        public boolean isDisconnectSend() {
+            return disconnectSend_;
         }
 
-        public void setReplyHeader(MetaInformation replyHeader) {
-            this.replyHeader_ = replyHeader;
+        public void setDisconnectSend(boolean disconnectSend) {
+            this.disconnectSend_ = disconnectSend;
         }
 
+        public boolean isDisconnectReceived() {
+            return disconnectReceived_;
+        }
+
+        public void setDisconnectReceived(boolean disconnectReceived) {
+            this.disconnectReceived_ = disconnectReceived;
+        }
 
         public void onCreate(Bundle savedInstanceState) {
+            receivedPurchases_ = new ArrayList<Purchase>();
             super.onCreate(savedInstanceState);
             setRetainInstance(true); // retain this fragment
         }
 
 
-        public int getRecievedPurchases() {
-            return recievedPurchases_;
+        public int getNumberOfRequests() {
+            return numberOfRequests_;
         }
 
-        public void setRecievedPurchases(int recievedPurchases) {
-            this.recievedPurchases_ = recievedPurchases;
+        public void setNumberOfRequests(int numberOfRequests) {
+            this.numberOfRequests_ = numberOfRequests;
+        }
+
+        public List<Purchase> getReceivedPurchases() {
+            return receivedPurchases_;
         }
 
         public BluetoothService getBluetoothService() {

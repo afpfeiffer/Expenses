@@ -105,6 +105,7 @@ public class DataAnalysis {
 
     public Money getExpensesForYearMonthAndCategory(Date date, EnumCategory category) {
         // TODO check arguments
+
         String yearMonth = Translation.yearAndMonth(date);
         if (expensesPerMonthAndCategory_.containsKey(yearMonth) && expensesPerMonthAndCategory_.get(yearMonth)
                 .containsKey(category)) {

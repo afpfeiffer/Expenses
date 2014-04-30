@@ -24,7 +24,7 @@ public class RepositoryManager {
         repositoryPurchase_ = new RepositoryPurchase(context, dbHelper);
         repositoryPurchaseTemplate_ = new RepositoryPurchaseTemplate(context, dbHelper);
         repositoryPartnerDevice_ = new RepositoryPartnerDevice(context, dbHelper);
-        repositoryPurchaseHistory_=new RepositoryPurchaseHistory(context, dbHelper);
+        repositoryPurchaseHistory_ = new RepositoryPurchaseHistory(context, dbHelper);
     }
 
     public void open() throws SQLException {
@@ -68,39 +68,52 @@ public class RepositoryManager {
         return repositoryPurchase_.findLatestPurchase(ExpensesSQLiteHelper.PURCHASE_ID, String.valueOf(purchaseId));
     }
 
+    public Purchase findPurchaseByOwnerAndId(String owner, long purchaseId) {
+        // get all purchases, that had the above id originally assigned.
+        List<Purchase> dbResult = repositoryPurchase_.findPurchases(ExpensesSQLiteHelper.PURCHASE_ID_OWNER, String.valueOf(purchaseId));
+        // the combination owner+purchaseId is unique, thus we can return with the first match we find
+        for (Purchase purchase : dbResult) {
+            if (purchase.getOwner().equals(owner)) {
+                return purchase;
+            }
+        }
+
+        return null;
+    }
+
     public int deletePurchase(long purchaseId) {
         return repositoryPurchase_.deletePurchase(purchaseId);
     }
 
-    public void deleteAllPurchaseTemplates(){
+    public void deleteAllPurchaseTemplates() {
         repositoryPurchaseTemplate_.deleteAllPurchaseTemplates();
     }
 
-    public List<PurchaseTemplate> getAllPurchaseTemplates(){
+    public List<PurchaseTemplate> getAllPurchaseTemplates() {
         return repositoryPurchaseTemplate_.getAllPurchaseTemplates();
     }
 
-    public long savePurchaseTemplate(PurchaseTemplate purchaseTemplate){
+    public long savePurchaseTemplate(PurchaseTemplate purchaseTemplate) {
         return repositoryPurchaseTemplate_.savePurchaseTemplate(purchaseTemplate);
     }
 
-    public long savePurchaseHistory(PurchaseHistory purchaseHistory){
+    public long savePurchaseHistory(PurchaseHistory purchaseHistory) {
         return repositoryPurchaseHistory_.savePurchaseHistory(purchaseHistory);
     }
 
-    public List<PurchaseHistory> getPurchaseHistoryAfter( Date date ){
+    public List<PurchaseHistory> getPurchaseHistoryAfter(Date date) {
         return repositoryPurchaseHistory_.getPurchaseHistoryAfter(date);
     }
 
-    public long savePartnerDevice( PartnerDevice partnerDevice){
+    public long savePartnerDevice(PartnerDevice partnerDevice) {
         return repositoryPartnerDevice_.savePartnerDevice(partnerDevice);
     }
 
-    public boolean updatePartnerDevice( PartnerDevice partnerDevice){
+    public boolean updatePartnerDevice(PartnerDevice partnerDevice) {
         return repositoryPartnerDevice_.updatePartnerDevice(partnerDevice);
     }
 
-    public PartnerDevice findPartnerDeviceByAndroidId(String androidId){
+    public PartnerDevice findPartnerDeviceByAndroidId(String androidId) {
         return repositoryPartnerDevice_.findPartnerDeviceByAndroidId(androidId);
     }
 

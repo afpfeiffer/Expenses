@@ -11,14 +11,13 @@ import android.os.Message;
 import android.util.Log;
 
 import com.pfeiffer.expenses.activity.ActivityShareData;
-import com.pfeiffer.expenses.model.MetaInformation;
-import com.pfeiffer.expenses.model.Purchase;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.UUID;
 
 /**
@@ -197,37 +196,7 @@ public class BluetoothService {
         setState(STATE_NONE);
     }
 
-    /**
-     * Write to the ConnectedThread in an unsynchronized manner
-     *
-     * @param out The bytes to write
-     * @see ConnectedThread#write(byte[])
-     */
-    public void write(byte[] out) {
-        // Create temporary object
-        ConnectedThread r;
-        // Synchronize a copy of the ConnectedThread
-        synchronized (this) {
-            if (mState_ != STATE_CONNECTED) return;
-            r = mConnectedThread_;
-        }
-        // Perform the write unsynchronized
-        r.write(out);
-    }
-
-    public void write(MetaInformation object) {
-        // Create temporary object
-        ConnectedThread r;
-        // Synchronize a copy of the ConnectedThread
-        synchronized (this) {
-            if (mState_ != STATE_CONNECTED) return;
-            r = mConnectedThread_;
-        }
-        // Perform the write unsynchronized
-        r.write(object);
-    }
-
-    public void write(Purchase object) {
+    public void write(Serializable object) {
         // Create temporary object
         ConnectedThread r;
         // Synchronize a copy of the ConnectedThread
@@ -419,7 +388,6 @@ public class BluetoothService {
     private class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
-        private final OutputStream mmOutStream;
         private final ObjectOutputStream mmObjectOutStream;
 
 
@@ -440,15 +408,12 @@ public class BluetoothService {
             }
 
             mmInStream = tmpIn;
-            mmOutStream = tmpOut;
             mmObjectOutStream =tmpObjectOut;
 
         }
 
         public void run() {
             Log.i(TAG, "BEGIN mConnectedThread_");
-            byte[] buffer = new byte[1024];
-            int bytes;
 
             ObjectInputStream ois = null;
 
@@ -462,12 +427,7 @@ public class BluetoothService {
             // Keep listening to the InputStream while connected
             while (true) {
                 try {
-                    // Read from the InputStream
-//                    bytes = mmInStream.read(buffer);
 
-                    // Send the obtained bytes to the UI Activity
-//                    mHandler_.obtainMessage(ActivityShareData.MESSAGE_READ, bytes, -1, buffer)
-//                            .sendToTarget();
                     Object object = ois.readObject();
                     mHandler_.obtainMessage(ActivityShareData.MESSAGE_READ, 1, -1, object)
                             .sendToTarget();
@@ -481,33 +441,8 @@ public class BluetoothService {
             }
         }
 
-        /**
-         * Write to the connected OutStream.
-         *
-         * @param buffer The bytes to write
-         */
-        public void write(byte[] buffer) {
-            try {
-                mmOutStream.write(buffer);
 
-                // Share the sent message back to the UI Activity
-//                mHandler_.obtainMessage(ActivityShareData.MESSAGE_WRITE, -1, -1, buffer)
-//                        .sendToTarget();
-            } catch (IOException e) {
-                Log.e(TAG, "Exception during write", e);
-            }
-        }
-
-        public void write(Purchase object) {
-            try {
-                mmObjectOutStream.writeObject(object);
-
-            } catch (IOException e) {
-                Log.e(TAG, "Exception during write", e);
-            }
-        }
-
-        public void write(MetaInformation object) {
+        public void write(Serializable object) {
             try {
                 mmObjectOutStream.writeObject(object);
 
