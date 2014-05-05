@@ -266,20 +266,26 @@ public class ActivityShareData extends Activity {
             throw new IllegalArgumentException();
         }
 
+        String deviceOwner = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+
+
         List<Purchase> allPurchases = dataFragment_.getRepositoryManager().getAllPurchases();
-        int numberOfPurchases = allPurchases.size();
+        List<Purchase> filteredPurchases=new ArrayList<Purchase>();
+        for (Purchase purchase : allPurchases) {
+            if (purchase.getOwner().equals(deviceOwner)) {
+                filteredPurchases.add(purchase);
+            }
+        }
+        int numberOfPurchases = filteredPurchases.size();
 
         MetaInformation messageHeader = new MetaInformation();
         messageHeader.setHeader(numberOfPurchases);
         dataFragment_.getBluetoothService().write(messageHeader);
 
-        String deviceOwner = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
-
-        for (Purchase purchase : allPurchases) {
+        for (Purchase purchase : filteredPurchases) {
             // only send own purchases, do not update partner device with its own purchases (and possibly override changes)
-            if (purchase.getOwner().equals(deviceOwner)) {
-                dataFragment_.getBluetoothService().write(purchase);
-            }
+            dataFragment_.getBluetoothService().write(purchase);
+
         }
 
         MetaInformation messageTrailer = new MetaInformation();
@@ -360,9 +366,9 @@ public class ActivityShareData extends Activity {
                             MetaInformation metaInformation = new MetaInformation();
                             metaInformation.setRequest(new Date(0));
                             dataFragment_.getBluetoothService().write(metaInformation);
-                            pbDataTransfer_.setVisibility(ProgressBar.VISIBLE);
-                            pbDataTransfer_.setProgress(progressBarStatus_);
-                            pbThread_.start();
+//                            pbDataTransfer_.setVisibility(ProgressBar.VISIBLE);
+//                            pbDataTransfer_.setProgress(progressBarStatus_);
+//                            pbThread_.start();
                             break;
                         case BluetoothService.STATE_CONNECTING:
                             setTitle(R.string.title_connecting);

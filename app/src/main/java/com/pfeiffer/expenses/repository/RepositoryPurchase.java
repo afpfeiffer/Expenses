@@ -56,6 +56,7 @@ class RepositoryPurchase extends RepositoryBase {
         EnumCategory category = purchase.getCategory();
         String owner = purchase.getOwner();
         Long purchaseIdOwner = purchase.getPurchaseIdOwner();
+        Date date = purchase.getDate();
 
         if (amount <= 0)
             throw new IllegalArgumentException("Amount must be greater than 0.");
@@ -69,7 +70,7 @@ class RepositoryPurchase extends RepositoryBase {
             values.put(ExpensesSQLiteHelper.PURCHASE_BARCODE, (String) null);
 
         values.put(ExpensesSQLiteHelper.PURCHASE_AMOUNT, amount);
-        values.put(ExpensesSQLiteHelper.PURCHASE_DATE, System.currentTimeMillis());
+        values.put(ExpensesSQLiteHelper.PURCHASE_DATE, date.getTime());
         values.put(ExpensesSQLiteHelper.PURCHASE_LOCATION, location.name());
         values.put(ExpensesSQLiteHelper.PURCHASE_PRICE, price.getDataBaseRepresentation());
         values.put(ExpensesSQLiteHelper.PURCHASE_CASH, (cash) ? 1 : 0);
