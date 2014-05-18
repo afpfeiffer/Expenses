@@ -30,10 +30,6 @@
             android:label="@string/title_activity_record_purchase" >
         </activity>
         <activity
-            android:name="com.pfeiffer.expenses.activity.ActivitySyncData"
-            android:label="@string/title_activity_activity_sync_data" >
-        </activity>
-        <activity
             android:name="com.pfeiffer.expenses.activity.ActivityPieChart"
             android:label="@string/title_activity_activity_pie_chart" >
         </activity>
