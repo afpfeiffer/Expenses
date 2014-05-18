@@ -256,7 +256,7 @@ public class ActivityShareData extends Activity {
                     // User did not enable Bluetooth or an error occured
                     Log.d(logTag_, "BT not enabled");
                     Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
-                    finish();
+                    leaveForMainActivity();
                 }
         }
     }
