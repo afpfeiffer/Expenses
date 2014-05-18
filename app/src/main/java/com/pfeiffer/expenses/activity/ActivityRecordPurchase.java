@@ -161,7 +161,7 @@ public class ActivityRecordPurchase extends Activity {
                 String productName = actvName_.getText().toString();
                 PurchaseTemplate pt = dataFragment_.getProductNameToPurchaseTemplate().get(productName);
                 if (pt != null) {
-                    setFields(null, pt.getCategory(), pt.getLocation(), pt.getPrice(), pt.getAmount(), false);
+                    setFields(null, pt.getCategory(), pt.getLocation(), pt.getPrice(), pt.getAmount(), pt.isCash());
                 }
             }
         });
@@ -328,7 +328,7 @@ public class ActivityRecordPurchase extends Activity {
                     if (purchase != null) {
 
                         setFields(purchase.getProductName(), purchase.getCategory(),
-                                purchase.getLocation(), purchase.getPrice(), 1, false);
+                                purchase.getLocation(), purchase.getPrice(), 1, purchase.isCash());
 
                     }
                 }

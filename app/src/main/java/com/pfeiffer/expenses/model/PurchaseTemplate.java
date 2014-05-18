@@ -18,6 +18,7 @@ public class PurchaseTemplate {
     final private int numberOfPurchases_;
     final private Date lastPurchaseDate_;
     final private EnumCategory category_;
+    private boolean cash_;
 
     public PurchaseTemplate(List<Purchase> purchaseList) {
         // TODO: refine algorithms!
@@ -28,15 +29,16 @@ public class PurchaseTemplate {
         numberOfPurchases_ = purchaseList.size();
         lastPurchaseDate_ = purchaseList.get(numberOfPurchases_ - 1).getDate();
         category_ = purchaseList.get(0).getCategory();
+        cash_ = purchaseList.get(0).isCash();
     }
 
     public PurchaseTemplate(int purchaseTemplateId, int amount, EnumLocation location,
                             Money price, String productName, int numberOfPurchases, Date lastPurchaseDate,
-                            EnumCategory category) {
+                            EnumCategory category, boolean cash) {
         Log.d(this.getClass().getName(), "Enter Purchase constructor with arguments: purchaseTemplateId=" + purchaseTemplateId
                 + ", amount=" + amount + ", location=" + location
                 + ", price=" + price + ", productName=" + productName + ", numberOfPurchases=" + numberOfPurchases +
-                ", lastPurchaseDate=" + lastPurchaseDate + ", category=" + category + ".");
+                ", lastPurchaseDate=" + lastPurchaseDate + ", category=" + category + ", cash=" + cash + ".");
 
         // TODO check arguments, throw exceptions
 
@@ -48,6 +50,7 @@ public class PurchaseTemplate {
         numberOfPurchases_ = numberOfPurchases;
         lastPurchaseDate_ = lastPurchaseDate;
         category_ = category;
+        cash_=cash;
     }
 
     public int getAmount() {
@@ -82,6 +85,10 @@ public class PurchaseTemplate {
         return category_;
     }
 
+    public boolean isCash() {
+        return cash_;
+    }
+
     public Money getTotalPrice() {
         return price_.getScaled(amount_);
     }
@@ -101,7 +108,7 @@ public class PurchaseTemplate {
         return "PurchaseTemplate(id=" + id_ + ", amount=" + amount_ + ", location=" + location_ +
                 ", price=" + price_ + ", productName=" + productName_ + ", numberOfPurchases=" +
                 numberOfPurchases_ + ", lastPurchaseDate=" + lastPurchaseDate_ + ", category=" +
-                category_+")";
+                category_ + ")";
     }
 }
 

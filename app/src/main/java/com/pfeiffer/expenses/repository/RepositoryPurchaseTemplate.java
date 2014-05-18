@@ -25,14 +25,15 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
             ExpensesSQLiteHelper.PURCHASE_TEMPLATE_AMOUNT, ExpensesSQLiteHelper.PURCHASE_TEMPLATE_LOCATION,
             ExpensesSQLiteHelper.PURCHASE_TEMPLATE_PRICE, ExpensesSQLiteHelper.PURCHASE_TEMPLATE_PRODUCT_NAME,
             ExpensesSQLiteHelper.PURCHASE_TEMPLATE_NUMBER_OF_PURCHASES,
-            ExpensesSQLiteHelper.PURCHASE_TEMPLATE_LAST_PURCHASE_DATE, ExpensesSQLiteHelper.PURCHASE_TEMPLATE_CATEGORY};
+            ExpensesSQLiteHelper.PURCHASE_TEMPLATE_LAST_PURCHASE_DATE, ExpensesSQLiteHelper.PURCHASE_TEMPLATE_CATEGORY,
+            ExpensesSQLiteHelper.PURCHASE_TEMPLATE_CASH};
 
     public RepositoryPurchaseTemplate(Context context, ExpensesSQLiteHelper dbHelper) {
         super(context, dbHelper);
     }
 
     long savePurchaseTemplate(PurchaseTemplate purchaseTemplate) {
-       Log.d(logTag_, "savePurchaseTemplate("+purchaseTemplate+")");
+        Log.d(logTag_, "savePurchaseTemplate(" + purchaseTemplate + ")");
 
         Money price = purchaseTemplate.getPrice();
         int amount = purchaseTemplate.getAmount();
@@ -41,6 +42,7 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
         int numberOfPurchases = purchaseTemplate.getNumberOfPurchases();
         Date lastPurchaseDate = purchaseTemplate.getLastPurchaseDate();
         EnumCategory category = purchaseTemplate.getCategory();
+        boolean cash = purchaseTemplate.isCash();
 
         if (amount <= 0)
             throw new IllegalArgumentException("Amount must be greater than 0.");
@@ -55,6 +57,8 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
         values.put(ExpensesSQLiteHelper.PURCHASE_TEMPLATE_NUMBER_OF_PURCHASES, numberOfPurchases);
         values.put(ExpensesSQLiteHelper.PURCHASE_TEMPLATE_LAST_PURCHASE_DATE, lastPurchaseDate.getTime());
         values.put(ExpensesSQLiteHelper.PURCHASE_TEMPLATE_CATEGORY, category.name());
+        values.put(ExpensesSQLiteHelper.PURCHASE_TEMPLATE_CASH, (cash) ? 1 : 0);
+
 
         Log.d(logTag_, values.toString());
 
@@ -66,8 +70,9 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
             throw new IllegalStateException("Database cursor out of bounds.");
 
         return new PurchaseTemplate(cursor.getInt(0), cursor.getInt(1),
-                EnumLocation.valueOf(cursor.getString(2)), new Money(cursor.getString(3)), cursor.getString(4),
-                cursor.getInt(5), new Date(Long.parseLong(cursor.getString(6))), EnumCategory.valueOf(cursor.getString(7)));
+                EnumLocation.valueOf(cursor.getString(2)), new Money(cursor.getString(3)),
+                cursor.getString(4), cursor.getInt(5), new Date(Long.parseLong(cursor.getString(6))),
+                EnumCategory.valueOf(cursor.getString(7)), cursor.getInt(8) == 1);
     }
 
     List<PurchaseTemplate> getAllPurchaseTemplates() {
@@ -94,7 +99,7 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
         }
         cursor.close();
 
-        Log.d(logTag_, "getAllPurchaseTemplates returns "+purchaseTemplates);
+        Log.d(logTag_, "getAllPurchaseTemplates returns " + purchaseTemplates);
         return purchaseTemplates;
     }
 

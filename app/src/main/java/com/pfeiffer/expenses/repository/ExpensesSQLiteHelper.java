@@ -38,6 +38,7 @@ public class ExpensesSQLiteHelper extends SQLiteOpenHelper {
     public static final String PURCHASE_TEMPLATE_NUMBER_OF_PURCHASES = "numberOfPurchases";
     public static final String PURCHASE_TEMPLATE_LAST_PURCHASE_DATE = "lastPurchase";
     public static final String PURCHASE_TEMPLATE_CATEGORY = "category";
+    public static final String PURCHASE_TEMPLATE_CASH = "cash";
 
 
     private static final String CREATE_PURCHASE_TEMPLATE_TABLE = "create table " +
@@ -47,7 +48,8 @@ public class ExpensesSQLiteHelper extends SQLiteOpenHelper {
             " text not null," + PURCHASE_TEMPLATE_PRODUCT_NAME + " text not null," +
             PURCHASE_TEMPLATE_NUMBER_OF_PURCHASES + " integer not null," +
             PURCHASE_TEMPLATE_LAST_PURCHASE_DATE + " integer, " + PURCHASE_TEMPLATE_CATEGORY +
-            " text not null);";
+            " text not null,"+PURCHASE_TEMPLATE_CASH +
+            " integer unsigned not null);";
 
 
     public static final String TABLE_PARTNER_DEVICE = "partnerDevice";
@@ -73,7 +75,7 @@ public class ExpensesSQLiteHelper extends SQLiteOpenHelper {
 
 
     private static final String DATABASE_NAME = "expenses.db";
-    private static final int DATABASE_VERSION = 22;
+    private static final int DATABASE_VERSION = 23;
 
     public ExpensesSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -82,21 +84,21 @@ public class ExpensesSQLiteHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
         Log.i(ExpensesSQLiteHelper.class.getName(), "Creating Database with SQL statement: " + CREATE_PURCHASE_TABLE +
-                ", " + CREATE_PURCHASE_TEMPLATE_TABLE);
-        database.execSQL(CREATE_PURCHASE_TABLE);
+                ", " + CREATE_PURCHASE_TEMPLATE_TABLE + ", " + CREATE_PARTNER_DEVICE_TABLE + ", " + CREATE_PURCHASE_HISTORY_TABLE);
+//        database.execSQL(CREATE_PURCHASE_TABLE);
         database.execSQL(CREATE_PURCHASE_TEMPLATE_TABLE);
-        database.execSQL(CREATE_PARTNER_DEVICE_TABLE);
-        database.execSQL(CREATE_PURCHASE_HISTORY_TABLE);
+//        database.execSQL(CREATE_PARTNER_DEVICE_TABLE);
+//        database.execSQL(CREATE_PURCHASE_HISTORY_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.w(ExpensesSQLiteHelper.class.getName(), "Upgrading database from version " + oldVersion + " to "
                 + newVersion + ", which will destroy all old data");
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PURCHASE);
+//        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PURCHASE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PURCHASE_TEMPLATE);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PARTNER_DEVICE);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PURCHASE_HISTORY);
+//        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PARTNER_DEVICE);
+//        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PURCHASE_HISTORY);
         onCreate(db);
     }
 
