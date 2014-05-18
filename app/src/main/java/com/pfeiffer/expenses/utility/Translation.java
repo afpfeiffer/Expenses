@@ -35,11 +35,21 @@ public class Translation {
 
     static public Date getFirstDateOfCurrentMonth() {
         Calendar cal=Calendar.getInstance();
-        cal.set(Calendar.DAY_OF_MONTH,Calendar.getInstance().getActualMinimum(Calendar.DAY_OF_MONTH));
-        cal.set(Calendar.HOUR,0);
-        cal.set(Calendar.MINUTE,0);
-        cal.set(Calendar.SECOND,0);
+        cal.set(Calendar.DAY_OF_MONTH,cal.getActualMinimum(Calendar.DAY_OF_MONTH));
+        cal.set(Calendar.HOUR,cal.getActualMinimum(Calendar.HOUR));
+        cal.set(Calendar.MINUTE,cal.getActualMinimum(Calendar.MINUTE));
+        cal.set(Calendar.SECOND,cal.getActualMinimum(Calendar.SECOND));
         return cal.getTime();
     }
+
+    static public Date getFirstDateOfNextMonth() {
+        Calendar cal=Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_MONTH,cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        cal.set(Calendar.HOUR,cal.getActualMaximum(Calendar.HOUR));
+        cal.set(Calendar.MINUTE,cal.getActualMaximum(Calendar.MINUTE));
+        cal.set(Calendar.SECOND,cal.getActualMaximum(Calendar.SECOND));
+        return cal.getTime();
+    }
+
 
 }

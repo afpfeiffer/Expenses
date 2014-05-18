@@ -20,10 +20,10 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pfeiffer.expenses.R;
@@ -36,6 +36,7 @@ import com.pfeiffer.expenses.model.PurchaseTemplate;
 import com.pfeiffer.expenses.repository.RepositoryManager;
 import com.pfeiffer.expenses.utility.UpdatePurchaseTemplates;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -44,22 +45,18 @@ import java.util.Map;
 public class ActivityRecordPurchase extends Activity {
     public final String logTag_ = this.getClass().getName();
 
-    // TODO: http://developer.android.com/guide/topics/resources/runtime-changes.html
-    // Retain Objects through configuration change
-
     private DataFragment dataFragment_;
     private RepositoryManager repositoryManager_;
 
     private Button bScan_;
     private Button bDone_;
-    private Button bCancel_;
     private Spinner sCategory_;
     private Spinner sLocation_;
     private AutoCompleteTextView actvName_;
     private EditText etPrice_;
-    private TextView tvBarcodeStatus_;
     private NumberPicker npAmount_;
     private CheckBox cbCash_;
+    private DatePicker dpPurchaseDate_;
 
 
     @Override
@@ -103,10 +100,9 @@ public class ActivityRecordPurchase extends Activity {
         npAmount_ = (NumberPicker) findViewById(R.id.npAmount);
         etPrice_ = (EditText) findViewById(R.id.etPrice);
         cbCash_ = (CheckBox) findViewById(R.id.cbCash);
-        tvBarcodeStatus_ = (TextView) findViewById(R.id.tvBarcodeStatus);
         bScan_ = (Button) findViewById(R.id.bScanBarcode);
         bDone_ = (Button) findViewById(R.id.bDone);
-        bCancel_ = (Button) findViewById(R.id.bCancel);
+        dpPurchaseDate_ = (DatePicker) findViewById(R.id.dpPurchaseDate);
     }
 
     private void preparePurchaseTemplates() {
@@ -161,40 +157,8 @@ public class ActivityRecordPurchase extends Activity {
                 String productName = actvName_.getText().toString();
                 PurchaseTemplate pt = dataFragment_.getProductNameToPurchaseTemplate().get(productName);
                 if (pt != null) {
-                    setFields(null, pt.getCategory(), pt.getLocation(), pt.getPrice(), pt.getAmount(), pt.isCash());
+                    setFields(null, pt.getCategory(), pt.getLocation(), pt.getPrice(), pt.getAmount(), pt.isCash(), new Date(System.currentTimeMillis()));
                 }
-            }
-        });
-
-        bCancel_.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-
-                if (!actvName_.getText().toString().trim().equals("")
-                        || dataFragment_.getBarcode() != null) {
-                    new AlertDialog.Builder(view.getContext())
-                            .setTitle(R.string.button_cancel)
-                            .setMessage(R.string.question_cancel)
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    // return to Main Acitivty
-                                    startActivity(new Intent(view.getContext(), ActivityMain.class));
-                                    finish();
-                                }
-                            })
-                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    // do nothing
-                                }
-                            })
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .show();
-                } else {
-                    // return to Main Acitivty
-                    startActivity(new Intent(view.getContext(), ActivityMain.class));
-                    finish();
-                }
-
             }
         });
 
@@ -206,11 +170,19 @@ public class ActivityRecordPurchase extends Activity {
                 // create a temporary purchase from the ui entries
                 Purchase purchase;
                 try {
+                    int day = dpPurchaseDate_.getDayOfMonth();
+                    int month = dpPurchaseDate_.getMonth();
+                    int year = dpPurchaseDate_.getYear();
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.set(year, month, day);
+                    Date purchaseDate=calendar.getTime();
+
+
                     purchase = new Purchase(
                             dataFragment_.getPurchaseId(),
                             dataFragment_.getBarcode(),
                             npAmount_.getValue(),
-                            new Date(System.currentTimeMillis()),
+                            purchaseDate,
                             EnumLocation.fromString(sLocation_.getSelectedItem().toString()),
                             new Money(etPrice_.getText().toString().trim()),
                             cbCash_.isChecked(),
@@ -256,11 +228,9 @@ public class ActivityRecordPurchase extends Activity {
 
     private void configureBarcodeUiElements() {
         if (dataFragment_.getBarcode() != null) {
-            bScan_.setVisibility(View.GONE);
-            tvBarcodeStatus_.setVisibility(View.VISIBLE);
+            bScan_.setEnabled(false);
         } else {
-            bScan_.setVisibility(View.VISIBLE);
-            tvBarcodeStatus_.setVisibility(View.GONE);
+            bScan_.setEnabled(true);
         }
     }
 
@@ -273,7 +243,7 @@ public class ActivityRecordPurchase extends Activity {
                 purchase.getCategory(),
                 purchase.getLocation(),
                 purchase.getPrice(),
-                purchase.getAmount(), purchase.isCash());
+                purchase.getAmount(), purchase.isCash(), purchase.getDate());
 
         if (purchase.getBarcode() != null) {
             dataFragment_.setBarcode(purchase.getBarcode());
@@ -281,7 +251,7 @@ public class ActivityRecordPurchase extends Activity {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private void setFields(String name, EnumCategory category, EnumLocation location, Money price, int amount, boolean cash) {
+    private void setFields(String name, EnumCategory category, EnumLocation location, Money price, int amount, boolean cash, Date date) {
         if (name != null && !name.equals("")) {
             actvName_.setText(name);
         }
@@ -298,6 +268,14 @@ public class ActivityRecordPurchase extends Activity {
         }
         if (amount > 0) {
             npAmount_.setValue(amount);
+        }
+        if (date != null) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            dpPurchaseDate_.updateDate(
+                    calendar.get(calendar.YEAR),
+                    calendar.get(calendar.MONTH),
+                    calendar.get(calendar.DAY_OF_MONTH));
         }
         cbCash_.setChecked(cash);
     }
@@ -328,7 +306,7 @@ public class ActivityRecordPurchase extends Activity {
                     if (purchase != null) {
 
                         setFields(purchase.getProductName(), purchase.getCategory(),
-                                purchase.getLocation(), purchase.getPrice(), 1, purchase.isCash());
+                                purchase.getLocation(), purchase.getPrice(), 1, purchase.isCash(), purchase.getDate());
 
                     }
                 }
@@ -362,8 +340,31 @@ public class ActivityRecordPurchase extends Activity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-            startActivity(new Intent(this, ActivityMain.class));
-            finish();
+            final Intent activityMainIntent = new Intent(this, ActivityMain.class);
+            if (!actvName_.getText().toString().trim().equals("")
+                    || dataFragment_.getBarcode() != null) {
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.button_cancel)
+                        .setMessage(R.string.question_cancel)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // return to Main Acitivty
+                                startActivity(activityMainIntent);
+                                finish();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            } else {
+                // return to Main Acitivty
+                startActivity(activityMainIntent);
+                finish();
+            }
         }
         return super.onKeyDown(keyCode, event);
     }

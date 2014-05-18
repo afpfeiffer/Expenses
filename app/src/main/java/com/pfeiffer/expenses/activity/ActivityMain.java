@@ -74,8 +74,9 @@ public class ActivityMain extends Activity {
 
         Date rightNow = new Date(System.currentTimeMillis());
 
-        List<Purchase> purchasesCurrentMonth = repositoryManager_.getAllPurchasesForDateRange(Translation.getFirstDateOfCurrentMonth
-                (), rightNow);
+        List<Purchase> purchasesCurrentMonth = repositoryManager_.getAllPurchasesForDateRange(
+                Translation.getFirstDateOfCurrentMonth(),
+                Translation.getFirstDateOfNextMonth());
 
         DataAnalysis dataAnalysis = new DataAnalysis(repositoryManager_, purchasesCurrentMonth);
 
@@ -96,7 +97,7 @@ public class ActivityMain extends Activity {
 
                 map1 = new HashMap<String, String>();
                 int percentage = entry.getValue().percentage(totalExpenses);
-                map1.put("rowCategoryName", category.toString() + " (" + percentage + " %)");
+                map1.put("rowCategoryName", category.toString() + " (" + percentage + "%)");
                 map1.put("rowCategoryExpenses", entry.getValue().getHumanReadableRepresentation());
                 mylist_title.add(map1);
 
