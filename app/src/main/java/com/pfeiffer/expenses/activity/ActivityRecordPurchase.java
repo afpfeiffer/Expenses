@@ -306,7 +306,7 @@ public class ActivityRecordPurchase extends Activity {
                     if (purchase != null) {
 
                         setFields(purchase.getProductName(), purchase.getCategory(),
-                                purchase.getLocation(), purchase.getPrice(), 1, purchase.isCash(), purchase.getDate());
+                                purchase.getLocation(), purchase.getPrice(), 1, purchase.isCash(), new Date(System.currentTimeMillis()));
 
                     }
                 }
