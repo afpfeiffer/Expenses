@@ -2,6 +2,7 @@ package com.pfeiffer.expenses.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -36,10 +37,12 @@ import com.pfeiffer.expenses.model.PurchaseTemplate;
 import com.pfeiffer.expenses.repository.RepositoryManager;
 import com.pfeiffer.expenses.utility.UpdatePurchaseTemplates;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class ActivityRecordPurchase extends Activity {
@@ -48,6 +51,7 @@ public class ActivityRecordPurchase extends Activity {
     private DataFragment dataFragment_;
     private RepositoryManager repositoryManager_;
 
+    private EditText etDate_;
     private Button bScan_;
     private Button bDone_;
     private Spinner sCategory_;
@@ -56,7 +60,6 @@ public class ActivityRecordPurchase extends Activity {
     private EditText etPrice_;
     private NumberPicker npAmount_;
     private CheckBox cbCash_;
-    private DatePicker dpPurchaseDate_;
 
 
     @Override
@@ -79,6 +82,7 @@ public class ActivityRecordPurchase extends Activity {
 
             dataFragment_.setPurchaseId(getIntent().getIntExtra(ActivityMain.EXTRA_PURCHASE_ID, -1));
             dataFragment_.setEditMode(dataFragment_.getPurchaseId() > 0);
+            dataFragment_.resetCalendar();
 
             initializeUiElements();
             preparePurchaseTemplates();
@@ -102,7 +106,8 @@ public class ActivityRecordPurchase extends Activity {
         cbCash_ = (CheckBox) findViewById(R.id.cbCash);
         bScan_ = (Button) findViewById(R.id.bScanBarcode);
         bDone_ = (Button) findViewById(R.id.bDone);
-        dpPurchaseDate_ = (DatePicker) findViewById(R.id.dpPurchaseDate);
+        etDate_ = (EditText) findViewById(R.id.etPurchaseDate);
+
     }
 
     private void preparePurchaseTemplates() {
@@ -124,6 +129,9 @@ public class ActivityRecordPurchase extends Activity {
     }
 
     private void configureUiElements() {
+
+        updateCalendarTextView();
+
         npAmount_.setMinValue(1);
         npAmount_.setMaxValue(20);
         npAmount_.setWrapSelectorWheel(false);
@@ -142,6 +150,7 @@ public class ActivityRecordPurchase extends Activity {
                 startActivityForResult(intent, 0);
             }
         });
+
 
         // connect the array of product names to the AutoCompleteTextView
         actvName_.setAdapter(new ArrayAdapter(this, android.R.layout.simple_list_item_1,
@@ -170,19 +179,12 @@ public class ActivityRecordPurchase extends Activity {
                 // create a temporary purchase from the ui entries
                 Purchase purchase;
                 try {
-                    int day = dpPurchaseDate_.getDayOfMonth();
-                    int month = dpPurchaseDate_.getMonth();
-                    int year = dpPurchaseDate_.getYear();
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.set(year, month, day);
-                    Date purchaseDate=calendar.getTime();
-
 
                     purchase = new Purchase(
                             dataFragment_.getPurchaseId(),
                             dataFragment_.getBarcode(),
                             npAmount_.getValue(),
-                            purchaseDate,
+                            dataFragment_.getCalendar().getTime(),
                             EnumLocation.fromString(sLocation_.getSelectedItem().toString()),
                             new Money(etPrice_.getText().toString().trim()),
                             cbCash_.isChecked(),
@@ -222,6 +224,33 @@ public class ActivityRecordPurchase extends Activity {
                 }
             }
         });
+
+        final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
+
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear,
+                                  int dayOfMonth) {
+                // TODO Auto-generated method stub
+                dataFragment_.getCalendar().set(Calendar.YEAR, year);
+                dataFragment_.getCalendar().set(Calendar.MONTH, monthOfYear);
+                dataFragment_.getCalendar().set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                updateCalendarTextView();
+            }
+
+        };
+
+        etDate_.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                new DatePickerDialog(v.getContext(), date,
+                        dataFragment_.getCalendar().get(Calendar.YEAR),
+                        dataFragment_.getCalendar().get(Calendar.MONTH),
+                        dataFragment_.getCalendar().get(Calendar.DAY_OF_MONTH)).show();
+            }
+        });
+
 
         configureBarcodeUiElements();
     }
@@ -270,12 +299,8 @@ public class ActivityRecordPurchase extends Activity {
             npAmount_.setValue(amount);
         }
         if (date != null) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            dpPurchaseDate_.updateDate(
-                    calendar.get(calendar.YEAR),
-                    calendar.get(calendar.MONTH),
-                    calendar.get(calendar.DAY_OF_MONTH));
+            dataFragment_.getCalendar().setTime(date);
+            updateCalendarTextView();
         }
         cbCash_.setChecked(cash);
     }
@@ -287,6 +312,13 @@ public class ActivityRecordPurchase extends Activity {
         return true;
     }
 
+    private void updateCalendarTextView() {
+
+        String myFormat = "dd.MM.yyyy"; //In which you need put here
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMAN);
+
+        etDate_.setText(sdf.format(dataFragment_.getCalendar().getTime()));
+    }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == 0) {
@@ -370,6 +402,7 @@ public class ActivityRecordPurchase extends Activity {
     }
 
     private class DataFragment extends Fragment {
+        Calendar calendar_;
         private Barcode barcode_;
         private long purchaseId_ = -1;
         private boolean editMode_ = false;
@@ -382,7 +415,20 @@ public class ActivityRecordPurchase extends Activity {
             super.onCreate(savedInstanceState);
             // retain this fragment
             setRetainInstance(true);
+
+
         }
+
+        public Calendar getCalendar() {
+            return calendar_;
+        }
+
+
+        public void resetCalendar(){
+            calendar_ = Calendar.getInstance();
+            calendar_.setTime(new Date(System.currentTimeMillis()));
+        }
+
 
         public void setBarcode(Barcode barcode) {
             barcode_ = barcode;

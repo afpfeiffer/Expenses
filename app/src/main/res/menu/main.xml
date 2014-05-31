@@ -21,4 +21,10 @@
         android:showAsAction="always"
         android:title="@string/button_record_purchase"/>
 
+    <item
+        android:id="@+id/action_record_shopping"
+        android:orderInCategory="1"
+        android:showAsAction="withText"
+        android:title="@string/button_record_shopping_short"/>
+
 </menu>

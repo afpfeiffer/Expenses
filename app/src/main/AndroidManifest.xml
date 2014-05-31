@@ -34,7 +34,7 @@
             android:label="@string/title_activity_activity_pie_chart" >
         </activity>
 
-        <service android:name=".utility.UpdatePurchaseTemplates" />
+        <service android:name="com.pfeiffer.expenses.utility.UpdatePurchaseTemplates" />
 
         <activity
             android:name="com.pfeiffer.expenses.activity.ActivityShareData"
@@ -43,6 +43,10 @@
         <activity
             android:name="com.pfeiffer.expenses.activity.ActivityBluetoothDevices"
             android:label="@string/title_activity_activity_bluetooth_devices" >
+        </activity>
+        <activity
+            android:name="com.pfeiffer.expenses.activity.ActivityShopping"
+            android:label="@string/title_activity_activity_shopping" >
         </activity>
     </application>
 

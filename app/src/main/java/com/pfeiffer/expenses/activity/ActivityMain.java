@@ -157,6 +157,11 @@ public class ActivityMain extends Activity {
                 finish();
                 return true;
 
+            case R.id.action_record_shopping:
+                Intent shoppingIntent = new Intent(this, ActivityShopping.class);
+                startActivity(shoppingIntent);
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }

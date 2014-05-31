@@ -55,5 +55,10 @@
     <string name="title_not_connected">Nicht Verbunden</string>
     <string name="bt_not_enabled_leaving">Bluetooth nicht verfügbar</string>
     <string name="button_scan_for_devices">Nach Geräten Suchen</string>
+    <string name="title_activity_activity_shopping">ActivityShopping</string>
+    <string name="bFinalizeShopping">Einkauf abschließen</string>
+    <string name="bAddShoppingItem">Produkt hinzufügen</string>
+    <string name="button_record_shopping_short">Sh</string>
+    <string name="tvDate">Datum:</string>
 
 </resources>
