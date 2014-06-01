@@ -60,5 +60,7 @@
     <string name="bAddShoppingItem">Produkt hinzufügen</string>
     <string name="button_record_shopping_short">Sh</string>
     <string name="tvDate">Datum:</string>
+    <string name="bIncrease">+</string>
+    <string name="bDecrease">-</string>
 
 </resources>

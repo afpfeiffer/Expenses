@@ -82,15 +82,19 @@ public class RepositoryPartnerDevice extends RepositoryBase {
                 allPartnerDeviceColumns_, " " + ExpensesSQLiteHelper.PARTNER_DEVICE_ANDROID_ID
                         + " = ?", new String[]{androidId}, null, null, null, null
         );
-
-        cursor.moveToFirst();
-
         PartnerDevice partnerDevice = null;
-        if (!cursor.isAfterLast()) {
-            partnerDevice = cursorToPartnerDevice(cursor);
+        try {
+            cursor.moveToFirst();
 
+
+            if (!cursor.isAfterLast()) {
+                partnerDevice = cursorToPartnerDevice(cursor);
+
+            }
+        } finally{
+            cursor.close();
         }
-        cursor.close();
+
 
         Log.d(logTag_, "findPartnerDeviceByAndroidId returns " + partnerDevice);
         return partnerDevice;

@@ -69,16 +69,20 @@ public class RepositoryPurchaseHistory extends RepositoryBase {
         );
 
         List<PurchaseHistory> purchaseHistoryList = new ArrayList<PurchaseHistory>();
-        cursor.moveToFirst();
+        try {
+            cursor.moveToFirst();
 
-        while (!cursor.isAfterLast()) {
-            PurchaseHistory purchaseHistory = cursorToPurchaseHistory(cursor);
-            purchaseHistoryList.add(purchaseHistory);
-            cursor.moveToNext();
+            while (!cursor.isAfterLast()) {
+                PurchaseHistory purchaseHistory = cursorToPurchaseHistory(cursor);
+                purchaseHistoryList.add(purchaseHistory);
+                cursor.moveToNext();
+            }
+        } finally {
+            cursor.close();
         }
-        cursor.close();
 
-        Log.d(logTag_, "getPurchaseHistoryAfter returns "+purchaseHistoryList);
+
+        Log.d(logTag_, "getPurchaseHistoryAfter returns " + purchaseHistoryList);
         return purchaseHistoryList;
     }
 

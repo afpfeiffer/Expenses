@@ -63,6 +63,14 @@ public class ActivityMain extends Activity {
         showActivity();
     }
 
+    @Override
+    protected void onPause(){
+        super.onPause();
+        repositoryManager_.close();
+    }
+
+
+
     private void showActivity() {
         mylist = new ArrayList<ArrayList<HashMap<String, String>>>();
         mylist_title = new ArrayList<HashMap<String, String>>();

@@ -7,6 +7,8 @@ import android.util.Log;
 
 public class ExpensesSQLiteHelper extends SQLiteOpenHelper {
 
+    static ExpensesSQLiteHelper helperInstance_=null;
+
     // purchase table definitions
     public static final String TABLE_PURCHASE = "purchase";
     public static final String PURCHASE_ID = "id";
@@ -79,6 +81,13 @@ public class ExpensesSQLiteHelper extends SQLiteOpenHelper {
 
     public ExpensesSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public static ExpensesSQLiteHelper getInstance(Context context){
+        if (helperInstance_ == null) {
+            helperInstance_ = new ExpensesSQLiteHelper(context);
+        }
+        return helperInstance_;
     }
 
     @Override

@@ -140,6 +140,7 @@ class RepositoryPurchase extends RepositoryBase {
                 + searchValue + ")");
         String orderBy = ExpensesSQLiteHelper.PURCHASE_DATE + " DESC";
         Cursor cursor;
+
         if (searchField != null && !searchField.equals(""))
             cursor = database_.query(ExpensesSQLiteHelper.TABLE_PURCHASE, allPurchaseColumns_, " " + searchField
                     + " = ?", new String[]{searchValue}, null, null, orderBy, null);
@@ -147,15 +148,18 @@ class RepositoryPurchase extends RepositoryBase {
             cursor = database_.query(ExpensesSQLiteHelper.TABLE_PURCHASE, allPurchaseColumns_, null, null, null, null, orderBy);
 
         List<Purchase> purchases = new ArrayList<Purchase>();
-        cursor.moveToFirst();
 
-        while (!cursor.isAfterLast()) {
-            Purchase purchase = cursorToPurchase(cursor);
-            purchases.add(purchase);
-            cursor.moveToNext();
+        try {
+            cursor.moveToFirst();
+
+            while (!cursor.isAfterLast()) {
+                Purchase purchase = cursorToPurchase(cursor);
+                purchases.add(purchase);
+                cursor.moveToNext();
+            }
+        } finally {
+            cursor.close();
         }
-        cursor.close();
-
         Log.d(logTag_, "findPurchases returns " + purchases);
         return purchases;
     }
@@ -178,14 +182,18 @@ class RepositoryPurchase extends RepositoryBase {
 
 
         List<Purchase> purchases = new ArrayList<Purchase>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            Purchase purchase = cursorToPurchase(cursor);
-            purchases.add(purchase);
-            cursor.moveToNext();
-        }
-        cursor.close();
+        try {
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                Purchase purchase = cursorToPurchase(cursor);
+                purchases.add(purchase);
+                cursor.moveToNext();
+            }
+        } finally {
 
+            cursor.close();
+
+        }
         Log.d(logTag_, "getAllPurchasesForDateRange returns " + purchases);
         return purchases;
     }

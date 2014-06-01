@@ -116,10 +116,12 @@
 
 
             </LinearLayout>
+
             <EditText
                 android:id="@+id/etPurchaseDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
+
             <Button
                 android:id="@+id/bDone"
                 android:layout_width="fill_parent"
@@ -129,6 +131,34 @@
 
     </LinearLayout>
 
+    <!--<LinearLayout-->
+        <!--android:orientation="horizontal"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content">-->
+
+        <!--<Button-->
+            <!--android:id="@+id/bDecrease"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:text="@string/bDecrease"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:background="@android:color/transparent"-->
+            <!--android:layout_height="wrap_content" />-->
+
+        <!--<EditText-->
+            <!--android:layout_gravity="center"-->
+            <!--android:id="@+id/etPurchaseAmount"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content" />-->
+
+        <!--<Button-->
+            <!--android:id="@+id/bIncrease"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:background="@android:color/transparent"-->
+            <!--android:text="@string/bIncrease"-->
+            <!--android:layout_height="wrap_content" />-->
+
+    <!--</LinearLayout>-->
 
 
     <!--</LinearLayout>-->

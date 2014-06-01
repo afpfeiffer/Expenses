@@ -19,7 +19,8 @@ public class RepositoryManager {
     private final RepositoryPurchaseHistory repositoryPurchaseHistory_;
 
     public RepositoryManager(Context context) {
-        ExpensesSQLiteHelper dbHelper = new ExpensesSQLiteHelper(context);
+        ExpensesSQLiteHelper dbHelper = ExpensesSQLiteHelper.getInstance(context);
+
 
         repositoryPurchase_ = new RepositoryPurchase(context, dbHelper);
         repositoryPurchaseTemplate_ = new RepositoryPurchaseTemplate(context, dbHelper);

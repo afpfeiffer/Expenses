@@ -90,14 +90,17 @@ public class RepositoryPurchaseTemplate extends RepositoryBase {
                 null,
                 null,
                 orderBy);
+        try {
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                PurchaseTemplate purchaseTemplate = cursorToPurchaseTemplate(cursor);
+                purchaseTemplates.add(purchaseTemplate);
+                cursor.moveToNext();
+            }
+        } finally {
+            cursor.close();
 
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            PurchaseTemplate purchaseTemplate = cursorToPurchaseTemplate(cursor);
-            purchaseTemplates.add(purchaseTemplate);
-            cursor.moveToNext();
         }
-        cursor.close();
 
         Log.d(logTag_, "getAllPurchaseTemplates returns " + purchaseTemplates);
         return purchaseTemplates;
