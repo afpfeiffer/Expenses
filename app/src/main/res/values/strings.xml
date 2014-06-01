@@ -62,5 +62,6 @@
     <string name="tvDate">Datum:</string>
     <string name="bIncrease">+</string>
     <string name="bDecrease">-</string>
+    <string name="title_activity_activity_shopping_record_purchase">ActivityShoppingRecordPurchase</string>
 
 </resources>

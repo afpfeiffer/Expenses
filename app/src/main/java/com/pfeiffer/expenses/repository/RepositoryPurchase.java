@@ -101,6 +101,7 @@ class RepositoryPurchase extends RepositoryBase {
         boolean cash = purchase.isCash();
         String productName = purchase.getProductName();
         EnumCategory category = purchase.getCategory();
+        Date date=purchase.getDate();
 
         Log.d(logTag_, "updatePurchase(" + purchase + ")");
 
@@ -118,6 +119,7 @@ class RepositoryPurchase extends RepositoryBase {
         values.put(ExpensesSQLiteHelper.PURCHASE_CASH, (cash) ? 1 : 0);
         values.put(ExpensesSQLiteHelper.PURCHASE_PRODUCT_NAME, productName);
         values.put(ExpensesSQLiteHelper.PURCHASE_CATEGORY, category.name());
+        values.put(ExpensesSQLiteHelper.PURCHASE_DATE, date.getTime());
 
         int rowsAffected = database_.update(
                 ExpensesSQLiteHelper.TABLE_PURCHASE,
