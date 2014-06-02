@@ -33,8 +33,9 @@ public class Translation {
         return dateFormat.format(date);
     }
 
-    static public Date getFirstDateOfCurrentMonth() {
+    static public Date getFirstDateOfMonth(Date date) {
         Calendar cal=Calendar.getInstance();
+        cal.setTime(date);
         cal.set(Calendar.DAY_OF_MONTH,cal.getActualMinimum(Calendar.DAY_OF_MONTH));
         cal.set(Calendar.HOUR,cal.getActualMinimum(Calendar.HOUR));
         cal.set(Calendar.MINUTE,cal.getActualMinimum(Calendar.MINUTE));
@@ -42,8 +43,9 @@ public class Translation {
         return cal.getTime();
     }
 
-    static public Date getFirstDateOfNextMonth() {
+    static public Date getFirstDateOfNextMonth(Date date) {
         Calendar cal=Calendar.getInstance();
+        cal.setTime(date);
         cal.set(Calendar.DAY_OF_MONTH,cal.getActualMaximum(Calendar.DAY_OF_MONTH));
         cal.set(Calendar.HOUR,cal.getActualMaximum(Calendar.HOUR));
         cal.set(Calendar.MINUTE,cal.getActualMaximum(Calendar.MINUTE));

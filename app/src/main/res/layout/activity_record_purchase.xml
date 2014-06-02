@@ -15,7 +15,7 @@
         android:layout_width="fill_parent"
         android:background="@drawable/customborder"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="8dp"
         android:orientation="horizontal">
 
 
@@ -41,7 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="8dp"
         android:background="@drawable/customborder">
 
         <Spinner

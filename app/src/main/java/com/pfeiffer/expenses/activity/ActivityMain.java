@@ -1,6 +1,7 @@
 package com.pfeiffer.expenses.activity;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +10,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.SimpleExpandableListAdapter;
@@ -22,10 +24,14 @@ import com.pfeiffer.expenses.repository.RepositoryManager;
 import com.pfeiffer.expenses.utility.DataAnalysis;
 import com.pfeiffer.expenses.utility.Translation;
 
+import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -46,6 +52,8 @@ public class ActivityMain extends Activity {
     private ArrayList<ArrayList<HashMap<String, String>>> mylist;
     private SimpleExpandableListAdapter expListAdapter;
     private HashMap<String, String> map1, map2;
+    Calendar myCalendar_;
+
 
     private TextView currentMonth_;
     private TextView totalExpenses_;
@@ -59,8 +67,77 @@ public class ActivityMain extends Activity {
         currentMonth_ = (TextView) findViewById(R.id.tvCurrentMonth);
         totalExpenses_ = (TextView) findViewById(R.id.tvTotalExpenses);
 
+        myCalendar_ = Calendar.getInstance();
+        myCalendar_.setTime(new Date(System.currentTimeMillis()));
+        updateCalendarTextview();
+
+
+        final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
+
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear,
+                                  int dayOfMonth) {
+                // TODO Auto-generated method stub
+                myCalendar_.set(Calendar.YEAR, year);
+                myCalendar_.set(Calendar.MONTH, monthOfYear);
+                myCalendar_.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                updateCalendarTextview();
+            }
+
+        };
+
+        currentMonth_.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                DatePickerDialog pickerDialog=new DatePickerDialog(ActivityMain.this, date, myCalendar_
+                        .get(Calendar.YEAR), myCalendar_.get(Calendar.MONTH),
+                        myCalendar_.get(Calendar.DAY_OF_MONTH)
+                );
+                DatePicker picker= pickerDialog.getDatePicker();
+
+                try {
+                    Field f[] = picker.getClass().getDeclaredFields();
+                    for (Field field : f) {
+                        if (field.getName().equals("mDayPicker")||field.getName().equals("mDaySpinner")) {
+                            field.setAccessible(true);
+                            Object dayPicker = new Object();
+                            dayPicker = field.get(picker);
+                            ((View) dayPicker).setVisibility(View.GONE);
+                        }
+                    }
+                }
+                catch (SecurityException e) {
+                    Log.d("ERROR", e.getMessage());
+                }
+                catch (IllegalArgumentException e) {
+                    Log.d("ERROR", e.getMessage());
+                }
+                catch (IllegalAccessException e) {
+                    Log.d("ERROR", e.getMessage());
+                }
+
+                pickerDialog.show();
+            }
+        });
+
+
+
+
         registerForContextMenu(expandableListView_);
         showActivity();
+    }
+
+
+    private void updateCalendarTextview() {
+        Log.d(logTag_, myCalendar_.getTime().toString());
+        showActivity();
+
+        String myFormat = "MMMM yyyy"; //In which you need put here
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMAN);
+
+        currentMonth_.setText(sdf.format(myCalendar_.getTime()));
     }
 
     @Override
@@ -79,27 +156,24 @@ public class ActivityMain extends Activity {
         repositoryManager_ = new RepositoryManager(this);
         repositoryManager_.open();
 
-
-        Date rightNow = new Date(System.currentTimeMillis());
-
         List<Purchase> purchasesCurrentMonth = repositoryManager_.getAllPurchasesForDateRange(
-                Translation.getFirstDateOfCurrentMonth(),
-                Translation.getFirstDateOfNextMonth());
+                Translation.getFirstDateOfMonth(myCalendar_.getTime()),
+                Translation.getFirstDateOfNextMonth(myCalendar_.getTime()));
 
         DataAnalysis dataAnalysis = new DataAnalysis(repositoryManager_, purchasesCurrentMonth);
 
-        currentMonth_.setText(Translation.getMonthString(rightNow));
-        Money totalExpenses = dataAnalysis.getExpensesPerMonth(rightNow);
+//        currentMonth_.setText(Translation.getMonthString(rightNow));
+        Money totalExpenses = dataAnalysis.getExpensesPerMonth(myCalendar_.getTime());
         totalExpenses_.setText(totalExpenses.getHumanReadableRepresentation());
 
         List<Map.Entry<EnumCategory, Money>> categoryToExpenses = dataAnalysis.getSortedCategoryToExpensesForYearAndMonth
-                (rightNow);
+                (myCalendar_.getTime());
 
         int len = categoryToExpenses.size();
         for (int i = 0; i < len; ++i) {
             Map.Entry<EnumCategory, Money> entry = categoryToExpenses.get(len - 1 - i);
             EnumCategory category = entry.getKey();
-            List<Purchase> purchases = dataAnalysis.getPurchasesForYearMonthAndCategory(rightNow, category);
+            List<Purchase> purchases = dataAnalysis.getPurchasesForYearMonthAndCategory(myCalendar_.getTime(), category);
             if (purchases != null && !purchases.isEmpty()) {
                 ArrayList<HashMap<String, String>> secList = new ArrayList<HashMap<String, String>>();
 
