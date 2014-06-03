@@ -270,7 +270,7 @@ public class ActivityShareData extends Activity {
 
 
         List<Purchase> allPurchases = dataFragment_.getRepositoryManager().getAllPurchases();
-        List<Purchase> filteredPurchases=new ArrayList<Purchase>();
+        List<Purchase> filteredPurchases = new ArrayList<Purchase>();
         for (Purchase purchase : allPurchases) {
             if (purchase.getOwner().equals(deviceOwner)) {
                 filteredPurchases.add(purchase);
@@ -472,7 +472,7 @@ public class ActivityShareData extends Activity {
     });
 
 
-    class DataFragment extends Fragment {
+    public static class DataFragment extends Fragment {
 
         private BluetoothAdapter bluetoothAdapter_ = null;
         private BluetoothService bluetoothService_ = null;
@@ -482,6 +482,16 @@ public class ActivityShareData extends Activity {
         private int numberOfRequests_ = 0;
         private boolean disconnectSend_ = false;
         private boolean disconnectReceived_ = false;
+
+        public DataFragment() {
+        }
+
+        public void onCreate(Bundle savedInstanceState) {
+            receivedPurchases_ = new ArrayList<Purchase>();
+            super.onCreate(savedInstanceState);
+            setRetainInstance(true); // retain this fragment
+        }
+
 
         public boolean isDisconnectSend() {
             return disconnectSend_;
@@ -498,13 +508,6 @@ public class ActivityShareData extends Activity {
         public void setDisconnectReceived(boolean disconnectReceived) {
             this.disconnectReceived_ = disconnectReceived;
         }
-
-        public void onCreate(Bundle savedInstanceState) {
-            receivedPurchases_ = new ArrayList<Purchase>();
-            super.onCreate(savedInstanceState);
-            setRetainInstance(true); // retain this fragment
-        }
-
 
         public int getNumberOfRequests() {
             return numberOfRequests_;

@@ -48,7 +48,6 @@ public class ActivityMain extends Activity {
     public static final String EXTRA_PURCHASE_ID = "purchaseId";
     private final String logTag_ = this.getClass().getName();
 
-    private RepositoryManager repositoryManager_;
     private ExpandableListView expandableListView_;
     private SimpleExpandableListAdapter expListAdapter;
     private TextView currentMonth_;
@@ -73,9 +72,12 @@ public class ActivityMain extends Activity {
             dataFragment_ = new DataFragment();
             fragmentManager.beginTransaction().add(dataFragment_, "ActivityMain").commit();
 
-            dataFragment_.resetCalendar(); 
+            dataFragment_.resetCalendar();
+            loadData();
+
         }
-        loadData();
+
+        showData();
 
         final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
 
@@ -87,6 +89,7 @@ public class ActivityMain extends Activity {
                 dataFragment_.getCalendar().set(Calendar.MONTH, monthOfYear);
                 dataFragment_.getCalendar().set(Calendar.DAY_OF_MONTH, dayOfMonth);
                 loadData();
+                showData();
             }
 
         };
@@ -132,7 +135,7 @@ public class ActivityMain extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        repositoryManager_.close();
+        dataFragment_.getRepositoryManager().close();
     }
 
     private void loadData() {
@@ -140,31 +143,24 @@ public class ActivityMain extends Activity {
         dataFragment_.setMylist_title(new ArrayList<HashMap<String, String>>());
 
         // get all Purchases
-        repositoryManager_ = new RepositoryManager(this);
-        repositoryManager_.open();
+        dataFragment_.setRepositoryManager(new RepositoryManager(this));
+        dataFragment_.getRepositoryManager().open();
 
-        List<Purchase> purchasesCurrentMonth = repositoryManager_.getAllPurchasesForDateRange(
+        List<Purchase> purchasesCurrentMonth = dataFragment_.getRepositoryManager().getAllPurchasesForDateRange(
                 Translation.getFirstDateOfMonth(dataFragment_.getCalendar().getTime()),
                 Translation.getFirstDateOfNextMonth(dataFragment_.getCalendar().getTime()));
 
-        DataAnalysis dataAnalysis = new DataAnalysis(repositoryManager_, purchasesCurrentMonth);
+        dataFragment_.setDataAnalysis(new DataAnalysis(dataFragment_.getRepositoryManager(), purchasesCurrentMonth));
+        Money totalExpenses = dataFragment_.getDataAnalysis().getExpensesPerMonth(dataFragment_.getCalendar().getTime());
 
-        String myFormat = "MMMM yyyy"; //In which you need put here
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMAN);
-
-        currentMonth_.setText(sdf.format(dataFragment_.getCalendar().getTime()));
-
-        Money totalExpenses = dataAnalysis.getExpensesPerMonth(dataFragment_.getCalendar().getTime());
-        totalExpenses_.setText(totalExpenses.getHumanReadableRepresentation());
-
-        List<Map.Entry<EnumCategory, Money>> categoryToExpenses = dataAnalysis.getSortedCategoryToExpensesForYearAndMonth
+        List<Map.Entry<EnumCategory, Money>> categoryToExpenses = dataFragment_.getDataAnalysis().getSortedCategoryToExpensesForYearAndMonth
                 (dataFragment_.getCalendar().getTime());
 
         int len = categoryToExpenses.size();
         for (int i = 0; i < len; ++i) {
             Map.Entry<EnumCategory, Money> entry = categoryToExpenses.get(len - 1 - i);
             EnumCategory category = entry.getKey();
-            List<Purchase> purchases = dataAnalysis.getPurchasesForYearMonthAndCategory(
+            List<Purchase> purchases = dataFragment_.getDataAnalysis().getPurchasesForYearMonthAndCategory(
                     dataFragment_.getCalendar().getTime(), category);
             if (purchases != null && !purchases.isEmpty()) {
                 ArrayList<HashMap<String, String>> secList = new ArrayList<HashMap<String, String>>();
@@ -190,6 +186,16 @@ public class ActivityMain extends Activity {
                 dataFragment_.getMylist().add(secList);
             }
         }
+    }
+
+    private void showData() {
+
+        String myFormat = "MMMM yyyy"; //In which you need put here
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMAN);
+        currentMonth_.setText(sdf.format(dataFragment_.getCalendar().getTime()));
+
+        Money totalExpenses = dataFragment_.getDataAnalysis().getExpensesPerMonth(dataFragment_.getCalendar().getTime());
+        totalExpenses_.setText(totalExpenses.getHumanReadableRepresentation());
 
 
         try {
@@ -302,7 +308,7 @@ public class ActivityMain extends Activity {
 
     private boolean deletePurchase(int groupPos, int childPos) {
 
-        repositoryManager_.deletePurchase(Integer
+        dataFragment_.getRepositoryManager().deletePurchase(Integer
                 .parseInt(dataFragment_.getMylist().get(groupPos).get(childPos).get("purchaseId")));
 
         startActivity(new Intent(this, ActivityMain.class));
@@ -311,12 +317,17 @@ public class ActivityMain extends Activity {
         return true;
     }
 
-    private class DataFragment extends Fragment {
+    public static class DataFragment extends Fragment {
         Calendar calendar_;
         private HashMap<String, String> map1, map2;
         private ArrayList<HashMap<String, String>> mylist_title;
         private ArrayList<ArrayList<HashMap<String, String>>> mylist;
+        RepositoryManager repositoryManager_;
+        DataAnalysis dataAnalysis_;
 
+        public DataFragment() {
+
+        }
 
         // this method is only called once for this fragment
         @Override
@@ -326,6 +337,22 @@ public class ActivityMain extends Activity {
             setRetainInstance(true);
 
 
+        }
+
+        public DataAnalysis getDataAnalysis() {
+            return dataAnalysis_;
+        }
+
+        public void setDataAnalysis(DataAnalysis dataAnalysis) {
+            dataAnalysis_ = dataAnalysis;
+        }
+
+        public RepositoryManager getRepositoryManager() {
+            return repositoryManager_;
+        }
+
+        public void setRepositoryManager(RepositoryManager repositoryManager) {
+            repositoryManager_ = repositoryManager;
         }
 
         public void resetCalendar() {

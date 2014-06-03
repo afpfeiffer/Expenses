@@ -196,7 +196,8 @@ class RepositoryPurchase extends RepositoryBase {
             cursor.close();
 
         }
-        Log.d(logTag_, "getAllPurchasesForDateRange returns " + purchases);
+//        Log.d(logTag_, "getAllPurchasesForDateRange returns " + purchases);
+
         return purchases;
     }
 

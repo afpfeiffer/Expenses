@@ -7,7 +7,8 @@ import java.io.Serializable;
  */
 public enum EnumCategory implements Serializable{
     NONE(""), AUTOBENZIN("Auto + Benzin"), ARZTMEDIZIN("Arzt + Medizin"), BACKWAREN("Backwaren"),
-    EXTERN("Externes Essen"), FREIZEITUNTERHALTUNG("Freizeit + Unterhaltung"), GENUSS("Genuss"), KINDER("Kinder"),
+    EXTERN("Externes Essen"), FREIZEITUNTERHALTUNG("Freizeit + Unterhaltung"), GENUSS("Genuss"),
+    HAUSHALT("Haushalt"), KINDER("Kinder"),
     KLEIDUNG("Kleidung"), LEBENSMITTEL("Lebensmittel"), OBST("Obst"), PFLEGEPRODUKTE("Pflegeprodukte"),
     SONSTIGES("Sonstiges");
 

@@ -1,7 +1,5 @@
 package com.pfeiffer.expenses.model;
 
-import android.util.Log;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -10,21 +8,21 @@ public class Purchase implements Serializable {
     private final boolean cash_;
     private long id_ = -1;
     private Barcode barcode_;
-    private final int amount_;
-    private final EnumLocation location_;
-    private final Money price_;
-    private final Date purchaseDate_;
-    private final String productName_;
-    private final EnumCategory category_;
-    private final String owner_;
-    private final long purchaseIdOwner_;
+    private int amount_;
+    private EnumLocation location_;
+    private Money price_;
+    private Date purchaseDate_;
+    private String productName_;
+    private EnumCategory category_;
+    private String owner_;
+    private long purchaseIdOwner_;
 
     public Purchase(long purchaseId, Barcode barcode, int amount, Date date, EnumLocation location, Money price,
                     boolean cash, String productName, EnumCategory category, String owner, long purchaseIdOwner) {
-        Log.d(this.getClass().getName(), "Enter Purchase constructor with arguments: purchaseId=" + purchaseId
-                + ", barcode=" + barcode + ", amount=" + amount + ", date=" + date + ", location=" + location
-                + ", price=" + price + ", cash=" + cash + ", productName=" + productName + ", " +
-                "category=" + category + ", owner=" + owner + ", idOwner=" + purchaseIdOwner + ".");
+//        Log.d(this.getClass().getName(), "Enter Purchase constructor with arguments: purchaseId=" + purchaseId
+//                + ", barcode=" + barcode + ", amount=" + amount + ", date=" + date + ", location=" + location
+//                + ", price=" + price + ", cash=" + cash + ", productName=" + productName + ", " +
+//                "category=" + category + ", owner=" + owner + ", idOwner=" + purchaseIdOwner + ".");
 
         // TODO check arguments, throw exceptions
 
@@ -39,6 +37,10 @@ public class Purchase implements Serializable {
         category_ = category;
         owner_ = owner;
         purchaseIdOwner_ = purchaseIdOwner;
+    }
+
+    public void setCategory(EnumCategory category){
+        category_=category;
     }
 
     public Date getDate() {

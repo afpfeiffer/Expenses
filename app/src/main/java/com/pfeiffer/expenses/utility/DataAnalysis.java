@@ -99,7 +99,7 @@ public class DataAnalysis {
         purchasesPerMonthAndCategory_.put(Translation.yearAndMonth(lastDate), categoryToPurchases);
 
         Log.d(logTag_, expensesPerMonthAndCategory_.toString());
-        Log.d(logTag_, purchasesPerMonthAndCategory_.toString());
+//        Log.d(logTag_, purchasesPerMonthAndCategory_.toString());
     }
 
 

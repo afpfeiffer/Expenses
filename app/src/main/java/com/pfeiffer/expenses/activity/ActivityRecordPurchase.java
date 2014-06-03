@@ -401,13 +401,17 @@ public class ActivityRecordPurchase extends Activity {
         return super.onKeyDown(keyCode, event);
     }
 
-    private class DataFragment extends Fragment {
+    public static class DataFragment extends Fragment {
         Calendar calendar_;
         private Barcode barcode_;
         private long purchaseId_ = -1;
         private boolean editMode_ = false;
         private Map<String, PurchaseTemplate> productNameToPurchaseTemplate_ = new HashMap<String, PurchaseTemplate>();
         private String templateProductName_[];
+
+        public DataFragment() {
+
+        }
 
         // this method is only called once for this fragment
         @Override
@@ -424,7 +428,7 @@ public class ActivityRecordPurchase extends Activity {
         }
 
 
-        public void resetCalendar(){
+        public void resetCalendar() {
             calendar_ = Calendar.getInstance();
             calendar_.setTime(new Date(System.currentTimeMillis()));
         }
