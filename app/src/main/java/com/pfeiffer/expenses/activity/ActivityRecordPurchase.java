@@ -342,6 +342,7 @@ public class ActivityRecordPurchase extends Activity {
 
                         etPrice_.setBackground(getResources().getDrawable(R.drawable.atomicviewborder));
                         sLocation_.setBackground(getResources().getDrawable(R.drawable.atomicviewborder));
+                        cbCash_.setBackground(getResources().getDrawable(R.drawable.atomicviewborder));
 
                     }
                 }
