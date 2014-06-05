@@ -340,6 +340,9 @@ public class ActivityRecordPurchase extends Activity {
                         setFields(purchase.getProductName(), purchase.getCategory(),
                                 purchase.getLocation(), purchase.getPrice(), 1, purchase.isCash(), new Date(System.currentTimeMillis()));
 
+                        etPrice_.setBackground(getResources().getDrawable(R.drawable.atomicviewborder));
+                        sLocation_.setBackground(getResources().getDrawable(R.drawable.atomicviewborder));
+
                     }
                 }
             } else if (resultCode == RESULT_CANCELED) {
