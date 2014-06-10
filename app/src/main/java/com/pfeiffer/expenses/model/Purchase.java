@@ -5,7 +5,7 @@ import java.util.Date;
 
 
 public class Purchase implements Serializable {
-    private final boolean cash_;
+    private boolean cash_;
     private long id_ = -1;
     private Barcode barcode_;
     private int amount_;
@@ -16,6 +16,10 @@ public class Purchase implements Serializable {
     private EnumCategory category_;
     private String owner_;
     private long purchaseIdOwner_;
+
+    public Purchase() {
+
+    }
 
     public Purchase(long purchaseId, Barcode barcode, int amount, Date date, EnumLocation location, Money price,
                     boolean cash, String productName, EnumCategory category, String owner, long purchaseIdOwner) {
@@ -39,8 +43,40 @@ public class Purchase implements Serializable {
         purchaseIdOwner_ = purchaseIdOwner;
     }
 
-    public void setCategory(EnumCategory category){
-        category_=category;
+    public void setCategory(EnumCategory category) {
+        category_ = category;
+    }
+
+    public void setBarcode(Barcode barcode) {
+        barcode_ = barcode;
+    }
+
+    public void setAmount(int amount) {
+        this.amount_ = amount;
+    }
+
+    public void setLocation(EnumLocation location) {
+        this.location_ = location;
+    }
+
+    public void setPrice(Money price) {
+        this.price_ = price;
+    }
+
+    public void setPurchaseDate(Date purchaseDate) {
+        this.purchaseDate_ = purchaseDate;
+    }
+
+    public void setProductName(String productName) {
+        this.productName_ = productName;
+    }
+
+    public void setOwner(String owner) {
+        this.owner_ = owner;
+    }
+
+    public void setPurchaseIdOwner(long purchaseIdOwner) {
+        this.purchaseIdOwner_ = purchaseIdOwner;
     }
 
     public Date getDate() {

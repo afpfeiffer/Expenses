@@ -63,5 +63,6 @@
     <string name="bIncrease">+</string>
     <string name="bDecrease">-</string>
     <string name="title_activity_activity_shopping_record_purchase">ActivityShoppingRecordPurchase</string>
+    <string name="wrong_owner">Du hast diese Ausgabe nicht getätigt und kannst sie nicht editieren.</string>
 
 </resources>

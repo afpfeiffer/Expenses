@@ -8,8 +8,9 @@ import java.io.Serializable;
 public enum EnumCategory implements Serializable {
     NONE(""), AUTOBENZIN("Auto + Benzin"), ARZTMEDIZIN("Arzt + Medizin"), BACKWAREN("Backwaren"),
     EXTERN("Externes Essen"), FREIZEITUNTERHALTUNG("Freizeit + Unterhaltung"), GENUSS("Genuss"),
-    HAUSHALT("Haushalt"), KINDER("Kinder"), KLEIDUNG("Kleidung"), LEBENSMITTEL("Lebensmittel"),
-    PFLEGEPRODUKTE("Pflegeprodukte"), SONSTIGES("Sonstiges");
+    HAUSHALT("Haushalt"), KINDER("Kinder"),
+    KLEIDUNG("Kleidung"), LEBENSMITTEL("Lebensmittel"), PFLEGEPRODUKTE("Pflegeprodukte"),
+    SONSTIGES("Sonstiges");
 
     private final String friendlyName_;
 

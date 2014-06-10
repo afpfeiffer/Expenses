@@ -84,17 +84,17 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:background="@drawable/customborder"
+        android:orientation="vertical"
         android:layout_height="match_parent">
-        <!--<Button-->
-        <!--android:id="@+id/bAddItem"-->
-        <!--android:layout_width="fill_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="@string/bAddShoppingItem" />-->
+        <Button
+        android:id="@+id/bAddItem"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/bAddShoppingItem" />
 
         <ListView
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
         </ListView>
 
         <!--<Button-->

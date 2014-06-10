@@ -198,6 +198,14 @@ class RepositoryPurchase extends RepositoryBase {
         }
 //        Log.d(logTag_, "getAllPurchasesForDateRange returns " + purchases);
 
+//        for (Purchase purchase : purchases) {
+//            if (purchase.getCategory().equals(EnumCategory.OBST)) {
+//                Log.d("OBST+++", purchase.toString());
+//                purchase.setCategory(EnumCategory.LEBENSMITTEL);
+//                updatePurchase(purchase);
+//            }
+//        }
+
         return purchases;
     }
 

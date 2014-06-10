@@ -6,6 +6,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -17,6 +18,7 @@ import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.pfeiffer.expenses.R;
 import com.pfeiffer.expenses.model.EnumCategory;
@@ -130,6 +132,12 @@ public class ActivityMain extends Activity {
 
 
         registerForContextMenu(expandableListView_);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        dataFragment_.getRepositoryManager().open();
     }
 
     @Override
@@ -298,11 +306,22 @@ public class ActivityMain extends Activity {
 
     private boolean editPurchase(int groupPos, int childPos) {
         int purchaseId = Integer.parseInt(dataFragment_.getMylist().get(groupPos).get(childPos).get("purchaseId"));
-        Intent intent = new Intent(this, ActivityRecordPurchase.class);
-        intent.putExtra(EXTRA_PURCHASE_ID, purchaseId);
-        startActivity(intent);
-        finish();
 
+        Purchase tempPurchase = dataFragment_.getRepositoryManager().findPurchaseById(purchaseId);
+        String deviceOwner = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        if( tempPurchase.getOwner().equals(deviceOwner) ) {
+
+            Intent intent = new Intent(this, ActivityRecordPurchase.class);
+            intent.putExtra(EXTRA_PURCHASE_ID, purchaseId);
+            startActivity(intent);
+            finish();
+        }
+        else{
+            Toast.makeText(getApplicationContext(), R.string.wrong_owner
+                    , Toast.LENGTH_LONG).show();
+
+        }
         return true; //TODO
     }
 
